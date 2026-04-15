@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PegawaiFormController;
 use App\Http\Controllers\VendorRegistrasiController;
+use Illuminate\Support\Facades\Artisan;
+use App\Models\User;
 use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen};
 
 Route::get('/', function () {
@@ -90,4 +92,23 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/survey/preview',    [VendorRegistrasiController::class, 'previewSurvey'])->name('survey.preview');
     Route::get('/survey/{token}',    [VendorRegistrasiController::class, 'showSurvey'])->name('survey');
     Route::post('/survey/{token}',   [VendorRegistrasiController::class, 'submitSurvey'])->name('survey.submit');
+});
+
+Route::get('/setup-rahasia', function () {
+    // 1. Eksekusi Database
+    Artisan::call('migrate', ['--force' => true]);
+
+    // 2. Hubungkan Storage Foto
+    Artisan::call('storage:link');
+
+    // 3. Buat Akun Master (Otomatis)
+    if (User::where('email', 'admin@sakti.com')->count() == 0) {
+        User::create([
+            'name' => 'Super Admin K3',
+            'email' => 'admin@sakti.com',
+            'password' => bcrypt('admin123'), // Password default
+        ]);
+    }
+
+    return 'TUGAS SELESAI KOMANDAN! Database dan Storage sudah aman. Silakan login.';
 });
