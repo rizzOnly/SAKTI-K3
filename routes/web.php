@@ -95,20 +95,28 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
 });
 
 Route::get('/setup-rahasia', function () {
-    // 1. Eksekusi Database
-    Artisan::call('migrate', ['--force' => true]);
+    try {
+        // 1. Cuci Otak / Hapus ingatan nyasar (Sangat Penting!)
+        Artisan::call('optimize:clear');
 
-    // 2. Hubungkan Storage Foto
-    Artisan::call('storage:link');
+        // 2. Paksa masuk dan bangun tabel di MySQL
+        Artisan::call('migrate:fresh', ['--force' => true]);
 
-    // 3. Buat Akun Master (Otomatis)
-    if (User::where('email', 'admin@sakti.com')->count() == 0) {
-        User::create([
-            'name' => 'Super Admin K3',
-            'email' => 'admin@sakti.com',
-            'password' => bcrypt('admin123'), // Password default
-        ]);
+        // 3. Amankan jalur foto
+        Artisan::call('storage:link');
+
+        // 4. Bangun Akun Master
+        User::updateOrCreate(
+            ['email' => 'admin@sakti.com'],
+            [
+                'name' => 'Super Admin K3',
+                'password' => bcrypt('admin123')
+            ]
+        );
+
+        return "BERHASIL 100%! <br> Coba cek tab Data MySQL di Railway sekarang, tabelnya pasti sudah muncul!";
+    } catch (\Exception $e) {
+        // Jika ada yang error, kita akan tahu alasannya di sini!
+        return "GAGAL KOMANDAN. Errornya: " . $e->getMessage();
     }
-
-    return 'TUGAS SELESAI KOMANDAN! Database dan Storage sudah aman. Silakan login.';
 });
