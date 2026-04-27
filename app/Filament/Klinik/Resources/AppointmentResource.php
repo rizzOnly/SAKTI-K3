@@ -25,11 +25,11 @@ class AppointmentResource extends Resource
     {
         return $form->schema([
             Select::make('user_id')
-                ->label('Pasien (NIP)')
-                ->relationship('pasien', 'nip')
+                ->label('Pasien (NID)')
+                ->relationship('pasien', 'nid')
                 ->searchable()
                 ->required()
-                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nip}] {$record->name}"),
+                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name}"),
 
             Select::make('dokter_id')
                 ->label('Dokter')
@@ -97,8 +97,8 @@ class AppointmentResource extends Resource
                     ->label('Pasien')
                     ->searchable(),
 
-                TextColumn::make('pasien.nip')
-                    ->label('NIP'),
+                TextColumn::make('pasien.nid')
+                    ->label('NID'),
 
                 // TAMBAHAN: Kolom Bidang
                 TextColumn::make('pasien.bidang')

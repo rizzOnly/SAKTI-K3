@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
     {
         // Admin K3
         $adminK3 = User::create([
-            'nip'      => '1990001001',
+            'nid'      => '1990001001',
             'name'     => 'Admin K3 PLN',
             'email'    => 'arissaputra012345@gmail.com',
             'password' => bcrypt('password123'),
@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
 
         // Dokter
         $dokter = User::create([
-            'nip'      => '1990001002',
+            'nid'      => '1990001002',
             'name'     => 'dr. Budi Santoso',
             'email'    => 'wattsonkyot@gmail.com',
             'password' => bcrypt('password123'),
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
         $bidangList = ['Produksi', 'Pemeliharaan', 'Operasi'];
         for ($i = 1; $i <= 10; $i++) {
             $pegawai = User::create([
-                'nip'      => '199000200' . $i,
+                'nid'      => '199000200' . $i,
                 'name'     => 'Pegawai ' . $i,
                 'email'    => 'pegawai' . $i . '@pln-sengkang.com',
                 'password' => bcrypt('password123'),

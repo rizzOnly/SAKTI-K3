@@ -26,13 +26,13 @@ class TemplatePegawaiExport implements
 
     public function headings(): array
     {
-        return ['nip', 'nama', 'bidang', 'email', 'no_wa'];
+        return ['nid', 'nama', 'bidang', 'email', 'no_wa'];
     }
 
     public function columnWidths(): array
     {
         return [
-            'A' => 18,  // nip
+            'A' => 18,  // nid
             'B' => 28,  // nama
             'C' => 20,  // bidang
             'D' => 32,  // email
@@ -57,10 +57,10 @@ class TemplatePegawaiExport implements
         // Catatan di baris ke-6
         $sheet->setCellValue('A6', '📌 PETUNJUK:');
         $sheet->setCellValue('A7', '• Hapus baris contoh (baris 2-4) sebelum import');
-        $sheet->setCellValue('A8', '• Kolom wajib: nip, nama');
+        $sheet->setCellValue('A8', '• Kolom wajib: nid, nama');
         $sheet->setCellValue('A9', '• Kolom opsional: bidang, email, no_wa');
         $sheet->setCellValue('A10', '• Nomor WA format: 08xx atau 628xx');
-        $sheet->setCellValue('A11', '• Jika NIP sudah ada, data akan di-UPDATE (tidak duplikat)');
+        $sheet->setCellValue('A11', '• Jika NID sudah ada, data akan di-UPDATE (tidak duplikat)');
         $sheet->setCellValue('A12', '• Password default: password123 (minta pegawai ganti setelah login)');
 
         $sheet->getStyle('A6:E12')->getFont()->setSize(9)->setColor(

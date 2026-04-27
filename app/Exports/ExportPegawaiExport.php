@@ -17,7 +17,7 @@ class ExportPegawaiExport implements FromQuery, WithHeadings, WithMapping, Shoul
 
     public function headings(): array
     {
-        return ['No', 'NIP', 'Nama', 'Bidang', 'Role', 'Email', 'No. WA', 'Terdaftar'];
+        return ['No', 'NID', 'Nama', 'Bidang', 'Role', 'Email', 'No. WA', 'Terdaftar'];
     }
 
     public function map($user): array
@@ -25,7 +25,7 @@ class ExportPegawaiExport implements FromQuery, WithHeadings, WithMapping, Shoul
         self::$no++;
         return [
             self::$no,
-            $user->nip ?? '-',
+            $user->nid ?? '-',
             $user->name,
             $user->bidang ?? '-',
             $user->roles->pluck('name')->implode(', '),

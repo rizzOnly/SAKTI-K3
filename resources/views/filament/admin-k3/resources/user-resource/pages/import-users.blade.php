@@ -15,7 +15,7 @@
             <x-filament::section>
                 <x-slot name="heading">📤 Import Data Pegawai dari Excel</x-slot>
                 <x-slot name="description">
-                    Upload file .xlsx berisi daftar pegawai. Data yang NIP-nya sudah ada akan diperbarui.
+                    Upload file .xlsx berisi daftar pegawai. Data yang NID-nya sudah ada akan diperbarui.
                 </x-slot>
 
                 <form wire:submit="import">
@@ -44,8 +44,8 @@
                 <x-slot name="heading">📋 Format Kolom</x-slot>
                 <div class="text-sm space-y-2">
                     <div class="flex items-start gap-2">
-                        <span class="font-mono bg-primary-100 text-primary-700 px-2 py-0.5 rounded text-xs">nip</span>
-                        <span class="text-gray-600">NIP Pegawai <span class="text-red-500">*wajib</span></span>
+                        <span class="font-mono bg-primary-100 text-primary-700 px-2 py-0.5 rounded text-xs">nid</span>
+                        <span class="text-gray-600">NID Pegawai <span class="text-red-500">*wajib</span></span>
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="font-mono bg-primary-100 text-primary-700 px-2 py-0.5 rounded text-xs">nama</span>
@@ -69,7 +69,7 @@
             <x-filament::section>
                 <x-slot name="heading">⚠️ Perhatian</x-slot>
                 <ul class="text-sm text-gray-600 space-y-1.5 list-disc list-inside">
-                    <li>NIP yang sudah ada akan <strong>diupdate</strong>, tidak diduplikasi</li>
+                    <li>NID yang sudah ada akan <strong>diupdate</strong>, tidak diduplikasi</li>
                     <li>Password default: <code class="bg-gray-100 px-1 rounded">password123</code></li>
                     <li>Semua pegawai baru otomatis dapat role <strong>pegawai</strong></li>
                     <li>Nomor WA bisa format <code class="bg-gray-100 px-1 rounded">08xx</code> atau <code class="bg-gray-100 px-1 rounded">628xx</code></li>

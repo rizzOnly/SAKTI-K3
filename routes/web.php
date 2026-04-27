@@ -54,7 +54,7 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
 
     // API
     Route::get('/api/slots', [PegawaiFormController::class, 'getSlots'])->name('api.slots');
-    Route::get('/api/cek-nip', [PegawaiFormController::class, 'cekNip'])->name('api.cek-nip');
+    Route::get('/api/cek-nid', [PegawaiFormController::class, 'cekNip'])->name('api.cek-nid');
 });
 
 // ─── Route artikel detail (named route) ────────────────────────
@@ -94,29 +94,3 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
     Route::post('/survey/{token}',   [VendorRegistrasiController::class, 'submitSurvey'])->name('survey.submit');
 });
 
-Route::get('/setup-rahasia', function () {
-    try {
-        // 1. Cuci Otak / Hapus ingatan nyasar (Sangat Penting!)
-        Artisan::call('optimize:clear');
-
-        // 2. Paksa masuk dan bangun tabel di MySQL
-        Artisan::call('migrate:fresh', ['--force' => true]);
-
-        // 3. Amankan jalur foto
-        Artisan::call('storage:link');
-
-        // 4. Bangun Akun Master
-        User::updateOrCreate(
-            ['email' => 'admin@sakti.com'],
-            [
-                'name' => 'Super Admin K3',
-                'password' => bcrypt('admin123')
-            ]
-        );
-
-        return "BERHASIL 100%! <br> Coba cek tab Data MySQL di Railway sekarang, tabelnya pasti sudah muncul!";
-    } catch (\Exception $e) {
-        // Jika ada yang error, kita akan tahu alasannya di sini!
-        return "GAGAL KOMANDAN. Errornya: " . $e->getMessage();
-    }
-});

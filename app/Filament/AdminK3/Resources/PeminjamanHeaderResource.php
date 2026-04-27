@@ -32,12 +32,12 @@ class PeminjamanHeaderResource extends Resource
                 ->dehydrated(),
 
             Select::make('user_id')
-                ->label('Pegawai (NIP)')
+                ->label('Pegawai (NID)')
                 ->relationship('user', 'name')
                 ->searchable()
                 ->required()
                 // UPDATE: Menampilkan Bidang di dropdown saat memilih pegawai
-                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nip}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
 
             DatePicker::make('tanggal_pengajuan')
                 ->default(now())

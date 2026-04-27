@@ -75,7 +75,7 @@
                 <form method="POST" action="{{ route('pegawai.apd.ambil.store') }}">
                     @csrf
                     <input type="hidden" name="_form_type" value="ambil">
-                    @include('pegawai._form-nip-field', ['formId' => 'ambil'])
+                    @include('pegawai._form-nid-field', ['formId' => 'ambil'])
                     @include('pegawai._form-tanggal-field')
 
                     <div class="mb-5">
@@ -115,7 +115,7 @@
                 <form method="POST" action="{{ route('pegawai.apd.pinjam.store') }}">
                     @csrf
                     <input type="hidden" name="_form_type" value="pinjam">
-                    @include('pegawai._form-nip-field', ['formId' => 'pinjam'])
+                    @include('pegawai._form-nid-field', ['formId' => 'pinjam'])
                     @include('pegawai._form-tanggal-field')
 
                     <div class="mb-5">
@@ -182,36 +182,36 @@
             activeBtn.classList.add(tab === 'ambil' ? 'border-blue-500' : 'border-teal-500', tab === 'ambil' ? 'bg-blue-50' : 'bg-teal-50');
         }
 
-        // Live NIP Check (Disesuaikan untuk Multi-Tab)
+        // Live NID Check (Disesuaikan untuk Multi-Tab)
         ['ambil', 'pinjam'].forEach(formId => {
             let nipTimer;
-            const input = document.getElementById(`nip-input-${formId}`);
+            const input = document.getElementById(`nid-input-${formId}`);
             if(!input) return;
 
             input.addEventListener('input', function() {
                 clearTimeout(nipTimer);
-                const nip = this.value.trim();
-                document.getElementById(`nip-found-${formId}`).classList.add('hidden');
-                document.getElementById(`nip-not-found-${formId}`).classList.add('hidden');
-                document.getElementById(`nip-ok-${formId}`).classList.add('hidden');
+                const nid = this.value.trim();
+                document.getElementById(`nid-found-${formId}`).classList.add('hidden');
+                document.getElementById(`nid-not-found-${formId}`).classList.add('hidden');
+                document.getElementById(`nid-ok-${formId}`).classList.add('hidden');
 
-                if (nip.length < 5) return;
+                if (nid.length < 5) return;
 
-                const spinner = document.getElementById(`nip-spinner-${formId}`);
+                const spinner = document.getElementById(`nid-spinner-${formId}`);
                 spinner.classList.remove('hidden');
 
                 nipTimer = setTimeout(async () => {
                     try {
-                        const res = await fetch(`/pegawai/api/cek-nip?nip=${encodeURIComponent(nip)}`);
+                        const res = await fetch(`/pegawai/api/cek-nid?nid=${encodeURIComponent(nid)}`);
                         const data = await res.json();
                         spinner.classList.add('hidden');
                         if (data.found) {
-                            document.getElementById(`nip-nama-${formId}`).textContent = data.nama;
-                            document.getElementById(`nip-bidang-${formId}`).textContent = data.bidang ? `– ${data.bidang}` : '';
-                            document.getElementById(`nip-found-${formId}`).classList.remove('hidden');
-                            document.getElementById(`nip-ok-${formId}`).classList.remove('hidden');
+                            document.getElementById(`nid-nama-${formId}`).textContent = data.nama;
+                            document.getElementById(`nid-bidang-${formId}`).textContent = data.bidang ? `– ${data.bidang}` : '';
+                            document.getElementById(`nid-found-${formId}`).classList.remove('hidden');
+                            document.getElementById(`nid-ok-${formId}`).classList.remove('hidden');
                         } else {
-                            document.getElementById(`nip-not-found-${formId}`).classList.remove('hidden');
+                            document.getElementById(`nid-not-found-${formId}`).classList.remove('hidden');
                         }
                     } catch (e) {
                         spinner.classList.add('hidden');

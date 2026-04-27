@@ -40,7 +40,7 @@
         <thead>
             <tr>
                 <th style="width:25px">No</th>
-                <th style="width:70px">NIP</th>
+                <th style="width:70px">NID</th>
                 <th>Nama Pasien</th>
                 <th>Dokter</th>
                 <th>Diagnosa</th>
@@ -52,7 +52,7 @@
             @foreach($rekamMedis as $i => $rm)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $rm->pasien->nip }}</td>
+                <td>{{ $rm->pasien->nid }}</td>
                 <td style="font-weight:600">{{ $rm->pasien->name }}</td>
                 <td>{{ $rm->dokter->name }}</td>
                 <td>{{ $rm->diagnosa }}</td>

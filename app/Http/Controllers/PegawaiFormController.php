@@ -34,7 +34,7 @@ class PegawaiFormController extends Controller
     public function storeAmbil(Request $request)
     {
         $request->validate([
-            'nip'                 => 'required|string',
+            'nid'                 => 'required|string',
             'tanggal_pengajuan'   => 'required|date',
             'items'               => 'required|array|min:1',
             'items.*.apd_item_id' => 'required|exists:apd_items,id',
@@ -50,9 +50,9 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['kontak' => 'Wajib mengisi minimal salah satu: Nomor WhatsApp atau Email.']);
         }
 
-        $user = User::where('nip', $request->nip)->first();
+        $user = User::where('nid', $request->nid)->first();
         if (!$user) {
-            return back()->withInput()->withErrors(['nip' => 'NIP tidak ditemukan dalam sistem. Hubungi Admin K3.']);
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan dalam sistem. Hubungi Admin K3.']);
         }
 
         $header = PengambilanHeader::create([
@@ -77,14 +77,14 @@ class PegawaiFormController extends Controller
             if ($admin->email) {
                 $admin->notify(new ApprovalNotification(
                     'Pengajuan Pengambilan APD Baru',
-                    "Pegawai {$user->name} ({$user->nip}) mengajukan pengambilan APD.\nNo: {$header->nomor_transaksi}",
+                    "Pegawai {$user->name} ({$user->nid}) mengajukan pengambilan APD.\nNo: {$header->nomor_transaksi}",
                     url('/admin/pengambilan-headers/' . $header->id)
                 ));
             }
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
                     "📦 *Pengajuan APD Baru*\n" .
-                    "👤 {$user->name} ({$user->nip})\n" .
+                    "👤 {$user->name} ({$user->nid})\n" .
                     "📋 No: {$header->nomor_transaksi}\n" .
                     "Approve di: " . url('/admin')
                 );
@@ -106,7 +106,7 @@ class PegawaiFormController extends Controller
     public function storePinjam(Request $request)
     {
         $request->validate([
-            'nip'                     => 'required|string',
+            'nid'                     => 'required|string',
             'tanggal_pengajuan'       => 'required|date',
             'tanggal_kembali_rencana' => 'required|date|after:today',
             'items'                   => 'required|array|min:1',
@@ -123,9 +123,9 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['kontak' => 'Wajib mengisi minimal salah satu: Nomor WhatsApp atau Email.']);
         }
 
-        $user = User::where('nip', $request->nip)->first();
+        $user = User::where('nid', $request->nid)->first();
         if (!$user) {
-            return back()->withInput()->withErrors(['nip' => 'NIP tidak ditemukan dalam sistem. Hubungi Admin K3.']);
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan dalam sistem. Hubungi Admin K3.']);
         }
 
         $header = PeminjamanHeader::create([
@@ -151,14 +151,14 @@ class PegawaiFormController extends Controller
             if ($admin->email) {
                 $admin->notify(new ApprovalNotification(
                     'Pengajuan Peminjaman APD Baru',
-                    "Pegawai {$user->name} ({$user->nip}) mengajukan peminjaman APD.\nNo: {$header->nomor_transaksi}",
+                    "Pegawai {$user->name} ({$user->nid}) mengajukan peminjaman APD.\nNo: {$header->nomor_transaksi}",
                     url('/admin/peminjaman-headers/' . $header->id)
                 ));
             }
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
                     "🔄 *Peminjaman APD Baru*\n" .
-                    "👤 {$user->name} ({$user->nip})\n" .
+                    "👤 {$user->name} ({$user->nid})\n" .
                     "📋 No: {$header->nomor_transaksi}\n" .
                     "Approve di: " . url('/admin')
                 );
@@ -191,7 +191,7 @@ class PegawaiFormController extends Controller
     public function storeBooking(Request $request)
     {
         $request->validate([
-            'nip'            => 'required|string',
+            'nid'            => 'required|string',
             'dokter_id'      => 'required|exists:users,id',
             'tanggal'        => 'required|date|after:today',
             'jam_slot'       => 'required|string',
@@ -207,10 +207,10 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['kontak' => 'Wajib mengisi minimal salah satu: Nomor WhatsApp atau Email.']);
         }
 
-        $user = User::where('nip', $request->nip)->first();
+        $user = User::where('nid', $request->nid)->first();
 
         if (!$user) {
-            return back()->withInput()->withErrors(['nip' => 'NIP tidak ditemukan. Hubungi Admin K3 untuk mendaftarkan NIP Anda terlebih dahulu.']);
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3 untuk mendaftarkan NID Anda terlebih dahulu.']);
         }
 
         // --- TAMBAHAN BARU: Update Data Pegawai jika kosong ---
@@ -242,7 +242,7 @@ class PegawaiFormController extends Controller
         if ($dokter->no_hp) {
             WhatsAppService::send($dokter->no_hp,
                 "🏥 *Appointment Klinik Baru*\n" .
-                "Pasien: {$user->name} ({$user->nip})\n" .
+                "Pasien: {$user->name} ({$user->nid})\n" .
                 "Tanggal: {$tgl} – {$request->jam_slot}\n" .
                 "Keluhan: " . ($request->keluhan ?? '-')
             );
@@ -292,12 +292,12 @@ class PegawaiFormController extends Controller
 
     public function cekNip(Request $request)
     {
-        $user = User::where('nip', $request->nip)->first();
+        $user = User::where('nid', $request->nid)->first();
 
         if (!$user) {
             return response()->json([
                 'found'   => false,
-                'message' => 'NIP tidak ditemukan.',
+                'message' => 'NID tidak ditemukan.',
             ]);
         }
 

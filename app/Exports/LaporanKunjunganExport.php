@@ -27,7 +27,7 @@ class LaporanKunjunganExport implements FromQuery, WithHeadings, WithMapping, Sh
 
     public function headings(): array
     {
-        return ['No', 'NIP Pasien', 'Nama Pasien', 'Dokter', 'Diagnosa', 'Tindakan', 'Tanggal'];
+        return ['No', 'NID Pasien', 'Nama Pasien', 'Dokter', 'Diagnosa', 'Tindakan', 'Tanggal'];
     }
 
     public function map($r): array
@@ -35,7 +35,7 @@ class LaporanKunjunganExport implements FromQuery, WithHeadings, WithMapping, Sh
         $this->no++;
         return [
             $this->no,
-            $r->pasien->nip,
+            $r->pasien->nid,
             $r->pasien->name,
             $r->dokter->name,
             $r->diagnosa,

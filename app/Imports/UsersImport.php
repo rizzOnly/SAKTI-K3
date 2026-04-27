@@ -25,8 +25,8 @@ class UsersImport implements
      */
     public function prepareForValidation($data, $index)
     {
-        if (isset($data['nip'])) {
-            $data['nip'] = (string) trim(preg_replace('/\.0$/', '', $data['nip']));
+        if (isset($data['nid'])) {
+            $data['nid'] = (string) trim(preg_replace('/\.0$/', '', $data['nid']));
         }
         if (isset($data['no_wa'])) {
             $data['no_wa'] = (string) trim(preg_replace('/\.0$/', '', $data['no_wa']));
@@ -37,12 +37,12 @@ class UsersImport implements
     public function model(array $row): ?User
     {
         // Skip ekstra aman jika ada baris yang lolos namun kosong
-        if (empty($row['nip']) || empty($row['nama'])) return null;
+        if (empty($row['nid']) || empty($row['nama'])) return null;
 
-        $nipAsli = trim($row['nip']);
+        $nipAsli = trim($row['nid']);
 
-        // Cek apakah NIP sudah ada → update, belum ada → create
-        $user = User::firstOrNew(['nip' => $nipAsli]);
+        // Cek apakah NID sudah ada → update, belum ada → create
+        $user = User::firstOrNew(['nid' => $nipAsli]);
 
         $user->name   = trim($row['nama']);
         $user->bidang = trim($row['bidang'] ?? '');
@@ -73,7 +73,7 @@ class UsersImport implements
     public function rules(): array
     {
         return [
-            'nip'   => ['required', 'string', 'max:20'],
+            'nid'   => ['required', 'string', 'max:20'],
             'nama'  => ['required', 'string', 'max:255'],
             'bidang'=> ['nullable', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:255'],
@@ -84,7 +84,7 @@ class UsersImport implements
     public function customValidationMessages(): array
     {
         return [
-            'nip.required'  => 'Kolom NIP wajib diisi (baris :attribute)',
+            'nid.required'  => 'Kolom NID wajib diisi (baris :attribute)',
             'nama.required' => 'Kolom Nama wajib diisi (baris :attribute)',
             'email.email'   => 'Format email tidak valid (baris :attribute)',
         ];

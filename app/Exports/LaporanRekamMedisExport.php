@@ -27,7 +27,7 @@ class LaporanRekamMedisExport implements FromQuery, WithHeadings, WithMapping, S
     public function headings(): array
     {
         return [
-            'No', 'Tanggal', 'NIP', 'Nama Pasien', 'Bidang',
+            'No', 'Tanggal', 'NID', 'Nama Pasien', 'Bidang',
             'Jenis Kelamin', 'Dokter',
             'Keluhan Awal',  // TAMBAHAN
             'Diagnosa', 'Tindakan',
@@ -48,7 +48,7 @@ class LaporanRekamMedisExport implements FromQuery, WithHeadings, WithMapping, S
         return [
             self::$no,
             $r->created_at->format('d/m/Y H:i'),
-            $r->pasien->nip ?? '-',
+            $r->pasien->nid ?? '-',
             $r->pasien->name,
             $r->pasien->bidang ?? '-',
             $r->pasien->jenis_kelamin === 'L' ? 'Laki-laki' :

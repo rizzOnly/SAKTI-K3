@@ -101,8 +101,8 @@ class RekamMedisResource extends Resource
                     ->label('Pasien')
                     ->searchable(),
 
-                TextColumn::make('pasien.nip')
-                    ->label('NIP'),
+                TextColumn::make('pasien.nid')
+                    ->label('NID'),
 
                 // TAMBAHAN: Kolom Bidang
                 TextColumn::make('pasien.bidang')

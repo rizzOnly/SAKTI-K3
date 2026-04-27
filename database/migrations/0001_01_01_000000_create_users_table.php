@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('nip')->unique()->nullable();
+            $table->string('nid')->unique()->nullable();
             $table->string('bidang')->nullable();
             $table->string('no_hp')->nullable();
             $table->timestamp('email_verified_at')->nullable();

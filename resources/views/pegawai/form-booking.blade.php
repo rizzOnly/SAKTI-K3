@@ -48,19 +48,19 @@
             <form method="POST" action="{{ route('pegawai.booking.store') }}" id="booking-form">
                 @csrf
 
-                {{-- NIP dengan live check (Diadaptasi dari form APD) --}}
+                {{-- NID dengan live check (Diadaptasi dari form APD) --}}
                 <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">NIP Pegawai <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">NID Pegawai <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="text" id="nip-input" name="nip" value="{{ old('nip') }}"
-                               placeholder="Masukkan NIP Anda"
-                               class="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition pr-10 @error('nip') border-red-400 bg-red-50 @else border-gray-200 @enderror"
+                        <input type="text" id="nid-input" name="nid" value="{{ old('nid') }}"
+                               placeholder="Masukkan NID Anda"
+                               class="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition pr-10 @error('nid') border-red-400 bg-red-50 @else border-gray-200 @enderror"
                                required autocomplete="off">
-                        <div id="nip-spinner" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin"></div>
-                        <div id="nip-check-ok" class="hidden absolute right-3 top-3 text-green-500 text-lg">✓</div>
+                        <div id="nid-spinner" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin"></div>
+                        <div id="nid-check-ok" class="hidden absolute right-3 top-3 text-green-500 text-lg">✓</div>
                     </div>
-                    {{-- NIP tidak ditemukan --}}
-                    @error('nip')
+                    {{-- NID tidak ditemukan --}}
+                    @error('nid')
                     <div class="mt-2 bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
                         <span class="text-red-500 text-lg flex-shrink-0">⚠️</span>
                         <div>
@@ -69,16 +69,16 @@
                         </div>
                     </div>
                     @enderror
-                    <div id="nip-not-found" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+                    <div id="nid-not-found" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
                         <span class="text-amber-500 text-lg flex-shrink-0">⚠️</span>
                         <div>
-                            <p class="text-amber-700 text-sm font-medium">NIP tidak ditemukan dalam sistem.</p>
+                            <p class="text-amber-700 text-sm font-medium">NID tidak ditemukan dalam sistem.</p>
                             <p class="text-amber-600 text-xs mt-1">Hubungi Admin K3 di pos K3 atau ext. 101 untuk mendaftar.</p>
                         </div>
                     </div>
-                    <div id="nip-found" class="hidden mt-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-sm text-green-700">
-                        <span class="font-semibold">👤 <span id="nip-nama"></span></span>
-                        <span id="nip-bidang" class="text-green-500 ml-2 text-xs"></span>
+                    <div id="nid-found" class="hidden mt-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-sm text-green-700">
+                        <span class="font-semibold">👤 <span id="nid-nama"></span></span>
+                        <span id="nid-bidang" class="text-green-500 ml-2 text-xs"></span>
                     </div>
                 </div>
 
@@ -249,32 +249,32 @@
             }
         });
 
-        // Fitur 2: Live NIP check
+        // Fitur 2: Live NID check
         let nipTimer;
-        document.getElementById('nip-input').addEventListener('input', function() {
+        document.getElementById('nid-input').addEventListener('input', function() {
             clearTimeout(nipTimer);
-            const nip = this.value.trim();
-            const found    = document.getElementById('nip-found');
-            const notFound = document.getElementById('nip-not-found');
-            const spinner  = document.getElementById('nip-spinner');
-            const ok       = document.getElementById('nip-check-ok');
+            const nid = this.value.trim();
+            const found    = document.getElementById('nid-found');
+            const notFound = document.getElementById('nid-not-found');
+            const spinner  = document.getElementById('nid-spinner');
+            const ok       = document.getElementById('nid-check-ok');
 
             found.classList.add('hidden');
             notFound.classList.add('hidden');
             ok.classList.add('hidden');
 
-            if (nip.length < 5) return;
+            if (nid.length < 5) return;
 
             spinner.classList.remove('hidden');
             nipTimer = setTimeout(async () => {
                 try {
-                    const res  = await fetch(`/pegawai/api/cek-nip?nip=${encodeURIComponent(nip)}`);
+                    const res  = await fetch(`/pegawai/api/cek-nid?nid=${encodeURIComponent(nid)}`);
                     const data = await res.json();
                     spinner.classList.add('hidden');
 
                     if (data.found) {
                         // Tampilkan nama & bidang di preview
-                        document.getElementById('nip-nama').textContent = data.nama;
+                        document.getElementById('nid-nama').textContent = data.nama;
                         found.classList.remove('hidden');
                         ok.classList.remove('hidden');
 
@@ -308,7 +308,7 @@
                     } else {
                         notFound.classList.remove('hidden');
 
-                        // Reset field jika NIP tidak ditemukan
+                        // Reset field jika NID tidak ditemukan
                         const inputBidang = document.getElementById('bidang-input');
                         if (inputBidang) {
                             inputBidang.value = '';

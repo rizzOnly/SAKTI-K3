@@ -27,8 +27,8 @@ class UserResource extends Resource
         return $form->schema([
             Section::make('Identitas Pegawai')->schema([
                 Grid::make(2)->schema([
-                    TextInput::make('nip')
-                        ->label('NIP')
+                    TextInput::make('nid')
+                        ->label('NID')
                         ->unique(ignoreRecord: true)
                         ->required()
                         ->maxLength(20),
@@ -100,8 +100,8 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nip')
-                    ->label('NIP')
+                TextColumn::make('nid')
+                    ->label('NID')
                     ->searchable()
                     ->sortable()
                     ->copyable()
