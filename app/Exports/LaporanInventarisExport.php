@@ -1,11 +1,17 @@
 <?php
+
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\{FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle};
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use App\Models\ApdItem;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class LaporanInventarisExport implements FromQuery, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
+class LaporanInventarisExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     private int $no = 0; // Ubah dari static menjadi properti biasa
 
@@ -23,13 +29,14 @@ class LaporanInventarisExport implements FromQuery, WithHeadings, WithMapping, W
     {
         return [
             'No', 'Kode', 'Nama Barang', 'Satuan', 'Merk', 'Kondisi',
-            'Stok Saat Ini', 'Minimum Stok', 'Consumable', 'Exp Date', 'Lokasi Gudang',
+            'Stok Saat Ini', 'Minimum Stok', 'Consumable', 'Exp Date',
         ];
     }
 
     public function map($item): array
     {
         $this->no++; // Panggil dengan $this
+
         return [
             $this->no,
             $item->kode_barang ?? '-',
@@ -41,7 +48,6 @@ class LaporanInventarisExport implements FromQuery, WithHeadings, WithMapping, W
             $item->min_stok,
             $item->is_consumable ? 'Ya' : 'Tidak',
             $item->exp_date?->format('d/m/Y') ?? '-',
-            $item->lokasi_gudang ?? '-',
         ];
     }
 
@@ -51,7 +57,7 @@ class LaporanInventarisExport implements FromQuery, WithHeadings, WithMapping, W
             1 => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
-                    'fillType'   => 'solid',
+                    'fillType' => 'solid',
                     'startColor' => ['rgb' => '003D7C'],
                 ],
             ],

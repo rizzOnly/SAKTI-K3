@@ -1,8 +1,3 @@
-{{-- ============================================================ --}}
-{{-- FILE: resources/views/vendor/form-registrasi.blade.php     --}}
-{{-- Form Registrasi Gate Access Vendor                         --}}
-{{-- ============================================================ --}}
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,6 +9,8 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .step-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+        .field-readonly { background: #f8fafc; color: #374151; border-color: #e5e7eb; cursor: not-allowed; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px; }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-slate-100">
@@ -54,41 +51,110 @@
                 <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">🏢</div>
                 <div>
                     <h1 class="font-bold text-gray-800 text-xl">Data Registrasi Vendor</h1>
-                    <p class="text-gray-400 text-sm">Setelah mengisi form ini, setiap pekerja wajib mengikuti survey K3.</p>
+                    <p class="text-gray-400 text-sm">Pilih perusahaan, data akan otomatis terisi dari sistem.</p>
                 </div>
             </div>
+
+            @if($errors->any())
+            <div class="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
             <form method="POST" action="{{ route('vendor.registrasi.store') }}">
                 @csrf
 
-                {{-- Info perusahaan --}}
+                {{-- Sembunyikan data JSON vendor untuk JS --}}
+                <script id="vendor-data" type="application/json">
+                    {!! json_encode($vendorsWpo->map(function($v) {
+                        $pekerjas = is_string($v->pekerja_json)
+                            ? json_decode($v->pekerja_json, true)
+                            : ($v->pekerja_json ?? []);
+                        return [
+                            'id'              => $v->id,
+                            'nama_vendor'     => $v->nama_vendor,
+                            'nama_pekerjaan'  => $v->nama_pekerjaan ?? '-',
+                            'tanggal_mulai'   => $v->tanggal_mulai?->format('d/m/Y') ?? '-',
+                            'tanggal_selesai' => $v->tanggal_selesai?->format('d/m/Y') ?? '-',
+                            'kontak'          => $v->kontak ?? '',
+                            'pekerjas'        => array_values(array_filter(
+                                is_array($pekerjas) ? array_map(fn($p) => $p['nama'] ?? null, $pekerjas) : []
+                            )),
+                        ];
+                    })->values()) !!}
+                </script>
+
+                {{-- Pilih Perusahaan --}}
                 <div class="bg-amber-50 rounded-xl p-4 mb-6 border border-amber-100">
-                    <div class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Informasi Perusahaan & Pekerjaan</div>
-                    <div class="grid grid-cols-1 gap-4">
+                    <div class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">
+                        Pilih Perusahaan
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                            Nama Perusahaan <span class="text-red-500">*</span>
+                        </label>
+                        <select name="cms_vendor_id" id="select-vendor" onchange="onVendorChange()"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white transition @error('cms_vendor_id') border-red-400 @enderror"
+                                required>
+                            <option value="">— Pilih perusahaan —</option>
+                            @foreach($vendorsWpo as $v)
+                            <option value="{{ $v->id }}" {{ old('cms_vendor_id') == $v->id ? 'selected' : '' }}>
+                                {{ $v->nama_vendor }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('cms_vendor_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Info otomatis dari vendor --}}
+                    <div id="vendor-info" class="hidden space-y-3">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Perusahaan <span class="text-red-500">*</span></label>
-                            <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}"
-                                   placeholder="Contoh: CV Marezho"
-                                   class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition @error('nama_perusahaan') border-red-400 @enderror" required>
-                            @error('nama_perusahaan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Pekerjaan <span class="text-red-500">*</span></label>
-                            <input type="text" name="nama_pekerjaan" value="{{ old('nama_pekerjaan') }}"
-                                   placeholder="Contoh: Jasa Pemasangan Kanopi Gudang Utama"
-                                   class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition @error('nama_pekerjaan') border-red-400 @enderror" required>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Pekerjaan</label>
+                            <div id="info-pekerjaan" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm field-readonly bg-gray-50 text-gray-600 min-h-[42px]">—</div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Mulai <span class="text-red-500">*</span></label>
-                                <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}"
-                                       class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition" required>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Tanggal Mulai</label>
+                                <div id="info-mulai" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm field-readonly bg-gray-50 text-gray-600">—</div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Selesai <span class="text-red-500">*</span></label>
-                                <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
-                                       class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition" required>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Tanggal Selesai</label>
+                                <div id="info-selesai" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm field-readonly bg-gray-50 text-gray-600">—</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Pilih Pekerja --}}
+                <div class="bg-green-50 rounded-xl p-4 mb-6 border border-green-100">
+                    <div class="font-semibold text-gray-700 mb-1 text-sm uppercase tracking-wide">
+                        Pilih Pekerja yang Akan Survey
+                    </div>
+                    <p class="text-xs text-gray-500 mb-4">Satu sesi registrasi untuk satu pekerja.</p>
+
+                    <div id="pekerja-wrap">
+                        <div id="pekerja-placeholder" class="text-sm text-gray-400 italic py-2">
+                            Pilih perusahaan terlebih dahulu.
+                        </div>
+                        <div id="pekerja-select-wrap" class="hidden">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Nama Pekerja <span class="text-red-500">*</span>
+                            </label>
+                            <select name="pekerja_nama" id="select-pekerja"
+                                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white transition"
+                                    required>
+                                <option value="">— Pilih nama pekerja —</option>
+                            </select>
+                            @error('pekerja_nama')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -97,11 +163,13 @@
                 <div class="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
                     <div class="font-semibold text-gray-700 mb-1 text-sm uppercase tracking-wide">Kontak PIC Perusahaan</div>
                     <p class="text-xs text-gray-500 mb-4">Wajib isi minimal salah satu.</p>
-                    @error('kontak')<div class="mb-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-sm text-red-600">⚠️ {{ $message }}</div>@enderror
+                    @error('kontak')
+                    <div class="mb-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-sm text-red-600">⚠️ {{ $message }}</div>
+                    @enderror
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">📱 WhatsApp PIC</label>
-                            <input type="text" name="no_wa_pic" value="{{ old('no_wa_pic') }}"
+                            <input type="text" name="no_wa_pic" id="input-wa" value="{{ old('no_wa_pic') }}"
                                    placeholder="08xxxxxxxxxx"
                                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
                         </div>
@@ -114,44 +182,15 @@
                     </div>
                 </div>
 
-                {{-- Daftar Pekerja --}}
-                <div class="mb-8">
-                    <div class="font-semibold text-gray-700 mb-1">Daftar Pekerja <span class="text-red-500">*</span></div>
-                    <p class="text-xs text-gray-500 mb-4">Setiap pekerja akan mengikuti survey K3 secara individual setelah registrasi ini.</p>
-                    @error('pekerjas')<p class="text-red-500 text-xs mb-2">{{ $message }}</p>@enderror
-
-                    <div id="pekerja-list" class="space-y-3">
-                        @php $oldPekerjas = old('pekerjas', [[]]); @endphp
-                        @foreach($oldPekerjas as $i => $p)
-                        <div class="pekerja-row bg-gray-50 rounded-xl p-4 border border-gray-100">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pekerja #<span class="row-num">{{ $i + 1 }}</span></span>
-                                @if($i > 0)
-                                <button type="button" onclick="removeRow(this)" class="text-gray-300 hover:text-red-400 transition text-xl leading-none">×</button>
-                                @endif
-                            </div>
-                            <div class="grid grid-cols-1 gap-3">
-                                <input type="text" name="pekerjas[{{ $i }}][nama]"
-                                       value="{{ $p['nama'] ?? '' }}"
-                                       placeholder="Nama lengkap pekerja"
-                                       class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" required>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <button type="button" onclick="addPekerja()"
-                            class="mt-3 flex items-center gap-2 text-sm text-amber-600 hover:text-amber-800 font-semibold transition">
-                        <span class="text-lg">+</span> Tambah Pekerja
-                    </button>
-                </div>
-
                 {{-- Info survey --}}
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6 flex gap-3">
                     <span class="text-2xl flex-shrink-0">📋</span>
                     <div>
                         <div class="font-semibold text-orange-800 text-sm">Langkah berikutnya: Survey K3</div>
-                        <div class="text-orange-600 text-xs mt-1">Setelah submit, setiap pekerja akan mengikuti survey pemahaman K3 (Safety Golden Rules). Nilai harus <strong>100%</strong> untuk terdaftar di Gate Access.</div>
+                        <div class="text-orange-600 text-xs mt-1">
+                            Setelah submit, pekerja yang dipilih akan mengikuti survey pemahaman K3.
+                            Nilai harus <strong>100%</strong> untuk terdaftar di Gate Access.
+                        </div>
                     </div>
                 </div>
 
@@ -164,27 +203,59 @@
     </div>
 
     <script>
-        let rowCount = {{ count($oldPekerjas ?? [1]) }};
+        const vendorData = JSON.parse(document.getElementById('vendor-data').textContent);
 
-        function addPekerja() {
-            const idx = rowCount++;
-            const div = document.createElement('div');
-            div.className = 'pekerja-row bg-gray-50 rounded-xl p-4 border border-gray-100';
-            div.innerHTML = `
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pekerja #${idx + 1}</span>
-                    <button type="button" onclick="removeRow(this)" class="text-gray-300 hover:text-red-400 transition text-xl leading-none">×</button>
-                </div>
-                <div class="grid grid-cols-1 gap-3">
-                    <input type="text" name="pekerjas[${idx}][nama]" placeholder="Nama lengkap pekerja"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" required>
-                </div>`;
-            document.getElementById('pekerja-list').appendChild(div);
+        function onVendorChange() {
+            const id    = parseInt(document.getElementById('select-vendor').value);
+            const vendor = vendorData.find(v => v.id === id);
+
+            const infoBox     = document.getElementById('vendor-info');
+            const placeholder = document.getElementById('pekerja-placeholder');
+            const selectWrap  = document.getElementById('pekerja-select-wrap');
+            const selectPekerja = document.getElementById('select-pekerja');
+
+            if (!vendor) {
+                infoBox.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                selectWrap.classList.add('hidden');
+                return;
+            }
+
+            // Isi info otomatis
+            document.getElementById('info-pekerjaan').textContent = vendor.nama_pekerjaan;
+            document.getElementById('info-mulai').textContent     = vendor.tanggal_mulai;
+            document.getElementById('info-selesai').textContent   = vendor.tanggal_selesai;
+
+            // Isi kontak WA jika ada
+            if (vendor.kontak) {
+                document.getElementById('input-wa').value = vendor.kontak;
+            }
+
+            infoBox.classList.remove('hidden');
+
+            // Isi dropdown pekerja
+            selectPekerja.innerHTML = '<option value="">— Pilih nama pekerja —</option>';
+            if (vendor.pekerjas && vendor.pekerjas.length > 0) {
+                vendor.pekerjas.forEach(nama => {
+                    const opt = document.createElement('option');
+                    opt.value = nama;
+                    opt.textContent = nama;
+                    selectPekerja.appendChild(opt);
+                });
+                placeholder.classList.add('hidden');
+                selectWrap.classList.remove('hidden');
+            } else {
+                placeholder.textContent = 'Tidak ada pekerja terdaftar untuk perusahaan ini.';
+                placeholder.classList.remove('hidden');
+                selectWrap.classList.add('hidden');
+            }
         }
 
-        function removeRow(btn) {
-            btn.closest('.pekerja-row').remove();
-        }
+        // Jalankan saat page load jika ada old value
+        window.addEventListener('DOMContentLoaded', () => {
+            const sel = document.getElementById('select-vendor');
+            if (sel.value) onVendorChange();
+        });
     </script>
 </body>
 </html>

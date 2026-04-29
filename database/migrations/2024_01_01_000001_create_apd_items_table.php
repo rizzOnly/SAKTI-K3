@@ -1,9 +1,11 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('apd_items', function (Blueprint $table) {
@@ -17,7 +19,6 @@ return new class extends Migration {
             $table->integer('min_stok')->default(5);
             $table->boolean('is_consumable')->default(true);
             $table->date('exp_date')->nullable();
-            $table->string('lokasi_gudang')->nullable();
             $table->string('image_path')->nullable();
             $table->timestamps();
         });

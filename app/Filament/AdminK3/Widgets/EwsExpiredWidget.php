@@ -1,15 +1,17 @@
 <?php
+
 namespace App\Filament\AdminK3\Widgets;
 
-use Filament\Tables\Columns\TextColumn;
-use Filament\Widgets\TableWidget as BaseWidget;
 use App\Models\ApdItem;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\TableWidget as BaseWidget;
 
 class EwsExpiredWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -27,7 +29,6 @@ class EwsExpiredWidget extends BaseWidget
                     ->label('Tanggal Exp')
                     ->date('d/m/Y')
                     ->color('danger'),
-                TextColumn::make('lokasi_gudang')->label('Lokasi'),
             ]);
     }
 }

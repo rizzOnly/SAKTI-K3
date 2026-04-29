@@ -33,7 +33,7 @@ class PengambilanHeaderResource extends Resource
                 ->dehydrated(),
 
             Select::make('user_id')
-                ->label('Pegawai (NID)')
+                ->label('Nama Pegawai')
                 ->relationship('user', 'name')
                 ->searchable()
                 ->required()

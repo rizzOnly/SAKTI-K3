@@ -146,10 +146,11 @@
         @media (max-width: 560px) { .articles-grid { grid-template-columns: 1fr; } }
         .article-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: all .25s; text-decoration: none; display: flex; flex-direction: column; }
         .article-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.12); transform: translateY(-3px); }
-        .article-img { width: 100%; height: 180px; object-fit: cover; transition: transform .3s; }
+        .article-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; transition: transform .3s;}
         .article-card:hover .article-img { transform: scale(1.04); }
-        .article-img-wrap { overflow: hidden; height: 180px; }
-        .article-img-placeholder { width: 100%; height: 180px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); display: flex; align-items: center; justify-content: center; }
+        .article-img-wrap {position: relative; width: 100%; aspect-ratio: 905 / 1280; overflow: hidden; background: #ffffff;}
+        .article-img-bg { display: none; }
+        .article-img-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
         .article-body { padding: 16px; flex: 1; }
         .article-cat { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; margin-bottom: 8px; text-transform: capitalize; }
         .cat-kampanye { background: #fee2e2; color: #991b1b; }
@@ -158,6 +159,27 @@
         .cat-lainnya  { background: #fef3c7; color: #92400e; }
         .article-title { font-weight: 700; color: #111827; font-size: 15px; line-height: 1.45; margin: 0 0 8px; }
         .article-date  { color: #9ca3af; font-size: 12px; }
+
+        /* ── Artikel Carousel (Desktop) & Show More (Mobile) ── */
+        .artikel-desktop-carousel { display: block; }
+        .artikel-mobile-grid { display: none; }
+
+        .artikel-swiper { width: 100%; overflow: hidden; }
+        .artikel-swiper .swiper-wrapper { display: flex; }
+        .artikel-swiper .swiper-slide { flex-shrink: 0; width: calc(33.333% - 11px); margin-right: 16px; }
+        @media (max-width: 900px) { .artikel-swiper .swiper-slide { width: calc(50% - 8px); } }
+        @media (max-width: 560px) { .artikel-swiper .swiper-slide { width: 85%; } }
+
+        .artikel-swiper-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }
+        .artikel-swiper-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #003D7C; background: #fff; color: #003D7C; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; flex-shrink: 0; }
+        .artikel-swiper-btn:hover { background: #003D7C; color: #fff; }
+        .artikel-swiper-btn:disabled { opacity: .3; cursor: not-allowed; }
+        .artikel-swiper-btn svg { width: 16px; height: 16px; }
+        .artikel-swiper-dots { display: flex; gap: 6px; align-items: center; }
+        .artikel-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; transition: all .25s; cursor: pointer; }
+        .artikel-dot.active { background: #003D7C; width: 20px; border-radius: 4px; }
+
+        .artikel-card-hidden { display: none; }
 
         /* ── Vendor Grid ── */
         .vendors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -270,6 +292,35 @@
         .jml-badge.warn   { background:#fef3c7; color:#92400e; }
         .jml-badge.ok     { background:#dcfce7; color:#166534; }
         .jml-badge.total  { background:#003D7C; color:#fff; }
+
+        /* ── Vendor Carousel (Desktop) & Show More (Mobile) ── */
+        .vendor-swiper-wrap { position: relative; }
+        .vendor-swiper { width: 100%; overflow: hidden; }
+        .vendor-swiper .swiper-wrapper { display: flex; }
+        .vendor-swiper .swiper-slide { flex-shrink: 0; width: calc(33.333% - 11px); margin-right: 16px; }
+        @media (max-width: 900px) { .vendor-swiper .swiper-slide { width: calc(50% - 8px); } }
+        @media (max-width: 560px) { .vendor-swiper .swiper-slide { width: 85%; } }
+
+        .vendor-swiper-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }
+        .vendor-swiper-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #003D7C; background: #fff; color: #003D7C; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; flex-shrink: 0; }
+        .vendor-swiper-btn:hover { background: #003D7C; color: #fff; }
+        .vendor-swiper-btn:disabled { opacity: .3; cursor: not-allowed; }
+        .vendor-swiper-btn svg { width: 16px; height: 16px; }
+        .vendor-swiper-dots { display: flex; gap: 6px; align-items: center; }
+        .vendor-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; transition: all .25s; cursor: pointer; }
+        .vendor-dot.active { background: #003D7C; width: 20px; border-radius: 4px; }
+
+        /* Mobile: show more */
+        .vendor-mobile-grid { display: none; }
+        @media (max-width: 900px) {
+            .vendor-desktop-carousel { display: none; }
+            .vendor-mobile-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        }
+        .vendor-card-hidden { display: none; }
+        .btn-show-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 16px; padding: 13px; border-radius: 14px; border: 2px dashed #d1d5db; background: transparent; color: #6b7280; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit; }
+        .btn-show-more:hover { border-color: #003D7C; color: #003D7C; background: #eff6ff; }
+        .btn-show-more svg { width: 16px; height: 16px; transition: transform .3s; }
+        .btn-show-more.expanded svg { transform: rotate(180deg); }
     </style>
 </head>
 <body>
@@ -288,11 +339,11 @@
 
                 {{-- Desktop nav --}}
                 <div class="nav-links" id="desktop-nav">
-                    <a href="#beranda">Beranda</a>
-                    <a href="#video">Induction</a>
-                    <a href="#artikel">Artikel</a>
-                    <a href="#vendor">Vendor</a>
-                    <a href="#patrol">Patrol</a>
+                    <a href="#beranda">BERANDA</a>
+                    <a href="#video">PROFIL</a>
+                    <a href="#artikel">ARTIKEL</a>
+                    <a href="#vendor">VENDOR</a>
+                    <a href="#patrol">PATROL</a>
                 </div>
 
                 {{-- Hamburger — hanya muncul di mobile --}}
@@ -335,19 +386,19 @@
             {{-- Nav links --}}
             <nav class="drawer-nav">
                 <a href="#beranda" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">🏠</span> Beranda
+                    <span class="drawer-nav-icon">🏠</span> BERANDA
                 </a>
                 <a href="#video" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">▶️</span> Induction K3
+                    <span class="drawer-nav-icon">▶️</span> PROFIL
                 </a>
                 <a href="#artikel" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">📰</span> Artikel K3
+                    <span class="drawer-nav-icon">📰</span> ARTIKEL K3
                 </a>
                 <a href="#vendor" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">🏢</span> Vendor
+                    <span class="drawer-nav-icon">🏢</span> VENDOR
                 </a>
                 <a href="#patrol" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">👁</span> Patrol iZAT
+                    <span class="drawer-nav-icon">👁</span> PATROL iZAT
                 </a>
             </nav>
 
@@ -447,8 +498,7 @@
             {{-- Teks kiri --}}
             <div class="video-text">
                 <div class="video-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                    Induction K3 PLN Nusantara Power UP Sengkang
+                    Profil K3 PLN Nusantara Power UP Sengkang
                 </div>
                 <h2 class="video-title">Keselamatan &amp; Kesehatan Kerja<br>PT PLN Nusantara Power UP Sengkang</h2>
                 <p class="video-desc">
@@ -488,9 +538,6 @@
                         </iframe>
                     </div>
                 </div>
-                <p class="video-playlist-hint" style="color:#4b7ab5">
-                    📺 Video resmi PT PLN Nusantara Power Unit Pembangkitan Sengkang
-                </p>
             </div>
         </div>
     </section>
@@ -504,11 +551,73 @@
             </div>
 
             @if($articles->isNotEmpty())
-            <div class="articles-grid">
-                @foreach($articles as $article)
-                <a href="{{ route('artikel.show', $article->id) }}" class="article-card">
+
+            {{-- DESKTOP: Carousel --}}
+            <div class="artikel-desktop-carousel">
+                <div class="artikel-swiper" id="artikel-swiper">
+                    <div class="swiper-wrapper" id="artikel-swiper-track">
+                        @foreach($articles as $article)
+                        <div class="swiper-slide">
+                            <a href="{{ route('artikel.show', $article->id) }}" class="article-card">
+                                <div class="article-img-wrap">
+                                    @if($article->thumbnail)
+                                    {{-- Blur background layer --}}
+                                    <img src="{{ Storage::url($article->thumbnail) }}"
+                                         alt=""
+                                         class="article-img-bg"
+                                         aria-hidden="true"
+                                         loading="lazy">
+                                    {{-- Gambar utama contain --}}
+                                    <img src="{{ Storage::url($article->thumbnail) }}"
+                                         alt="{{ $article->title }}"
+                                         class="article-img"
+                                         loading="lazy">
+                                    @else
+                                    <div class="article-img-placeholder">
+                                        <svg width="48" height="48" fill="none" stroke="#93c5fd" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="article-body">
+                                    <span class="article-cat cat-{{ $article->category }}">{{ $article->category }}</span>
+                                    <h3 class="article-title">{{ $article->title }}</h3>
+                                    @if($article->published_at)
+                                    <div class="article-date">{{ $article->published_at->translatedFormat('d M Y') }}</div>
+                                    @endif
+                                </div>
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="artikel-swiper-nav">
+                    <button class="artikel-swiper-btn" id="artikel-prev" onclick="artikelSwipe(-1)" aria-label="Sebelumnya">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="artikel-swiper-dots" id="artikel-dots"></div>
+                    <button class="artikel-swiper-btn" id="artikel-next" onclick="artikelSwipe(1)" aria-label="Berikutnya">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- MOBILE: Show More Grid --}}
+            <div class="artikel-mobile-grid" id="artikel-mobile-grid">
+                @foreach($articles as $idx => $article)
+                <a href="{{ route('artikel.show', $article->id) }}"
+                   class="article-card {{ $idx >= 3 ? 'artikel-card-hidden' : '' }}">
                     <div class="article-img-wrap">
                         @if($article->thumbnail)
+                        {{-- Blur background layer --}}
+                        <img src="{{ Storage::url($article->thumbnail) }}"
+                             alt=""
+                             class="article-img-bg"
+                             aria-hidden="true"
+                             loading="lazy">
+                        {{-- Gambar utama contain --}}
                         <img src="{{ Storage::url($article->thumbnail) }}"
                              alt="{{ $article->title }}"
                              class="article-img"
@@ -530,7 +639,15 @@
                     </div>
                 </a>
                 @endforeach
+
+                @if($articles->count() > 3)
+                <button class="btn-show-more" id="artikel-show-more" onclick="toggleArtikelShowMore()">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    Tampilkan {{ $articles->count() - 3 }} artikel lainnya
+                </button>
+                @endif
             </div>
+
             @else
             <div style="text-align:center;padding:48px 0;color:#9ca3af">Belum ada artikel yang diterbitkan.</div>
             @endif
@@ -562,22 +679,85 @@
             {{-- ─── WPO PLUS ──────────────────────────────────── --}}
             <div id="vendor-tab-wpo">
                 @if(isset($vendorsWpo) && $vendorsWpo->isNotEmpty())
-                <div class="vendors-grid">
-                    @foreach($vendorsWpo as $vendor)
-                    {{-- Memparsing JSON Pekerja --}}
+
+                {{-- DESKTOP: Swiper Carousel --}}
+                <div class="vendor-desktop-carousel">
+                    <div class="vendor-swiper-wrap">
+                        <div class="vendor-swiper" id="wpo-swiper">
+                            <div class="swiper-wrapper" id="wpo-swiper-track">
+                                @foreach($vendorsWpo as $vendor)
+                                @php
+                                    $pekerjaWpoData = is_string($vendor->pekerja_json)
+                                                      ? json_decode($vendor->pekerja_json, true)
+                                                      : ($vendor->pekerja_json ?? []);
+                                    $formattedPekerjaWpo = is_array($pekerjaWpoData) ? array_map(function($p) {
+                                        return ['nama' => $p['nama'] ?? 'Tanpa Nama'];
+                                    }, $pekerjaWpoData) : [];
+                                @endphp
+                                <div class="swiper-slide">
+                                    <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                                         onclick='openVendorPopup({{ json_encode([
+                                             "type"           => "wpo",
+                                             "nama"           => $vendor->nama_vendor,
+                                             "pekerjaan"      => $vendor->nama_pekerjaan ?? $vendor->bidang_kerja,
+                                             "tanggal_mulai"  => $vendor->tanggal_mulai?->format("d/m/Y") ?? "-",
+                                             "tanggal_selesai"=> $vendor->tanggal_selesai?->format("d/m/Y") ?? "-",
+                                             "kontak"         => $vendor->kontak,
+                                             "email"          => $vendor->email,
+                                             "pekerjas"       => $formattedPekerjaWpo,
+                                         ]) }})'>
+                                        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+                                            <div class="vendor-icon">
+                                                <svg width="20" height="20" fill="none" stroke="#1d4ed8" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1" style="min-width:0">
+                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $vendor->nama_vendor }}</div>
+                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $vendor->nama_pekerjaan ?? $vendor->bidang_kerja }}</div>
+                                            </div>
+                                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">WPO</span>
+                                        </div>
+                                        @if($vendor->tanggal_mulai)
+                                        <div style="font-size:12px;color:#9ca3af;margin-top:6px">
+                                            📅 {{ $vendor->tanggal_mulai->format('d/m/Y') }} – {{ $vendor->tanggal_selesai?->format('d/m/Y') ?? '—' }}
+                                        </div>
+                                        @endif
+                                        <div style="font-size:12px;color:#6b7280;margin-top:4px">
+                                            👷 {{ count($formattedPekerjaWpo) }} pekerja terdaftar
+                                        </div>
+                                        <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Custom Nav --}}
+                        <div class="vendor-swiper-nav">
+                            <button class="vendor-swiper-btn" id="wpo-prev" onclick="vendorSwipe('wpo',-1)" aria-label="Sebelumnya">
+                                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <div class="vendor-swiper-dots" id="wpo-dots"></div>
+                            <button class="vendor-swiper-btn" id="wpo-next" onclick="vendorSwipe('wpo',1)" aria-label="Berikutnya">
+                                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- MOBILE: Show More Grid --}}
+                <div class="vendor-mobile-grid" id="wpo-mobile-grid">
+                    @foreach($vendorsWpo as $idx => $vendor)
                     @php
                         $pekerjaWpoData = is_string($vendor->pekerja_json)
                                           ? json_decode($vendor->pekerja_json, true)
                                           : ($vendor->pekerja_json ?? []);
-
                         $formattedPekerjaWpo = is_array($pekerjaWpoData) ? array_map(function($p) {
-                            return [
-                                'nama' => $p['nama'] ?? 'Tanpa Nama',
-                            ];
+                            return ['nama' => $p['nama'] ?? 'Tanpa Nama'];
                         }, $pekerjaWpoData) : [];
                     @endphp
-
-                    <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                    <div class="vendor-card cursor-pointer {{ $idx >= 3 ? 'vendor-card-hidden' : '' }}"
                          onclick='openVendorPopup({{ json_encode([
                              "type"           => "wpo",
                              "nama"           => $vendor->nama_vendor,
@@ -605,15 +785,20 @@
                             📅 {{ $vendor->tanggal_mulai->format('d/m/Y') }} – {{ $vendor->tanggal_selesai?->format('d/m/Y') ?? '—' }}
                         </div>
                         @endif
-
                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
                             👷 {{ count($formattedPekerjaWpo) }} pekerja terdaftar
                         </div>
-
-                        <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                     </div>
                     @endforeach
+
+                    @if($vendorsWpo->count() > 3)
+                    <button class="btn-show-more" id="wpo-show-more" onclick="toggleShowMore('wpo')">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        Tampilkan {{ $vendorsWpo->count() - 3 }} vendor lainnya
+                    </button>
+                    @endif
                 </div>
+
                 @else
                 <div style="text-align:center;padding:40px;color:#9ca3af">Belum ada data vendor WPO PLUS.</div>
                 @endif
@@ -622,14 +807,70 @@
             {{-- ─── GATE ACCESS ────────────────────────────────── --}}
             <div id="vendor-tab-gate" class="hidden">
                 @if(isset($vendorsGate) && $vendorsGate->isNotEmpty())
-                <div class="vendors-grid">
-                    @foreach($vendorsGate as $reg)
+
+                {{-- DESKTOP: Swiper Carousel --}}
+                <div class="vendor-desktop-carousel">
+                    <div class="vendor-swiper-wrap">
+                        <div class="vendor-swiper" id="gate-swiper">
+                            <div class="swiper-wrapper" id="gate-swiper-track">
+                                @foreach($vendorsGate as $reg)
+                                @php
+                                    $pekerjaData = $reg->pekerjasLulus->map(fn($p) => ['nama' => $p->nama_pekerja])->toArray();
+                                @endphp
+                                <div class="swiper-slide">
+                                    <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                                         onclick='openVendorPopup({{ json_encode([
+                                             "type"           => "gate",
+                                             "nama"           => $reg->nama_perusahaan,
+                                             "pekerjaan"      => $reg->nama_pekerjaan,
+                                             "tanggal_mulai"  => $reg->tanggal_mulai->format("d/m/Y"),
+                                             "tanggal_selesai"=> $reg->tanggal_selesai->format("d/m/Y"),
+                                             "kontak"         => $reg->no_wa_pic,
+                                             "pekerjas"       => $pekerjaData,
+                                         ]) }})'>
+                                        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+                                            <div class="vendor-icon" style="background:#fef3c7">
+                                                <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1" style="min-width:0">
+                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $reg->nama_perusahaan }}</div>
+                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $reg->nama_pekerjaan }}</div>
+                                            </div>
+                                            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">GATE</span>
+                                        </div>
+                                        <div style="font-size:12px;color:#9ca3af;margin-top:4px">
+                                            📅 {{ $reg->tanggal_mulai->format('d/m/Y') }} – {{ $reg->tanggal_selesai->format('d/m/Y') }}
+                                        </div>
+                                        <div style="font-size:12px;color:#6b7280;margin-top:4px">
+                                            👷 {{ $reg->pekerjasLulus->count() }} pekerja terdaftar
+                                        </div>
+                                        <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="vendor-swiper-nav">
+                            <button class="vendor-swiper-btn" id="gate-prev" onclick="vendorSwipe('gate',-1)" aria-label="Sebelumnya">
+                                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <div class="vendor-swiper-dots" id="gate-dots"></div>
+                            <button class="vendor-swiper-btn" id="gate-next" onclick="vendorSwipe('gate',1)" aria-label="Berikutnya">
+                                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- MOBILE: Show More Grid --}}
+                <div class="vendor-mobile-grid" id="gate-mobile-grid">
+                    @foreach($vendorsGate as $idx => $reg)
                     @php
-                        $pekerjaData = $reg->pekerjasLulus->map(fn($p) => [
-                            'nama'         => $p->nama_pekerja,
-                        ])->toArray();
+                        $pekerjaData = $reg->pekerjasLulus->map(fn($p) => ['nama' => $p->nama_pekerja])->toArray();
                     @endphp
-                    <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                    <div class="vendor-card cursor-pointer {{ $idx >= 3 ? 'vendor-card-hidden' : '' }}"
                          onclick='openVendorPopup({{ json_encode([
                              "type"           => "gate",
                              "nama"           => $reg->nama_perusahaan,
@@ -657,16 +898,22 @@
                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
                             👷 {{ $reg->pekerjasLulus->count() }} pekerja terdaftar
                         </div>
-                        <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                     </div>
                     @endforeach
+
+                    @if($vendorsGate->count() > 3)
+                    <button class="btn-show-more" id="gate-show-more" onclick="toggleShowMore('gate')">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        Tampilkan {{ $vendorsGate->count() - 3 }} vendor lainnya
+                    </button>
+                    @endif
                 </div>
+
                 @else
                 <div style="text-align:center;padding:40px 0">
                     <div style="font-size:3rem;margin-bottom:12px">🔐</div>
                     <div style="color:#374151;font-weight:600">Belum ada registrasi gate access aktif.</div>
-                    <a href="/vendor/registrasi"
-                       style="display:inline-block;margin-top:16px;background:#003D7C;color:#fff;padding:10px 24px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none">
+                    <a href="/vendor/registrasi" style="display:inline-block;margin-top:16px;background:#003D7C;color:#fff;padding:10px 24px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none">
                         Daftar Sekarang →
                     </a>
                 </div>
@@ -987,7 +1234,7 @@
     </div>
 
     <script>
-        // Mobile menu
+        // ── Mobile Menu & Header Logic ──
         function openDrawer() {
             document.getElementById('drawer').classList.add('open');
             document.getElementById('drawer-overlay').classList.add('open');
@@ -1000,20 +1247,19 @@
             document.body.style.overflow = '';
         }
 
-        // Tutup drawer kalau layar diperbesar ke desktop
         window.addEventListener('resize', function() {
             if (window.innerWidth >= 900) closeDrawer();
         });
 
-        // Show desktop nav on larger screens
         function checkScreen() {
             const isDesktop = window.innerWidth >= 900;
-            document.getElementById('desktop-nav').style.display = isDesktop ? 'flex' : 'none';
+            const desktopNav = document.getElementById('desktop-nav');
+            if (desktopNav) desktopNav.style.display = isDesktop ? 'flex' : 'none';
         }
         checkScreen();
         window.addEventListener('resize', checkScreen);
 
-        // Swiper banner
+        // ── Swiper Banner (Library Swiper.js) ──
         new Swiper('.banner-swiper', {
             loop: true,
             autoplay: { delay: 5000, disableOnInteraction: false },
@@ -1021,7 +1267,7 @@
             navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         });
 
-        // Tab Switcher Vendor
+        // ── Tab Switcher Vendor ──
         function switchVendorTab(tab) {
             document.getElementById('vendor-tab-wpo').classList.toggle('hidden', tab !== 'wpo');
             document.getElementById('vendor-tab-gate').classList.toggle('hidden', tab !== 'gate');
@@ -1033,11 +1279,13 @@
 
             const activeId = tab === 'wpo' ? 'tab-wpo-btn' : 'tab-gate-btn';
             const activeBtn = document.getElementById(activeId);
-            activeBtn.classList.remove('border-gray-300','bg-white','text-gray-600');
-            activeBtn.classList.add('border-[#003D7C]','bg-[#003D7C]','text-white');
+            if (activeBtn) {
+                activeBtn.classList.remove('border-gray-300','bg-white','text-gray-600');
+                activeBtn.classList.add('border-[#003D7C]','bg-[#003D7C]','text-white');
+            }
         }
 
-        // Vendor Popup Logic
+        // ── Vendor Popup Logic ──
         function openVendorPopup(data) {
             const badge = data.type === 'wpo' ? 'Vendor WPO PLUS' : 'Registrasi Gate Access';
             document.getElementById('popup-type-badge').textContent = badge;
@@ -1055,11 +1303,6 @@
                 empty.classList.add('hidden');
                 list.classList.remove('hidden');
                 list.innerHTML = data.pekerjas.map((p, i) => {
-                    const suketColor = p.status_suket === 'expired' ? '#dc2626'
-                                     : p.status_suket === 'soon'    ? '#d97706' : '';
-                    const suketText  = p.exp_suket
-                        ? `<span style="color:${suketColor};font-weight:${suketColor?'600':'400'}">${p.exp_suket}</span>`
-                        : '—';
                     return `<div class="grid grid-cols-12 gap-0 text-sm ${i%2===1?'bg-gray-50':'bg-white'}">
                         <div class="col-span-1 px-3 py-2.5 text-center text-gray-500 font-medium">${i+1}.</div>
                         <div class="col-span-5 px-3 py-2.5 font-medium text-gray-800">${p.nama}</div>
@@ -1086,6 +1329,228 @@
             document.getElementById('vendor-popup').classList.add('hidden');
             document.body.style.overflow = '';
         }
+
+        // ── Vendor Carousel Logic ──
+        const vendorState = {
+            wpo:  { current: 0, total: 0, perPage: 3 },
+            gate: { current: 0, total: 0, perPage: 3 },
+        };
+
+        function getPerPage() {
+            if (window.innerWidth <= 560) return 1;
+            if (window.innerWidth <= 900) return 2;
+            return 3;
+        }
+
+        function getArtikelPerPage() {
+            if (window.innerWidth <= 560) return 2;
+            if (window.innerWidth <= 900) return 2;
+            return 4;
+        }
+
+        function initVendorCarousel(id) {
+            const track = document.getElementById(id + '-swiper-track');
+            if (!track) return;
+            const slides = track.querySelectorAll('.swiper-slide');
+            vendorState[id].total = slides.length;
+            vendorState[id].current = 0;
+            renderVendorCarousel(id);
+            buildDots(id);
+        }
+
+        function renderVendorCarousel(id) {
+            const track = document.getElementById(id + '-swiper-track');
+            if (!track) return;
+            const perPage = getPerPage();
+            vendorState[id].perPage = perPage;
+            const s = vendorState[id];
+
+            const maxIndex = Math.max(0, s.total - perPage);
+            s.current = Math.min(s.current, maxIndex);
+
+            const slides = track.querySelectorAll('.swiper-slide');
+            const gap = 16;
+            const containerW = track.parentElement.offsetWidth;
+            const slideW = (containerW - gap * (perPage - 1)) / perPage;
+
+            slides.forEach(sl => {
+                sl.style.width = slideW + 'px';
+                sl.style.marginRight = gap + 'px';
+            });
+
+            const offset = s.current * (slideW + gap);
+            track.style.transform = `translateX(-${offset}px)`;
+            track.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)';
+
+            updateDots(id);
+            updateNavBtns(id);
+        }
+
+        function vendorSwipe(id, dir) {
+            const s = vendorState[id];
+            const maxIndex = Math.max(0, s.total - s.perPage);
+            s.current = Math.max(0, Math.min(s.current + dir, maxIndex));
+            renderVendorCarousel(id);
+        }
+
+        function buildDots(id) {
+            const s = vendorState[id];
+            const dotsEl = document.getElementById(id + '-dots');
+            if (!dotsEl) return;
+            const pages = Math.max(1, s.total - s.perPage + 1);
+            dotsEl.innerHTML = Array.from({length: pages}, (_, i) =>
+                `<div class="vendor-dot ${i === 0 ? 'active' : ''}" onclick="goToPage('${id}',${i})"></div>`
+            ).join('');
+        }
+
+        function updateDots(id) {
+            const s = vendorState[id];
+            const dotsEl = document.getElementById(id + '-dots');
+            if (!dotsEl) return;
+            dotsEl.querySelectorAll('.vendor-dot').forEach((d, i) =>
+                d.classList.toggle('active', i === s.current)
+            );
+        }
+
+        function updateNavBtns(id) {
+            const s = vendorState[id];
+            const maxIndex = Math.max(0, s.total - s.perPage);
+            const prev = document.getElementById(id + '-prev');
+            const next = document.getElementById(id + '-next');
+            if (prev) prev.disabled = s.current <= 0;
+            if (next) next.disabled = s.current >= maxIndex;
+        }
+
+        function goToPage(id, page) {
+            vendorState[id].current = page;
+            renderVendorCarousel(id);
+        }
+
+        function toggleShowMore(id) {
+            const grid   = document.getElementById(id + '-mobile-grid');
+            const btn    = document.getElementById(id + '-show-more');
+            const hidden = grid.querySelectorAll('.vendor-card-hidden');
+            const isExpanded = btn.classList.contains('expanded');
+
+            if (isExpanded) {
+                hidden.forEach(c => c.style.display = 'none');
+                btn.classList.remove('expanded');
+                const count = grid.querySelectorAll('.vendor-card').length - 3;
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Tampilkan ${count} vendor lainnya`;
+            } else {
+                hidden.forEach(c => c.style.display = 'block');
+                btn.classList.add('expanded');
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Sembunyikan`;
+            }
+        }
+
+        // ── Artikel Carousel Logic ──
+        const artikelState = { current: 0, total: 0, perPage: 3 };
+
+        function initArtikelCarousel() {
+            const track = document.getElementById('artikel-swiper-track');
+            if (!track) return;
+            artikelState.total = track.querySelectorAll('.swiper-slide').length;
+            artikelState.current = 0;
+            renderArtikelCarousel();
+            buildArtikelDots();
+        }
+
+        function renderArtikelCarousel() {
+            const track = document.getElementById('artikel-swiper-track');
+            if (!track) return;
+            const perPage = getArtikelPerPage();   // ← ubah ini
+            artikelState.perPage = perPage;
+
+            const maxIndex = Math.max(0, artikelState.total - perPage);
+            artikelState.current = Math.min(artikelState.current, maxIndex);
+
+            const slides = track.querySelectorAll('.swiper-slide');
+            const gap = 20;
+            const containerW = track.parentElement.offsetWidth;
+            const slideW = (containerW - gap * (perPage - 1)) / perPage;
+
+            slides.forEach(sl => {
+                sl.style.width = slideW + 'px';
+                sl.style.marginRight = gap + 'px';
+            });
+
+            track.style.transform = `translateX(-${artikelState.current * (slideW + gap)}px)`;
+            track.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1)';
+
+            updateArtikelDots();
+            updateArtikelNavBtns();
+        }
+
+        function artikelSwipe(dir) {
+            const maxIndex = Math.max(0, artikelState.total - artikelState.perPage);
+            artikelState.current = Math.max(0, Math.min(artikelState.current + dir, maxIndex));
+            renderArtikelCarousel();
+        }
+
+        function buildArtikelDots() {
+            const dotsEl = document.getElementById('artikel-dots');
+            if (!dotsEl) return;
+            const pages = Math.max(1, artikelState.total - artikelState.perPage + 1);
+            dotsEl.innerHTML = Array.from({length: pages}, (_, i) =>
+                `<div class="artikel-dot ${i === 0 ? 'active' : ''}" onclick="artikelGoToPage(${i})"></div>`
+            ).join('');
+        }
+
+        function updateArtikelDots() {
+            const dotsEl = document.getElementById('artikel-dots');
+            if (!dotsEl) return;
+            dotsEl.querySelectorAll('.artikel-dot').forEach((d, i) =>
+                d.classList.toggle('active', i === artikelState.current)
+            );
+        }
+
+        function updateArtikelNavBtns() {
+            const maxIndex = Math.max(0, artikelState.total - artikelState.perPage);
+            const prev = document.getElementById('artikel-prev');
+            const next = document.getElementById('artikel-next');
+            if (prev) prev.disabled = artikelState.current <= 0;
+            if (next) next.disabled = artikelState.current >= maxIndex;
+        }
+
+        function artikelGoToPage(page) {
+            artikelState.current = page;
+            renderArtikelCarousel();
+        }
+
+        function toggleArtikelShowMore() {
+            const grid   = document.getElementById('artikel-mobile-grid');
+            const btn    = document.getElementById('artikel-show-more');
+            const hidden = grid.querySelectorAll('.artikel-card-hidden');
+            const isExpanded = btn.classList.contains('expanded');
+
+            if (isExpanded) {
+                hidden.forEach(c => c.style.display = 'none');
+                btn.classList.remove('expanded');
+                const count = grid.querySelectorAll('.article-card').length - 3;
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Tampilkan ${count} artikel lainnya`;
+            } else {
+                hidden.forEach(c => c.style.display = 'flex');
+                btn.classList.add('expanded');
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Sembunyikan`;
+            }
+        }
+
+        // ── Global Handlers (Load & Resize) ──
+        window.addEventListener('load', () => {
+            initVendorCarousel('wpo');
+            initVendorCarousel('gate');
+            initArtikelCarousel();
+        });
+
+        window.addEventListener('resize', () => {
+            ['wpo', 'gate'].forEach(id => {
+                buildDots(id);
+                renderVendorCarousel(id);
+            });
+            buildArtikelDots();
+            renderArtikelCarousel();
+        });
     </script>
 </body>
 </html>

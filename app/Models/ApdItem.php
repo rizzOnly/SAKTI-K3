@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ApdItem extends Model
 {
     protected $fillable = [
         'kode_barang', 'nama_barang', 'satuan', 'merk',
         'kondisi', 'stok', 'min_stok', 'is_consumable',
-        'exp_date', 'lokasi_gudang', 'image_path',
+        'exp_date', 'image_path',
     ];
 
     protected $casts = [
@@ -35,7 +36,8 @@ class ApdItem extends Model
     {
         $last = static::latest()->first();
         $no = $last ? ((int) substr($last->kode_barang ?? '0', 3)) + 1 : 1;
-        return 'APD' . str_pad($no, 4, '0', STR_PAD_LEFT);
+
+        return 'APD'.str_pad($no, 4, '0', STR_PAD_LEFT);
     }
 
     // Relasi

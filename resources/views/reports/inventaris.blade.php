@@ -104,8 +104,7 @@
                 <th style="width:40px;text-align:right">Stok</th>
                 <th style="width:45px;text-align:right">Min Stok</th>
                 <th style="width:40px;text-align:center">C/R</th>
-                <th style="width:58px;text-align:center">Exp Date</th>
-                <th style="width:65px">Lokasi</th>
+                 <th style="width:58px;text-align:center">Exp Date</th>
             </tr>
         </thead>
         <tbody>
@@ -125,10 +124,9 @@
                 <td style="text-align:right" class="{{ $isKritis ? 'text-danger' : '' }}">{{ $item->stok }}</td>
                 <td style="text-align:right">{{ $item->min_stok }}</td>
                 <td style="text-align:center">{{ $item->is_consumable ? 'C' : 'R' }}</td>
-                <td style="text-align:center" class="{{ $isExpired ? 'text-warning' : '' }}">
+                 <td style="text-align:center" class="{{ $isExpired ? 'text-warning' : '' }}">
                     {{ $item->exp_date?->format('d/m/Y') ?? '-' }}
                 </td>
-                <td>{{ $item->lokasi_gudang ?? '-' }}</td>
             </tr>
             @endforeach
         </tbody>

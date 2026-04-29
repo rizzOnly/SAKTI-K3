@@ -1,9 +1,14 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\{VendorRegistrasi, VendorPekerja, SurveyQuestion};
+use App\Models\SurveyQuestion;
+use App\Models\User;
+use App\Models\VendorPekerja;
+use App\Models\VendorRegistrasi;
+use App\Models\CmsVendor; // Pastikan model CmsVendor dipanggil
 use App\Services\WhatsAppService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 class VendorRegistrasiController extends Controller
@@ -12,67 +17,63 @@ class VendorRegistrasiController extends Controller
 
     public function showRegistrasi()
     {
-        return view('vendor.form-registrasi');
+        // Ambil vendor WPO PLUS yang aktif dan masih berlaku
+        $vendorsWpo = \App\Models\CmsVendor::where('is_active', true)
+            ->whereNotNull('pekerja_json')
+            ->get();
+
+        return view('vendor.form-registrasi', compact('vendorsWpo'));
     }
 
     public function storeRegistrasi(Request $request)
     {
         $data = $request->validate([
-            'nama_perusahaan'     => 'required|string|max:200',
-            'nama_pekerjaan'      => 'required|string|max:500',
-            'tanggal_mulai'       => 'required|date',
-            'tanggal_selesai'     => 'required|date|after_or_equal:tanggal_mulai',
-            'no_wa_pic'           => 'nullable|string|max:20',
-            'email_pic'           => 'nullable|email|max:255',
-            // Pekerja: minimal 1
-            'pekerjas'            => 'required|array|min:1',
-            'pekerjas.*.nama'     => 'required|string|max:100',
+            'cms_vendor_id'   => 'required|exists:cms_vendors,id',
+            'pekerja_nama'    => 'required|string|max:100',
+            'no_wa_pic'       => 'nullable|string|max:20',
+            'email_pic'       => 'nullable|email|max:255',
         ]);
 
-        // Wajib salah satu kontak
         if (empty($data['no_wa_pic']) && empty($data['email_pic'])) {
             return back()->withInput()
                 ->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak (WA atau email) PIC.']);
         }
 
-        // Buat registrasi (Token akan otomatis ter-generate berkat Model)
+        $vendor = \App\Models\CmsVendor::findOrFail($data['cms_vendor_id']);
+
+        // Buat registrasi dari data WPO PLUS
         $registrasi = VendorRegistrasi::create([
-            'nama_perusahaan'  => $data['nama_perusahaan'],
-            'nama_pekerjaan'   => $data['nama_pekerjaan'],
-            'tanggal_mulai'    => $data['tanggal_mulai'],
-            'tanggal_selesai'  => $data['tanggal_selesai'],
-            'no_wa_pic'        => $data['no_wa_pic'],
-            'email_pic'        => $data['email_pic'],
-            'status'           => 'aktif',
-            'is_active'        => true,
+            'nama_perusahaan' => $vendor->nama_vendor,
+            'nama_pekerjaan'  => $vendor->nama_pekerjaan,
+            'tanggal_mulai'   => $vendor->tanggal_mulai,
+            'tanggal_selesai' => $vendor->tanggal_selesai,
+            'no_wa_pic'       => $data['no_wa_pic'],
+            'email_pic'       => $data['email_pic'],
+            'status'          => 'aktif',
+            'is_active'       => true,
         ]);
 
-        // Buat entri pekerja (belum lulus survey)
-        foreach ($data['pekerjas'] as $p) {
-            VendorPekerja::create([
-                'vendor_registrasi_id' => $registrasi->id,
-                'nama_pekerja'         => $p['nama'],
-                'survey_lulus'         => false,
-            ]);
-        }
+        // Buat 1 pekerja yang dipilih
+        VendorPekerja::create([
+            'vendor_registrasi_id' => $registrasi->id,
+            'nama_pekerja'         => $data['pekerja_nama'],
+            'survey_lulus'         => false,
+        ]);
 
         // Notif admin
         $admins = \App\Models\User::role('admin_k3')->whereNotNull('no_hp')->get();
         foreach ($admins as $admin) {
-            WhatsAppService::send($admin->no_hp,
-                "🏢 *Registrasi Vendor Baru*\n" .
-                "Perusahaan: {$registrasi->nama_perusahaan}\n" .
-                "Pekerjaan: {$registrasi->nama_pekerjaan}\n" .
-                "Pekerja: " . count($data['pekerjas']) . " orang\n" .
+            \App\Services\WhatsAppService::send($admin->no_hp,
+                "🏢 *Registrasi Gate Access Baru*\n".
+                "Perusahaan: {$registrasi->nama_perusahaan}\n".
+                "Pekerja: {$data['pekerja_nama']}\n".
                 "Survey link: {$registrasi->survey_url}"
             );
         }
 
-        // Redirect ke halaman survey dengan token
         return redirect()->route('vendor.survey', $registrasi->token_registrasi)
             ->with('registrasi_baru', true);
     }
-
 
     // ─── STEP 2: Halaman Survey ─────────────────────────────
 
@@ -82,28 +83,42 @@ class VendorRegistrasiController extends Controller
             ->where('status', 'aktif')
             ->firstOrFail();
 
-        // Cek masa berlaku
         if ($registrasi->tanggal_selesai < today()) {
             return view('vendor.survey-expired', compact('registrasi'));
         }
 
-        $pekerjas  = $registrasi->pekerjas()->orderBy('id')->get();
-        $questions = SurveyQuestion::aktif()->get();
+        $pekerjas = $registrasi->pekerjas()->orderBy('id')->get();
+        $questions = SurveyQuestion::aktif()->with('options')->get();
 
         if ($questions->isEmpty()) {
             return view('vendor.survey-kosong');
         }
 
+        $questionsShuffled = $questions->shuffle()->values();
+        $questionsShuffled->each(function ($q) {
+            $q->options = $q->options->shuffle()->values();
+        });
+
+        session(['survey_order' => $questionsShuffled->pluck('id')->toArray(),
+            'survey_options_order' => $questionsShuffled->mapWithKeys(function ($q) {
+                return [$q->id => $q->options->pluck('id')->toArray()];
+            })->toArray()]);
+
+        $questions = $questionsShuffled;
+
         return view('vendor.survey', compact('registrasi', 'pekerjas', 'questions'));
     }
 
-    // Preview (untuk admin)
     public function previewSurvey()
     {
-        $questions = SurveyQuestion::aktif()->get();
+        $questions = SurveyQuestion::aktif()->with('options')->get();
+        $questions = $questions->shuffle()->values();
+        $questions->each(function ($q) {
+            $q->options = $q->options->shuffle()->values();
+        });
+
         return view('vendor.survey-preview', compact('questions'));
     }
-
 
     // ─── STEP 3: Submit Survey ──────────────────────────────
 
@@ -123,32 +138,32 @@ class VendorRegistrasiController extends Controller
             ->firstOrFail();
 
         $questions = SurveyQuestion::aktif()->with('options')->get();
-        $total     = $questions->count();
+        $total = $questions->count();
 
         if ($total === 0) {
             return back()->withErrors(['survey' => 'Tidak ada soal survey tersedia.']);
         }
 
-        // Hitung skor
         $benar = 0;
         foreach ($questions as $q) {
-            $jawaban      = $request->jawaban[$q->id] ?? null;
+            $jawaban = $request->jawaban[$q->id] ?? null;
             $jawabanBenar = $q->options->where('is_benar', true)->first()?->id;
-            if ($jawaban && (int)$jawaban === (int)$jawabanBenar) {
+            if ($jawaban && (int) $jawaban === (int) $jawabanBenar) {
                 $benar++;
             }
         }
 
-        $skor  = (int) round(($benar / $total) * 100);
-        $lulus = $skor === 100; // Standar K3: Lulus jika 100% benar
+        $skor = (int) round(($benar / $total) * 100);
+        $lulus = $skor === 100;
 
-        // Update data pekerja
         $pekerja->increment('survey_attempt');
         $pekerja->update([
-            'survey_skor'    => $skor,
-            'survey_lulus'   => $lulus,
-            'survey_lulus_at'=> $lulus ? now() : null,
+            'survey_skor'     => $skor,
+            'survey_lulus'    => $lulus,
+            'survey_lulus_at' => $lulus ? now() : null,
         ]);
+
+        session()->forget(['survey_order', 'survey_options_order']);
 
         if ($lulus) {
             return redirect()->route('vendor.survey', $token)
@@ -159,7 +174,6 @@ class VendorRegistrasiController extends Controller
                 ]);
         }
 
-        // Tidak lulus → kembali ke halaman survey dengan pesan
         return redirect()->route('vendor.survey', $token)
             ->with('survey_result', [
                 'lulus'        => false,

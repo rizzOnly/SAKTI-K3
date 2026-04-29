@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ class SurveyQuestion extends Model
 
     public function options()
     {
-        return $this->hasMany(SurveyOption::class)->orderBy('urutan');
+        return $this->hasMany(SurveyOption::class);
     }
 
     public function correctOption()

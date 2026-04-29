@@ -8,7 +8,13 @@ use App\Models\User;
 use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen};
 
 Route::get('/', function () {
-    // Cek expired otomatis untuk Gate Access
+    // 1. AUTO-NONAKTIFKAN VENDOR WPO PLUS YANG EXPIRED
+    CmsVendor::where('is_active', true)
+        ->whereNotNull('tanggal_selesai')
+        ->where('tanggal_selesai', '<', today())
+        ->update(['is_active' => false]);
+
+    // 2. AUTO-EXPIRED GATE ACCESS
     VendorRegistrasi::where('status', 'aktif')
         ->where('tanggal_selesai', '<', today())
         ->update(['status' => 'expired']);
@@ -31,16 +37,14 @@ Route::get('/', function () {
         'vendorsWpo'        => CmsVendor::where('is_active', true)->orderBy('nama_vendor')->get(),
         'vendorsGate'       => VendorRegistrasi::aktifDanBerlaku()->with(['pekerjasLulus'])->get(),
         'flows'             => CmsVendorFlow::all(),
-
-'temuan_opens' => \App\Models\TemuanOpen::aktif()->get(),
-        // Di array view:
-'patrolPeriode'  => $patrolPeriode,
-'patrolBulan'    => PatrolPeriode::namaBulan(now()->month),
-'patrolTahun'    => now()->year,
-'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' .
-                       now()->endOfWeek()->format('d M Y'),
+        'temuan_opens'      => TemuanOpen::aktif()->get(),
+        'patrolPeriode'     => $patrolPeriode,
+        'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
+        'patrolTahun'       => now()->year,
+        'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
     ]);
 });
+
 // ─── Form Publik Pegawai (tanpa autentikasi Filament) ──────────
 Route::prefix('pegawai')->name('pegawai.')->group(function () {
     // Halaman gabungan APD (ambil + pinjam)
@@ -48,7 +52,7 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/apd/ambil', [PegawaiFormController::class, 'storeAmbil'])->name('apd.ambil.store');
     Route::post('/apd/pinjam', [PegawaiFormController::class, 'storePinjam'])->name('apd.pinjam.store');
 
-    // Booking klinik (tidak berubah)
+    // Booking klinik
     Route::get('/booking-klinik', [PegawaiFormController::class, 'showBooking'])->name('booking');
     Route::post('/booking-klinik', [PegawaiFormController::class, 'storeBooking'])->name('booking.store');
 
@@ -93,4 +97,3 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/survey/{token}',    [VendorRegistrasiController::class, 'showSurvey'])->name('survey');
     Route::post('/survey/{token}',   [VendorRegistrasiController::class, 'submitSurvey'])->name('survey.submit');
 });
-

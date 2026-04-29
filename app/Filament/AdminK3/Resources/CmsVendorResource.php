@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\AdminK3\Resources;
 
 use App\Filament\AdminK3\Resources\CmsVendorResource\Pages;
@@ -68,7 +69,6 @@ class CmsVendorResource extends Resource
             Section::make('Daftar Pekerja WPO PLUS')
                 ->description('Input nama pekerja vendor WPO PLUS beserta status asuransinya.')
                 ->schema([
-                    // Perhatikan: Namanya langsung menembak ke kolom database 'pekerja_json'
                     Repeater::make('pekerja_json')
                         ->label('')
                         ->schema([
@@ -84,8 +84,11 @@ class CmsVendorResource extends Resource
 
             Section::make('Visibilitas')->schema([
                 Toggle::make('is_active')
-                    ->label('Tampil di Landing Page')
-                    ->default(true),
+                    ->label('Tampil di Landing Page (Aktif)')
+                    ->default(true)
+                    ->helperText(fn ($record) => ($record && $record->tanggal_selesai && $record->tanggal_selesai < today())
+                        ? '⚠️ Sistem otomatis mematikan toggle ini karena tanggal selesai sudah lewat.'
+                        : 'Matikan jika ingin menyembunyikan vendor ini secara manual dari halaman depan.'),
             ]),
         ]);
     }
@@ -100,7 +103,11 @@ class CmsVendorResource extends Resource
                 TextColumn::make('tanggal_selesai')->label('Selesai')->date('d/m/Y')
                     ->color(fn($record) => $record->tanggal_selesai && $record->tanggal_selesai < today() ? 'danger' : null),
                 TextColumn::make('kontak')->label('Kontak'),
-                IconColumn::make('is_active')->label('Aktif')->boolean(),
+                IconColumn::make('is_active')
+                    ->label('Aktif')
+                    ->boolean()
+                    ->color(fn ($record) => $record->is_active ? 'success' : 'danger')
+                    ->tooltip(fn ($record) => (!$record->is_active && $record->tanggal_selesai && $record->tanggal_selesai < today()) ? 'Nonaktif Otomatis (Expired)' : ''),
             ])
             ->filters([
                 //

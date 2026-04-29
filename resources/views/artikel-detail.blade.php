@@ -84,10 +84,11 @@
 
         {{-- Thumbnail --}}
         @if($article->thumbnail)
-        <div class="rounded-2xl overflow-hidden mb-8 aspect-video bg-gray-100">
+        <div class="rounded-2xl overflow-hidden mb-8 bg-gray-100">
             <img src="{{ Storage::url($article->thumbnail) }}"
                  alt="{{ $article->title }}"
-                 class="w-full h-full object-cover">
+                 class="w-full h-auto block"
+                 style="max-height: 600px; object-fit: contain; background: #f3f4f6;">
         </div>
         @else
         <div class="rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 mb-8 h-48 flex items-center justify-center">
