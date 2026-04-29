@@ -33,7 +33,7 @@ class AdminK3PanelProvider extends PanelProvider
                 'success' => Color::Green,
             ])
 
-            ->brandName('SAKTI K3 Admin')
+            ->brandName('D-SAVE Admin')
             ->brandLogo(fn () => view('filament.components.brand-logo', [
                 'nama' => 'Admin K3'
             ]))

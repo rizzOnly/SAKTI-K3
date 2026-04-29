@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAKTI K3- Sistem Aplikasi K3 Terintegrasi</title>
+    <title>D-SAVE</title>
     <link rel="icon" href="{{ asset('images/logo-sakti.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -82,10 +82,9 @@
 
         /* ── Banner Swiper ── */
         .banner-swiper { width: 100%; }
-        .banner-slide { position: relative; height: 480px; background: #1e3a5f; overflow: hidden; }
-        @media (max-width: 768px) { .banner-slide { height: 260px; } }
-        .banner-slide img { width: 100%; height: 100%; object-fit: cover; }
-        .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 60%); }
+        .banner-slide { position: relative; width: 100%;background: #f8fafc;line-height: 0; }
+        .banner-slide img { width: 100%; height: auto;display: block; }
+        .banner-overlay {position: absolute;inset: 0;background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 60%);pointer-events: none; }
         .banner-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem; }
         .banner-caption h2 { color: #fff; font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 700; margin: 0; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
 
@@ -330,10 +329,10 @@
         <nav class="navbar">
             <div class="nav-inner">
                 <a href="/" class="nav-brand">
-                    <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo SAKTI K3" style="height: 44px; width: auto; object-fit: contain;">
+                    <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                     <div>
-                        <div class="nav-title">SAKTI K3</div>
-                        <div class="nav-sub">Sistem Keamanan Kerja yang Andal</div>
+                        <div class="nav-title">D-SAVE</div>
+                        <div class="nav-sub">Platform Terpadu K3 & Manajemen APD</div>
                     </div>
                 </a>
 
@@ -366,10 +365,10 @@
 
             {{-- Header drawer --}}
             <div class="drawer-header">
-                <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo SAKTI K3" style="height: 44px; width: auto; object-fit: contain;">
+                <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                 <div>
-                    <div class="drawer-brand-title">SAKTI K3</div>
-                    <div class="drawer-brand-sub">Sistem Keamanan Kerja yang Andal</div>
+                    <div class="drawer-brand-title">D-SAVE</div>
+                    <div class="drawer-brand-sub">Platform Terpadu K3 & Manajemen APD</div>
                 </div>
                 {{-- Tombol close --}}
                 <button onclick="closeDrawer()"
@@ -1133,7 +1132,7 @@
     <footer class="footer">
         <div class="footer-inner">
             <div>
-                <div class="footer-heading">SAKTI K3</div>
+                <div class="footer-heading">D-SAVE</div>
                 <div class="footer-text">
                     PT PLN Nusantara Power<br>
                     Unit Pembangkitan Sengkang<br>
@@ -1158,19 +1157,19 @@
                     Hubungi Tim K3 segera jika terjadi insiden atau keadaan darurat.<br><br>
 
                     {{-- Link Email --}}
-                    <strong style="color:#fbbf24">Email</strong> -
-                    <a href="mailto:upsg@plnnusantarapower.co.id"
+                    <strong style="color:#fbbf24">Email</strong> :
+                    <a href="mailto:upsengkangk@gmail.com"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
                        style="text-decoration: none; color: inherit;">
-                       upsg@plnnusantarapower.co.id
+                       upsengkangk@gmail.com
                     </a><br>
 
                     {{-- Link Telepon --}}
-                    <strong style="color:#fbbf24">Telp</strong> –
-                    <a href="tel:+6248522228"
+                    <strong style="color:#fbbf24">Telp</strong> :
+                    <a href="tel:+6283878001602"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
                        style="text-decoration: none; color: inherit;">
-                       (+62 485) 22228
+                       +6283878001602
                     </a><br>
                 </div>
             </div>

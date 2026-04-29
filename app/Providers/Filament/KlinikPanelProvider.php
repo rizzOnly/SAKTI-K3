@@ -32,7 +32,7 @@ class KlinikPanelProvider extends PanelProvider
                 'warning' => Color::Amber,
                 'success' => Color::Green,
             ])
-            ->brandName('SAKTI K3 Klinik')
+            ->brandName('D-SAVE Klinik')
             ->brandLogo(fn () => view('filament.components.brand-logo', [
                 'nama' => 'Klinik K3'
             ]))
