@@ -7,22 +7,21 @@ use App\Models\{User, ApdItem, PengambilanHeader, PengambilanDetail, PeminjamanH
 use App\Notifications\ApprovalNotification;
 use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class PegawaiFormController extends Controller
 {
-    // ══════════════════════════════════════════════════════════
-    // 1. PENGAMBILAN & PEMINJAMAN APD (GABUNGAN)
-    // ══════════════════════════════════════════════════════════
+    // =========================
+    // 1. APD
+    // =========================
 
     public function showApd()
     {
-        // Ambil APD Consumable (Habis Pakai)
         $apdConsumable = ApdItem::where('is_consumable', true)
             ->where('stok', '>', 0)
             ->orderBy('nama_barang')
             ->get();
 
-        // Ambil APD Returnable (Dipinjam/Dikembalikan)
         $apdReturnable = ApdItem::where('is_consumable', false)
             ->where('stok', '>', 0)
             ->orderBy('nama_barang')
@@ -42,17 +41,15 @@ class PegawaiFormController extends Controller
             'catatan'             => 'nullable|string|max:500',
             'no_wa_pengirim'      => 'nullable|string|max:20',
             'email_pengirim'      => 'nullable|email|max:255',
-        ], [
-            'items.required' => 'Pilih minimal 1 item APD yang ingin diambil.',
         ]);
 
         if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withInput()->withErrors(['kontak' => 'Wajib mengisi minimal salah satu: Nomor WhatsApp atau Email.']);
+            return back()->withErrors(['kontak' => 'Isi WA atau Email']);
         }
 
         $user = User::where('nid', $request->nid)->first();
         if (!$user) {
-            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan dalam sistem. Hubungi Admin K3.']);
+            return back()->withErrors(['nid' => 'NID tidak ditemukan']);
         }
 
         $header = PengambilanHeader::create([
@@ -66,121 +63,132 @@ class PegawaiFormController extends Controller
         foreach ($request->items as $item) {
             PengambilanDetail::create([
                 'pengambilan_header_id' => $header->id,
-                'apd_item_id'           => $item['apd_item_id'],
-                'jumlah'                => $item['jumlah'],
+                'apd_item_id' => $item['apd_item_id'],
+                'jumlah' => $item['jumlah'],
             ]);
         }
 
-        // Notifikasi ke Admin K3
+        // 🔥 DETAIL ITEM
+        $detailItems = "";
+        foreach ($request->items as $item) {
+            $apd = ApdItem::find($item['apd_item_id']);
+            if ($apd) {
+                $detailItems .= "  • {$apd->nama_barang} × {$item['jumlah']}\n";
+            }
+        }
+
+        // NOTIF ADMIN
         $admins = User::role('admin_k3')->get();
         foreach ($admins as $admin) {
-            if ($admin->email) {
-                $admin->notify(new ApprovalNotification(
-                    'Pengajuan Pengambilan APD Baru',
-                    "Pegawai {$user->name} ({$user->nid}) mengajukan pengambilan APD.\nNo: {$header->nomor_transaksi}",
-                    url('/admin/pengambilan-headers/' . $header->id)
-                ));
-            }
+
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
-                    "📦 *Pengajuan APD Baru*\n" .
-                    "👤 {$user->name} ({$user->nid})\n" .
+                    "📦 *Pengajuan Pengambilan APD Baru*\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "👤 Nama: {$user->name} ({$user->nid})\n" .
+                    "🏢 Bidang: " . ($user->bidang ?? '-') . "\n" .
                     "📋 No: {$header->nomor_transaksi}\n" .
-                    "Approve di: " . url('/admin')
+                    "📅 Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "🦺 *Detail Barang:*\n" .
+                    $detailItems .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    ($request->catatan ? "📝 {$request->catatan}\n" : "") .
+                    "✅ Approve: " . url('/admin')
                 );
             }
         }
 
-        // Konfirmasi ke Pegawai
-        $pesanKonfirmasi = "✅ *Pengajuan APD Diterima*\n━━━━━━━━━━━━━━━━━━\nNama: {$user->name}\nNo. Transaksi: {$header->nomor_transaksi}\nStatus: Menunggu persetujuan Admin K3\n━━━━━━━━━━━━━━━━━━\nPantau status melalui Admin K3 unit.";
-        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesanKonfirmasi);
+        // KONFIRMASI USER
+        $pesan = "✅ *Pengajuan APD Diterima*\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Nama: {$user->name}\n" .
+            "Bidang: " . ($user->bidang ?? '-') . "\n" .
+            "No: {$header->nomor_transaksi}\n" .
+            "Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "🦺 *Detail Barang:*\n" .
+            $detailItems .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Status: Pending";
+
+        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesan);
+
         if ($request->email_pengirim) {
-            Mail::raw(strip_tags(str_replace(['*', '━'], ['', '-'], $pesanKonfirmasi)), function ($message) use ($request, $header) {
-                $message->to($request->email_pengirim)->subject("Pengajuan APD Diterima – {$header->nomor_transaksi}");
+            Mail::raw(strip_tags($pesan), function ($msg) use ($request) {
+                $msg->to($request->email_pengirim)->subject('Pengajuan APD');
             });
         }
 
-        return redirect()->route('pegawai.apd')->with('success', "Pengajuan ambil APD berhasil dikirim! No: {$header->nomor_transaksi}.");
+        return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
     }
+
+    // =========================
+    // 2. PINJAM
+    // =========================
 
     public function storePinjam(Request $request)
     {
         $request->validate([
-            'nid'                     => 'required|string',
-            'tanggal_pengajuan'       => 'required|date',
+            'nid' => 'required',
+            'tanggal_pengajuan' => 'required|date',
             'tanggal_kembali_rencana' => 'required|date|after:today',
-            'items'                   => 'required|array|min:1',
-            'items.*.apd_item_id'     => 'required|exists:apd_items,id',
-            'items.*.jumlah'          => 'required|integer|min:1',
-            'catatan'                 => 'nullable|string|max:500',
-            'no_wa_pengirim'          => 'nullable|string|max:20',
-            'email_pengirim'          => 'nullable|email|max:255',
-        ], [
-            'items.required' => 'Pilih minimal 1 item APD yang ingin dipinjam.',
+            'items' => 'required|array|min:1',
         ]);
 
-        if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withInput()->withErrors(['kontak' => 'Wajib mengisi minimal salah satu: Nomor WhatsApp atau Email.']);
-        }
-
         $user = User::where('nid', $request->nid)->first();
-        if (!$user) {
-            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan dalam sistem. Hubungi Admin K3.']);
-        }
 
         $header = PeminjamanHeader::create([
-            'nomor_transaksi'         => PeminjamanHeader::generateNomor(),
-            'user_id'                 => $user->id,
-            'tanggal_pengajuan'       => $request->tanggal_pengajuan,
+            'nomor_transaksi' => PeminjamanHeader::generateNomor(),
+            'user_id' => $user->id,
+            'tanggal_pengajuan' => $request->tanggal_pengajuan,
             'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
-            'status'                  => 'pending',
-            'catatan'                 => $request->catatan,
+            'status' => 'pending',
         ]);
 
         foreach ($request->items as $item) {
             PeminjamanDetail::create([
                 'peminjaman_header_id' => $header->id,
-                'apd_item_id'          => $item['apd_item_id'],
-                'jumlah'               => $item['jumlah'],
+                'apd_item_id' => $item['apd_item_id'],
+                'jumlah' => $item['jumlah'],
             ]);
         }
 
-        // Notifikasi ke Admin K3
-        $admins = User::role('admin_k3')->get();
-        foreach ($admins as $admin) {
-            if ($admin->email) {
-                $admin->notify(new ApprovalNotification(
-                    'Pengajuan Peminjaman APD Baru',
-                    "Pegawai {$user->name} ({$user->nid}) mengajukan peminjaman APD.\nNo: {$header->nomor_transaksi}",
-                    url('/admin/peminjaman-headers/' . $header->id)
-                ));
+        // 🔥 DETAIL
+        $detailItemsPinjam = "";
+        foreach ($request->items as $item) {
+            $apd = ApdItem::find($item['apd_item_id']);
+            if ($apd) {
+                $detailItemsPinjam .= "  • {$apd->nama_barang} × {$item['jumlah']}\n";
             }
+        }
+
+        $admins = User::role('admin_k3')->get();
+
+        foreach ($admins as $admin) {
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
-                    "🔄 *Peminjaman APD Baru*\n" .
-                    "👤 {$user->name} ({$user->nid})\n" .
-                    "📋 No: {$header->nomor_transaksi}\n" .
-                    "Approve di: " . url('/admin')
+                    "🔄 *Pengajuan Peminjaman APD Baru*\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "👤 Nama:  {$user->name}\n" .
+                    "🏢 Bidang:  {$user->bidang}\n" .
+                    "📋 Nomor Transaksi: {$header->nomor_transaksi}\n" .
+                    "📅 Tanggal Pengajuan: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+                    "🔙 Tanggal Rencana Kembali: " . Carbon::parse($request->tanggal_kembali_rencana)->format('d/m/Y') . "\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    $detailItemsPinjam .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "Approve: " . url('/admin')
                 );
             }
         }
 
-        // Konfirmasi ke Pegawai
-        $pesanKonfirmasi = "✅ *Peminjaman APD Diterima*\n━━━━━━━━━━━━━━━━━━\nNama: {$user->name}\nNo. Transaksi: {$header->nomor_transaksi}\nStatus: Menunggu persetujuan Admin K3\n━━━━━━━━━━━━━━━━━━\nHarap simpan nomor transaksi ini.";
-        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesanKonfirmasi);
-        if ($request->email_pengirim) {
-            Mail::raw(strip_tags(str_replace(['*', '━'], ['', '-'], $pesanKonfirmasi)), function ($message) use ($request, $header) {
-                $message->to($request->email_pengirim)->subject("Peminjaman APD Diterima – {$header->nomor_transaksi}");
-            });
-        }
-
-        return redirect()->route('pegawai.apd')->with('success', "Pengajuan pinjam APD berhasil dikirim! No: {$header->nomor_transaksi}.");
+        return back()->with('success', 'Berhasil pinjam');
     }
 
-
-    // ══════════════════════════════════════════════════════════
-    // 2. BOOKING KLINIK
-    // ══════════════════════════════════════════════════════════
+    // =========================
+    // 3. BOOKING
+    // =========================
 
     public function showBooking()
     {
@@ -256,7 +264,7 @@ class PegawaiFormController extends Controller
         }
 
         // Konfirmasi ke Pegawai
-        $pesanKonfirmasi = "✅ *Booking Klinik Dikonfirmasi*\n━━━━━━━━━━━━━━━━━━\nNama: {$user->name}\nDokter: {$dokter->name}\nTanggal: {$tgl} – {$request->jam_slot}\n━━━━━━━━━━━━━━━━━━\nHadir tepat waktu & bawa kartu pegawai.";
+        $pesanKonfirmasi = "✅ *Booking Klinik Dikonfirmasi*\n━━━━━━━━━━━━━━━━━━\nNama: {$user->name}\nDokter: {$dokter->name}\nTanggal: {$tgl} – {$request->jam_slot}\n━━━━━━━━━━━━━━━━━━\nTolong hadir tepat waktu 😊.";
         if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesanKonfirmasi);
         if ($request->email_pengirim) {
             Mail::raw(strip_tags(str_replace(['*', '━'], ['', '-'], $pesanKonfirmasi)), function ($message) use ($request, $tgl, $dokter) {
@@ -267,7 +275,6 @@ class PegawaiFormController extends Controller
         return redirect()->route('pegawai.booking')
             ->with('success', "Booking berhasil! Jadwal Anda: {$tgl} jam {$request->jam_slot} bersama {$dokter->name}.");
     }
-
 
     // ══════════════════════════════════════════════════════════
     // 3. API ENDPOINTS (UNTUK AJAX)

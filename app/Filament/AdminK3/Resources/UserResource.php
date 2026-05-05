@@ -53,7 +53,7 @@ class UserResource extends Resource
 
                     Select::make('roles')
                         ->label('Role (Akses Sistem)')
-                        ->relationship('roles', 'name', modifyQueryUsing: fn (Builder $query) => $query->whereIn('name', ['admin_k3', 'dokter', 'pegawai']))
+                        ->relationship('roles', 'name', modifyQueryUsing: fn (Builder $query) => $query->whereIn('name', ['admin_k3', 'dokter', 'pegawai', 'perawat']))
                         ->preload()
                         ->required()
                         ->native(false),
@@ -125,6 +125,7 @@ class UserResource extends Resource
                         'primary' => 'admin_k3',
                         'success' => 'dokter',
                         'warning' => 'pegawai',
+                        'purple'  => 'perawat',
                     ]),
 
                 TextColumn::make('email')

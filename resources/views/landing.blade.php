@@ -342,6 +342,7 @@
                     <a href="#video">PROFIL</a>
                     <a href="#artikel">ARTIKEL</a>
                     <a href="#vendor">VENDOR</a>
+                    <a href="#fit-to-work">Fit to Work</a>
                     <a href="#patrol">PATROL</a>
                 </div>
 
@@ -398,6 +399,9 @@
                 </a>
                 <a href="#patrol" onclick="closeDrawer()">
                     <span class="drawer-nav-icon">👁</span> PATROL iZAT
+                </a>
+                <a href="#fit-to-work" onclick="closeDrawer()">
+                    <span class="drawer-nav-icon">⚠️</span> Fit to Work
                 </a>
             </nav>
 
@@ -464,6 +468,10 @@
             <a href="/vendor/registrasi" class="quick-btn quick-btn-orange">
                 <span class="text-base leading-none">🏢</span> Registrasi Gate Access
             </a>
+
+            <a href="{{ route('fit-to-work.form') }}" class="quick-btn" style="background:#dc2626;color:#fff">
+                <span class="text-base leading-none">⚠️</span> Fit to Work
+            </a>
         </div>
     </div>
 
@@ -491,7 +499,7 @@
         </div>
     </div>
 
-    {{-- ═══════════ VIDEO K3 PLN ═══════════ --}}
+    {{-- ═══════════ INTRO K3 PLN ═══════════ --}}
     <section id="video" class="video-section">
         <div class="video-inner">
             {{-- Teks kiri --}}
@@ -524,17 +532,16 @@
                 </div>
             </div>
 
-            {{-- Video player kanan --}}
+            {{-- Gambar kanan (Pengganti Video) --}}
             <div class="video-player-wrap">
                 <div class="video-frame-outer">
                     <div class="video-ratio">
-                        <iframe
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
-                            title="Video K3 PLN Nusantara Power"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                            loading="lazy">
-                        </iframe>
+                        <img
+                            src="{{ asset('images/pln.png') }}"
+                            alt="Profil K3 PLN Sengkang"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                            loading="lazy"
+                        >
                     </div>
                 </div>
             </div>
@@ -936,6 +943,79 @@
             </div>
             @endif
 
+        </div>
+    </section>
+
+    {{-- ═══════════ FIT TO WORK ═══════════ --}}
+    <section id="fit-to-work" class="section">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title">Fit to Work – Vendor Aktif</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+                <p class="text-sm text-gray-500">
+                    Daftar vendor / kontraktor yang telah dinyatakan <strong>Fit to Work</strong>
+                    oleh dokter klinik untuk pekerjaan risiko tinggi.
+                </p>
+                <a href="{{ route('fit-to-work.form') }}"
+                   class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow">
+                    ⚠️ Daftar Fit to Work
+                </a>
+            </div>
+
+            @if($fitToWorkVendor->isNotEmpty())
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+                @foreach($fitToWorkVendor as $ftw)
+                <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e5e7eb;border-top:4px solid #16a34a">
+                    {{-- Badge status --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                        <span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:4px">
+                            ✅ Fit to Work
+                        </span>
+                        <span style="font-size:11px;color:#9ca3af">
+                            s/d {{ $ftw->tanggal_selesai->format('d/m/Y') }}
+                        </span>
+                    </div>
+
+                    {{-- Nama --}}
+                    <div style="font-weight:700;color:#111827;font-size:15px;margin-bottom:2px">
+                        {{ $ftw->nama }}
+                    </div>
+                    <div style="font-size:12px;color:#6b7280;margin-bottom:8px">
+                        {{ $ftw->nama_perusahaan }}
+                    </div>
+
+                    {{-- Pekerjaan --}}
+                    <div style="background:#f0fdf4;border-radius:10px;padding:8px 12px;margin-bottom:8px">
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;margin-bottom:2px">PEKERJAAN</div>
+                        <div style="font-size:13px;color:#374151;font-weight:600">{{ $ftw->nama_pekerjaan }}</div>
+                    </div>
+
+                    {{-- Durasi --}}
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#9ca3af">
+                        📅 {{ $ftw->tanggal_mulai->format('d/m/Y') }} – {{ $ftw->tanggal_selesai->format('d/m/Y') }}
+                    </div>
+
+                    @if($ftw->dokter_nama)
+                    <div style="margin-top:8px;font-size:11px;color:#9ca3af">
+                        Diperiksa oleh: {{ $ftw->dokter_nama }}
+                        @if($ftw->tanggal_periksa)
+                        · {{ $ftw->tanggal_periksa->format('d/m/Y') }}
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div style="text-align:center;padding:48px 0;color:#9ca3af">
+                <div style="font-size:3rem;margin-bottom:12px">🏥</div>
+                <div style="font-weight:600;color:#374151">Belum ada vendor dengan status Fit to Work aktif.</div>
+                <div style="font-size:13px;margin-top:6px">Vendor yang telah diperiksa dokter akan muncul di sini.</div>
+            </div>
+            @endif
         </div>
     </section>
 

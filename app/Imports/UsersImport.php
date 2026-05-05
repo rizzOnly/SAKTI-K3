@@ -62,7 +62,7 @@ class UsersImport implements
         $user->save();
 
         // Assign role 'pegawai'
-        if (!$user->hasAnyRole(['admin_k3', 'dokter', 'pegawai'])) {
+        if (!$user->hasAnyRole(['admin_k3', 'dokter', 'pegawai', 'perawat'])) {
             $user->assignRole('pegawai');
         }
 

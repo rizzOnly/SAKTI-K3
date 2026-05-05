@@ -3,9 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PegawaiFormController;
 use App\Http\Controllers\VendorRegistrasiController;
+use App\Http\Controllers\FitToWorkController;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\User;
-use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen};
+use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen, FitToWork};
 
 Route::get('/', function () {
     // 1. AUTO-NONAKTIFKAN VENDOR WPO PLUS YANG EXPIRED
@@ -42,6 +43,7 @@ Route::get('/', function () {
         'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
         'patrolTahun'       => now()->year,
         'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
+        'fitToWorkVendor'   => \App\Models\FitToWork::vendorFitAktif() ->orderByDesc('tanggal_periksa')->get(),
     ]);
 });
 
@@ -96,4 +98,11 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/survey/preview',    [VendorRegistrasiController::class, 'previewSurvey'])->name('survey.preview');
     Route::get('/survey/{token}',    [VendorRegistrasiController::class, 'showSurvey'])->name('survey');
     Route::post('/survey/{token}',   [VendorRegistrasiController::class, 'submitSurvey'])->name('survey.submit');
+});
+
+// ─── Form Fit to Work ─────────────────────────────────────────
+Route::prefix('fit-to-work')->name('fit-to-work.')->group(function () {
+    Route::get('/',       [FitToWorkController::class, 'show'])->name('form');
+    Route::post('/',      [FitToWorkController::class, 'store'])->name('store');
+    Route::get('/sukses', [FitToWorkController::class, 'sukses'])->name('sukses');
 });
