@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\AdminK3\Resources\StockAdjustmentResource\resourcePages;
 
 use App\Filament\AdminK3\Resources\StockAdjustmentResource;
@@ -13,8 +14,9 @@ class ListStockAdjustments extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Adjust Stok')
-                ->icon('heroicon-o-plus-circle'),
+                ->label('Tambah Stock Adjustment')
+                ->icon('heroicon-o-plus')
+                ->color('success'),
         ];
     }
 }
