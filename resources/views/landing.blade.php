@@ -342,7 +342,7 @@
                     <a href="#video">PROFIL</a>
                     <a href="#artikel">ARTIKEL</a>
                     <a href="#vendor">VENDOR</a>
-                    <a href="#fit-to-work">Fit to Work</a>
+                    <a href="#fit-to-work">FIT TO WORK</a>
                     <a href="#patrol">PATROL</a>
                 </div>
 
@@ -401,7 +401,7 @@
                     <span class="drawer-nav-icon">👁</span> PATROL iZAT
                 </a>
                 <a href="#fit-to-work" onclick="closeDrawer()">
-                    <span class="drawer-nav-icon">⚠️</span> Fit to Work
+                    <span class="drawer-nav-icon">⚠️</span> FIT TO WORK
                 </a>
             </nav>
 
