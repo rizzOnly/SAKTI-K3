@@ -505,22 +505,23 @@
             
             <div class="video-text">
                 <div class="video-badge">
-                    Profil K3 PLN Nusantara Power UP Sengkang
+                    Profil Unit PT PLN Nusantara Power UP Sengkang
                 </div>
-                <h2 class="video-title">Keselamatan &amp; Kesehatan Kerja<br>PT PLN Nusantara Power UP Sengkang</h2>
-                <p class="video-desc">
-                    Komitmen kami terhadap K3 bukan sekadar regulasi — ini adalah budaya.
-                    Setiap karyawan adalah garis pertahanan pertama dalam menciptakan
-                    lingkungan kerja yang aman dan sehat.
+                <h2 class="video-title">Unit Pembangkit Listrik Tenaga Gas Uap<br> PLN Nusantara Power UP Sengkang</h2>
+                <p class="video-desc" style="text-align: justify;">
+                    PT PLN Nusantara Power UP Sengkang merupakan unit pembangkit
+                    listrik berbahan bakar gas alam (Natural Gas) yang berlokasi di Desa Patilla, Kecamatan
+                    Pammana, Kabupaten Wajo, Sulawesi Selatan. Berdiri di atas lahan seluas lebih dari 35
+                    hektare, unit ini menjadi salah satu tulang punggung kelistrikan kawasan timur Indonesia.
                 </p>
 
                 
-                <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;">
+                <div style="color:#bfdbfe;font-size:14px;text-align:justify;">
                     <?php
                     $points = [
-                        ['icon'=>'🛡️','text'=>'Zero Accident – target nasional K3'],
-                        ['icon'=>'📋','text'=>'Audit K3 rutin & tersertifikasi'],
-                        ['icon'=>'👷','text'=>'Pelatihan keselamatan seluruh pegawai'],
+                        ['icon'=>'⚡','text'=>'Kapasitas total 315 MW — Blok 1 (135 MW, COD 1998) & Blok 2 (180 MW, COD 2013)'],
+                        ['icon'=>'📍','text'=>'Berlokasi strategis di Kab. Wajo, Sulawesi Selatan, di atas lahan +35 Hektare'],
+                        ['icon'=>'🔧','text'=>'Dioperasikan oleh PLN Nusantara Power sejak Maret 2023 setelah akuisisi aset PLTGU Sengkang'],
                     ];
                     ?>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $points; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
