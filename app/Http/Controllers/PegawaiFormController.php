@@ -41,15 +41,27 @@ class PegawaiFormController extends Controller
             'catatan'             => 'nullable|string|max:500',
             'no_wa_pengirim'      => 'nullable|string|max:20',
             'email_pengirim'      => 'nullable|email|max:255',
+            // 🔥 TAMBAHAN: Validasi File Permit
+            'berkas_permit'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'berkas_permit.required' => 'Berkas Permit / JSA wajib diupload.',
+            'berkas_permit.mimes'    => 'Format file harus JPG, PNG, atau PDF.',
+            'berkas_permit.max'      => 'Ukuran file maksimal 5 MB.',
         ]);
 
         if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withErrors(['kontak' => 'Isi WA atau Email']);
+            return back()->withInput()->withErrors(['kontak' => 'Isi WA atau Email']);
         }
 
         $user = User::where('nid', $request->nid)->first();
         if (!$user) {
-            return back()->withErrors(['nid' => 'NID tidak ditemukan']);
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan']);
+        }
+
+        // 🔥 TAMBAHAN: Simpan file berkas permit
+        $berkasPath = null;
+        if ($request->hasFile('berkas_permit')) {
+            $berkasPath = $request->file('berkas_permit')->store('apd/permit', 'public');
         }
 
         $header = PengambilanHeader::create([
@@ -58,6 +70,7 @@ class PegawaiFormController extends Controller
             'tanggal_pengajuan' => $request->tanggal_pengajuan,
             'status'            => 'pending',
             'catatan'           => $request->catatan,
+            'berkas_permit'     => $berkasPath, // 🔥 TAMBAHAN: Simpan path ke DB
         ]);
 
         foreach ($request->items as $item) {
@@ -80,7 +93,6 @@ class PegawaiFormController extends Controller
         // NOTIF ADMIN
         $admins = User::role('admin_k3')->get();
         foreach ($admins as $admin) {
-
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
                     "📦 *Pengajuan Pengambilan APD Baru*\n" .
@@ -94,6 +106,7 @@ class PegawaiFormController extends Controller
                     $detailItems .
                     "━━━━━━━━━━━━━━━━━━\n" .
                     ($request->catatan ? "📝 {$request->catatan}\n" : "") .
+                    "📎 Berkas Permit: Terlampir di Sistem\n" . // 🔥 TAMBAHAN: Info Berkas
                     "✅ Approve: " . url('/admin')
                 );
             }
@@ -130,27 +143,53 @@ class PegawaiFormController extends Controller
     public function storePinjam(Request $request)
     {
         $request->validate([
-            'nid' => 'required',
-            'tanggal_pengajuan' => 'required|date',
+            'nid'                     => 'required|string',
+            'tanggal_pengajuan'       => 'required|date',
             'tanggal_kembali_rencana' => 'required|date|after:today',
-            'items' => 'required|array|min:1',
+            'items'                   => 'required|array|min:1',
+            'items.*.apd_item_id'     => 'required|exists:apd_items,id',
+            'items.*.jumlah'          => 'required|integer|min:1',
+            'catatan'                 => 'nullable|string|max:500',
+            'no_wa_pengirim'          => 'nullable|string|max:20',
+            'email_pengirim'          => 'nullable|email|max:255',
+            // 🔥 TAMBAHAN: Validasi File JSA
+            'berkas_jsa'              => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'berkas_jsa.required' => 'Berkas JSA wajib diupload.',
+            'berkas_jsa.mimes'    => 'Format file harus JPG, PNG, atau PDF.',
+            'berkas_jsa.max'      => 'Ukuran file maksimal 5 MB.',
         ]);
 
+        if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
+            return back()->withInput()->withErrors(['kontak' => 'Isi WA atau Email']);
+        }
+
         $user = User::where('nid', $request->nid)->first();
+        if (!$user) {
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3.']);
+        }
+
+        // 🔥 TAMBAHAN: Simpan file JSA
+        $jsaPath = null;
+        if ($request->hasFile('berkas_jsa')) {
+            $jsaPath = $request->file('berkas_jsa')->store('apd/jsa', 'public');
+        }
 
         $header = PeminjamanHeader::create([
-            'nomor_transaksi' => PeminjamanHeader::generateNomor(),
-            'user_id' => $user->id,
-            'tanggal_pengajuan' => $request->tanggal_pengajuan,
+            'nomor_transaksi'         => PeminjamanHeader::generateNomor(),
+            'user_id'                 => $user->id,
+            'tanggal_pengajuan'       => $request->tanggal_pengajuan,
             'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
-            'status' => 'pending',
+            'status'                  => 'pending',
+            'catatan'                 => $request->catatan,
+            'berkas_jsa'              => $jsaPath, // 🔥 TAMBAHAN: Simpan path ke DB
         ]);
 
         foreach ($request->items as $item) {
             PeminjamanDetail::create([
                 'peminjaman_header_id' => $header->id,
-                'apd_item_id' => $item['apd_item_id'],
-                'jumlah' => $item['jumlah'],
+                'apd_item_id'          => $item['apd_item_id'],
+                'jumlah'               => $item['jumlah'],
             ]);
         }
 
@@ -171,19 +210,42 @@ class PegawaiFormController extends Controller
                     "🔄 *Pengajuan Peminjaman APD Baru*\n" .
                     "━━━━━━━━━━━━━━━━━━\n" .
                     "👤 Nama:  {$user->name}\n" .
-                    "🏢 Bidang:  {$user->bidang}\n" .
+                    "🏢 Bidang:  " . ($user->bidang ?? '-') . "\n" .
                     "📋 Nomor Transaksi: {$header->nomor_transaksi}\n" .
                     "📅 Tanggal Pengajuan: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
                     "🔙 Tanggal Rencana Kembali: " . Carbon::parse($request->tanggal_kembali_rencana)->format('d/m/Y') . "\n" .
                     "━━━━━━━━━━━━━━━━━━\n" .
+                    "🦺 *Detail Barang:*\n" .
                     $detailItemsPinjam .
                     "━━━━━━━━━━━━━━━━━━\n" .
-                    "Approve: " . url('/admin')
+                    ($request->catatan ? "📝 {$request->catatan}\n" : "") .
+                    "📎 Berkas JSA: Terlampir di Sistem\n" . // 🔥 TAMBAHAN: Info Berkas
+                    "✅ Approve: " . url('/admin')
                 );
             }
         }
 
-        return back()->with('success', 'Berhasil pinjam');
+        // 🔥 TAMBAHAN: Notif Konfirmasi ke User (agar seragam dengan Pengambilan)
+        $pesan = "✅ *Pengajuan Peminjaman APD Diterima*\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Nama: {$user->name}\n" .
+            "Bidang: " . ($user->bidang ?? '-') . "\n" .
+            "No: {$header->nomor_transaksi}\n" .
+            "Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "🦺 *Detail Barang:*\n" .
+            $detailItemsPinjam .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Status: Pending (Menunggu Admin K3)";
+
+        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesan);
+        if ($request->email_pengirim) {
+            Mail::raw(strip_tags(str_replace(['*', '━'], ['', '-'], $pesan)), function ($m) use ($request, $header) {
+                $m->to($request->email_pengirim)->subject("Peminjaman APD – {$header->nomor_transaksi}");
+            });
+        }
+
+        return back()->with('success', 'Berhasil kirim pengajuan pinjam, Silahkan ke Admin K3 untuk approval');
     }
 
     // =========================
@@ -206,7 +268,6 @@ class PegawaiFormController extends Controller
             'keluhan'        => 'nullable|string|max:500',
             'no_wa_pengirim' => 'nullable|string|max:20',
             'email_pengirim' => 'nullable|email|max:255',
-            // --- TAMBAHAN BARU ---
             'bidang'         => 'nullable|string|max:100',
             'jenis_kelamin'  => 'required|in:L,P',
         ]);
@@ -221,7 +282,6 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3 untuk mendaftarkan NID Anda terlebih dahulu.']);
         }
 
-        // --- TAMBAHAN BARU: Update Data Pegawai jika kosong ---
         if (!empty($request->bidang) && empty($user->bidang)) {
             $user->update(['bidang' => $request->bidang]);
         }
@@ -229,7 +289,6 @@ class PegawaiFormController extends Controller
             $user->update(['jenis_kelamin' => $request->jenis_kelamin]);
         }
 
-        // Anti-collision (Mencegah slot ganda)
         if (!KlinikAppointment::isSlotTersedia($request->dokter_id, $request->tanggal, $request->jam_slot)) {
             return back()->withErrors(['jam_slot' => 'Slot sudah terisi oleh pegawai lain. Pilih jam atau tanggal lain.'])->withInput();
         }
@@ -246,7 +305,6 @@ class PegawaiFormController extends Controller
         $dokter = User::find($request->dokter_id);
         $tgl    = $appointment->tanggal->format('d/m/Y');
 
-        // Notifikasi ke Dokter
         if ($dokter->no_hp) {
             WhatsAppService::send($dokter->no_hp,
                 "🏥 *Appointment Klinik Baru*\n" .
@@ -263,7 +321,6 @@ class PegawaiFormController extends Controller
             ));
         }
 
-        // Konfirmasi ke Pegawai
         $pesanKonfirmasi = "✅ *Booking Klinik Dikonfirmasi*\n━━━━━━━━━━━━━━━━━━\nNama: {$user->name}\nDokter: {$dokter->name}\nTanggal: {$tgl} – {$request->jam_slot}\n━━━━━━━━━━━━━━━━━━\nTolong hadir tepat waktu 😊.";
         if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesanKonfirmasi);
         if ($request->email_pengirim) {
@@ -312,7 +369,7 @@ class PegawaiFormController extends Controller
             'found'         => true,
             'nama'          => $user->name,
             'bidang'        => $user->bidang,
-            'jenis_kelamin' => $user->jenis_kelamin, // TAMBAHAN
+            'jenis_kelamin' => $user->jenis_kelamin,
         ]);
     }
 }

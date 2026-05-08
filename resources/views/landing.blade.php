@@ -232,7 +232,8 @@
         .patrol-week-bar { background:#1aad57; padding:6px 16px; display:flex; align-items:center; justify-content:space-between; }
         .patrol-week-label { color:#fff; font-size:11px; font-weight:600; }
         .patrol-week-range { color:rgba(255,255,255,.8); font-size:11px; }
-        .patrol-table-wrap { overflow-x:auto; }
+        .patrol-table-wrap { overflow-x: auto; overflow-y: auto; max-height 280px; }
+        .patrol-table thead tr { background:#25d366; position: sticky; top: 0; z-index: 1; }
         .patrol-table { width:100%; border-collapse:collapse; }
         .patrol-table thead tr { background:#25d366; }
         .patrol-table thead th { padding:9px 12px; font-size:11px; font-weight:700; color:#fff; text-align:left; border-right:1px solid rgba(255,255,255,.15); white-space:nowrap; }
@@ -505,22 +506,23 @@
             {{-- Teks kiri --}}
             <div class="video-text">
                 <div class="video-badge">
-                    Profil K3 PLN Nusantara Power UP Sengkang
+                    Profil Unit PT PLN Nusantara Power UP Sengkang
                 </div>
-                <h2 class="video-title">Keselamatan &amp; Kesehatan Kerja<br>PT PLN Nusantara Power UP Sengkang</h2>
-                <p class="video-desc">
-                    Komitmen kami terhadap K3 bukan sekadar regulasi — ini adalah budaya.
-                    Setiap karyawan adalah garis pertahanan pertama dalam menciptakan
-                    lingkungan kerja yang aman dan sehat.
+                <h2 class="video-title">Unit Pembangkit Listrik Tenaga Gas Uap<br> PLN Nusantara Power UP Sengkang</h2>
+                <p class="video-desc" style="text-align: justify;">
+                    PT PLN Nusantara Power UP Sengkang merupakan unit pembangkit
+                    listrik berbahan bakar gas alam (Natural Gas) yang berlokasi di Desa Patilla, Kecamatan
+                    Pammana, Kabupaten Wajo, Sulawesi Selatan. Berdiri di atas lahan seluas lebih dari 35
+                    hektare, unit ini menjadi salah satu tulang punggung kelistrikan kawasan timur Indonesia.
                 </p>
 
                 {{-- Poin keunggulan --}}
-                <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;">
+                <div style="color:#bfdbfe;font-size:14px;text-align:justify;">
                     @php
                     $points = [
-                        ['icon'=>'🛡️','text'=>'Zero Accident – target nasional K3'],
-                        ['icon'=>'📋','text'=>'Audit K3 rutin & tersertifikasi'],
-                        ['icon'=>'👷','text'=>'Pelatihan keselamatan seluruh pegawai'],
+                        ['icon'=>'⚡','text'=>'Kapasitas total 315 MW — Blok 1 (135 MW, COD 1998) & Blok 2 (180 MW, COD 2013)'],
+                        ['icon'=>'📍','text'=>'Berlokasi strategis di Kab. Wajo, Sulawesi Selatan, di atas lahan +35 Hektare'],
+                        ['icon'=>'🔧','text'=>'Dioperasikan oleh PLN Nusantara Power sejak Maret 2023 setelah akuisisi aset PLTGU Sengkang'],
                     ];
                     @endphp
                     @foreach($points as $pt)
@@ -551,9 +553,20 @@
     {{-- ═══════════ ARTIKEL K3 ═══════════ --}}
     <section id="artikel" class="section">
         <div class="section-inner">
-            <div class="section-header">
-                <h2 class="section-title">Artikel K3 Terbaru</h2>
-                <div class="section-line"></div>
+
+            {{-- ══ HEADER DENGAN TOMBOL DI KANAN ══ --}}
+            <div class="section-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 30px;">
+                <h2 class="section-title" style="margin: 0; white-space: nowrap;">Artikel K3 Terbaru</h2>
+                <div class="section-line" style="flex-grow: 1; height: 2px; background-color: #FFC72C;"></div>
+                <a href="{{ route('artikel.index') }}"
+                   style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: #003D7C; text-decoration: none; padding: 6px 16px; border: 2px solid #003D7C; border-radius: 9999px; transition: all 0.2s; white-space: nowrap;"
+                   onmouseover="this.style.backgroundColor='#003D7C'; this.style.color='#ffffff';"
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.color='#003D7C';">
+                    Lihat Semua
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </a>
             </div>
 
             @if($articles->isNotEmpty())
@@ -657,6 +670,7 @@
             @else
             <div style="text-align:center;padding:48px 0;color:#9ca3af">Belum ada artikel yang diterbitkan.</div>
             @endif
+
         </div>
     </section>
 
@@ -1074,9 +1088,9 @@
                         </div>
 
                         {{-- Tabel --}}
-                        <div class="patrol-table-wrap">
+                        <div class="patrol-table-wrap" style="overflow-y:auto; max-height:280px;">
                             <table class="patrol-table">
-                                <thead>
+                                <thead style="position:sticky; top:0; z-index:2;">
                                     <tr>
                                         <th class="col-no">NO</th>
                                         <th class="col-nama">NAMA PETUGAS</th>

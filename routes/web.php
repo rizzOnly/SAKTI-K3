@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PegawaiFormController;
 use App\Http\Controllers\VendorRegistrasiController;
 use App\Http\Controllers\FitToWorkController;
+use App\Http\Controllers\ArtikelController;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\User;
 use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen, FitToWork};
@@ -63,7 +64,10 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::get('/api/cek-nid', [PegawaiFormController::class, 'cekNip'])->name('api.cek-nid');
 });
 
-// ─── Route artikel detail (named route) ────────────────────────
+// ─── Route artikel listing ───────────────────────
+Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+
+// ─── Route artikel detail ────────────────────────
 Route::get('/artikel/{id}', function ($id) {
     $article = CmsArticle::where('is_published', true)->findOrFail($id);
 

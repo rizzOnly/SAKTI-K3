@@ -7,7 +7,8 @@ class PengambilanHeader extends Model
 {
     protected $fillable = [
         'nomor_transaksi', 'user_id', 'tanggal_pengajuan',
-        'status', 'catatan', 'approved_by', 'approved_at', 'rejection_reason',
+        'status', 'catatan', 'berkas_permit',   // ← tambahkan
+        'approved_by', 'approved_at', 'rejection_reason',
     ];
 
     protected $casts = [

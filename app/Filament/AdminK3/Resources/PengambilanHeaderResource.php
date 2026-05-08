@@ -9,12 +9,15 @@ use App\Models\{PengambilanHeader, ApdItem};
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater};
-use Filament\Tables\Columns\{TextColumn, BadgeColumn};
+// TAMBAHAN IMPORT FILEUPLOAD & SECTION
+use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater, FileUpload, Section};
+// TAMBAHAN IMPORT ICONCOLUMN
+use Filament\Tables\Columns\{TextColumn, BadgeColumn, IconColumn};
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+
 
 class PengambilanHeaderResource extends Resource
 {
@@ -37,7 +40,6 @@ class PengambilanHeaderResource extends Resource
                 ->relationship('user', 'name')
                 ->searchable()
                 ->required()
-                // UPDATE: Menampilkan Bidang di dropdown saat memilih pegawai
                 ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
 
             DatePicker::make('tanggal_pengajuan')
@@ -78,6 +80,18 @@ class PengambilanHeaderResource extends Resource
                 ->columns(2)
                 ->minItems(1)
                 ->addActionLabel('+ Tambah Item APD'),
+
+            // TAMBAHAN: Upload Berkas Permit
+            Section::make('Berkas Lampiran')->schema([
+                FileUpload::make('berkas_permit')
+                    ->label('Berkas Permit / JSA')
+                    ->image()
+                    ->acceptedFileTypes(['image/*', 'application/pdf'])
+                    ->directory('apd/permit')
+                    ->downloadable()
+                    ->openable()
+                    ->nullable(),
+            ])->collapsible(),
         ]);
     }
 
@@ -94,7 +108,6 @@ class PengambilanHeaderResource extends Resource
                     ->label('Pegawai')
                     ->searchable(),
 
-                // TAMBAHAN: Kolom Bidang
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
                     ->searchable()
@@ -104,6 +117,16 @@ class PengambilanHeaderResource extends Resource
                 TextColumn::make('tanggal_pengajuan')
                     ->date('d/m/Y')
                     ->sortable(),
+
+                // TAMBAHAN: Kolom Ikon Berkas Permit
+                IconColumn::make('berkas_permit')
+                    ->label('Berkas Permit')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-paper-clip')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->tooltip(fn($record) => $record->berkas_permit ? 'Ada berkas' : 'Tidak ada berkas'),
 
                 BadgeColumn::make('status')
                     ->colors([

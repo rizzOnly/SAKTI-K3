@@ -8,7 +8,8 @@ use App\Models\{PeminjamanHeader, ApdItem};
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-use Filament\Tables\Columns\{TextColumn, BadgeColumn, ImageColumn};
+// TAMBAHAN IMPORT ICONCOLUMN
+use Filament\Tables\Columns\{TextColumn, BadgeColumn, ImageColumn, IconColumn};
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables;
 use Filament\Notifications\Notification;
@@ -36,7 +37,6 @@ class PeminjamanHeaderResource extends Resource
                 ->relationship('user', 'name')
                 ->searchable()
                 ->required()
-                // UPDATE: Menampilkan Bidang di dropdown saat memilih pegawai
                 ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
 
             DatePicker::make('tanggal_pengajuan')
@@ -84,7 +84,18 @@ class PeminjamanHeaderResource extends Resource
                 ->minItems(1)
                 ->addActionLabel('+ Tambah Item Pinjam'),
 
-            // Form Dokumentasi Peminjam (Tampil saat edit/view)
+            // TAMBAHAN: Upload Berkas JSA
+            Section::make('Berkas Lampiran')->schema([
+                FileUpload::make('berkas_jsa')
+                    ->label('Berkas JSA')
+                    ->image()
+                    ->acceptedFileTypes(['image/*', 'application/pdf'])
+                    ->directory('apd/jsa')
+                    ->downloadable()
+                    ->openable()
+                    ->nullable(),
+            ])->collapsible(),
+
             Section::make('Dokumentasi Peminjam')
                 ->description('Upload foto sebagai bukti dokumentasi peminjam APD (hanya diisi saat approve)')
                 ->schema([
@@ -124,9 +135,8 @@ class PeminjamanHeaderResource extends Resource
 
                 TextColumn::make('user.name')
                     ->label('Pegawai')
-                    ->searchable(), // Tambah searchable agar mudah dicari
+                    ->searchable(),
 
-                // TAMBAHAN: Kolom Bidang
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
                     ->searchable()
@@ -136,6 +146,16 @@ class PeminjamanHeaderResource extends Resource
                 TextColumn::make('tanggal_kembali_rencana')
                     ->label('Tgl Rencana Kembali')
                     ->date('d/m/Y'),
+
+                // TAMBAHAN: Kolom Ikon Berkas JSA
+                IconColumn::make('berkas_jsa')
+                    ->label('Berkas JSA')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-paper-clip')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->tooltip(fn($record) => $record->berkas_jsa ? 'Ada berkas' : 'Tidak ada berkas'),
 
                 BadgeColumn::make('status')
                     ->colors([
@@ -166,6 +186,7 @@ class PeminjamanHeaderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(), // Tambahan Edit Action jika diperlukan untuk upload berkas setelah submit
 
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
@@ -254,6 +275,7 @@ class PeminjamanHeaderResource extends Resource
         return [
             'index'  => ListPeminjamanHeaders::route('/'),
             'create' => CreatePeminjamanHeader::route('/create'),
+            'edit'   => CreatePeminjamanHeader::route('/{record}/edit'),
             'view'   => ViewPeminjamanHeader::route('/{record}'),
         ];
     }

@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 class PeminjamanHeader extends Model
 {
     protected $fillable = [
-    'nomor_transaksi', 'user_id', 'tanggal_pengajuan',
-    'tanggal_kembali_rencana', 'status', 'catatan',
-    'foto_dokumentasi',                          // ← tambahkan
-    'approved_by', 'approved_at', 'rejection_reason',
-    'returned_at', 'kondisi_kembali',
-];
+        'nomor_transaksi', 'user_id', 'tanggal_pengajuan',
+        'tanggal_kembali_rencana', 'status', 'catatan',
+        'berkas_jsa',          // ← tambahkan
+        'foto_dokumentasi',
+        'approved_by', 'approved_at', 'rejection_reason',
+        'returned_at', 'kondisi_kembali',
+    ];
 
     protected $casts = [
         'tanggal_pengajuan' => 'date',
