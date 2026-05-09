@@ -3,6 +3,7 @@ namespace App\Filament\Klinik\Resources;
 
 use App\Filament\Klinik\Resources\KlinikAlatResource\Pages\CreateKlinikAlat;
 use App\Filament\Klinik\Resources\KlinikAlatResource\Pages\EditKlinikAlat;
+use App\Filament\Klinik\Resources\KlinikAlatResource\Pages\ImportKlinikAlats;
 use App\Filament\Klinik\Resources\KlinikAlatResource\resourcePages\ListKlinikAlats;
 use App\Models\KlinikAlat;
 use Filament\Forms\Form;
@@ -80,6 +81,7 @@ class KlinikAlatResource extends Resource
             'index'  => ListKlinikAlats::route('/'),
             'create' => CreateKlinikAlat::route('/create'),
             'edit'   => EditKlinikAlat::route('/{record}/edit'),
+            'import' => ImportKlinikAlats::route('/import'),
         ];
     }
 }

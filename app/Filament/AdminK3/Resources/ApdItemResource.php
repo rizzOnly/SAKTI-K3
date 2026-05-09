@@ -5,6 +5,7 @@ namespace App\Filament\AdminK3\Resources;
 use App\Exports\LaporanInventarisExport;
 use App\Filament\AdminK3\Resources\ApdItemResource\Pages\CreateApdItem;
 use App\Filament\AdminK3\Resources\ApdItemResource\Pages\EditApdItem;
+use App\Filament\AdminK3\Resources\ApdItemResource\Pages\ImportApdItems;
 use App\Filament\AdminK3\Resources\ApdItemResource\resourcePages\ListApdItems;
 use App\Models\ApdItem;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -197,6 +198,7 @@ class ApdItemResource extends Resource
             'index' => ListApdItems::route('/'),
             'create' => CreateApdItem::route('/create'),
             'edit' => EditApdItem::route('/{record}/edit'),
+            'import' => ImportApdItems::route('/import'),
         ];
     }
 }

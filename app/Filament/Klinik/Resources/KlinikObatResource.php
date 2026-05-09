@@ -3,6 +3,7 @@ namespace App\Filament\Klinik\Resources;
 
 use App\Filament\Klinik\Resources\KlinikObatResource\Pages\CreateKlinikObat;
 use App\Filament\Klinik\Resources\KlinikObatResource\Pages\EditKlinikObat;
+use App\Filament\Klinik\Resources\KlinikObatResource\Pages\ImportKlinikObats;
 use App\Filament\Klinik\Resources\KlinikObatResource\resourcePages\ListKlinikObats;
 use App\Models\KlinikObat;
 use Filament\Forms\Form;
@@ -96,6 +97,7 @@ class KlinikObatResource extends Resource
             'index'  => ListKlinikObats::route('/'),
             'create' => CreateKlinikObat::route('/create'),
             'edit'   => EditKlinikObat::route('/{record}/edit'),
+            'import' => ImportKlinikObats::route('/import'),
         ];
     }
 }
