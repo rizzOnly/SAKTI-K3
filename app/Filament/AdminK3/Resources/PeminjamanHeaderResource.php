@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\AdminK3\Resources;
 
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\CreatePeminjamanHeader;
@@ -9,13 +10,12 @@ use App\Models\{PeminjamanHeader, ApdItem};
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-// TAMBAHAN IMPORT ICONCOLUMN
 use Filament\Tables\Columns\{TextColumn, BadgeColumn, ImageColumn, IconColumn};
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater, FileUpload, Section};
+use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater, FileUpload, Section, Hidden};
 
 class PeminjamanHeaderResource extends Resource
 {
@@ -33,12 +33,41 @@ class PeminjamanHeaderResource extends Resource
                 ->disabled()
                 ->dehydrated(),
 
-            Select::make('user_id')
-                ->label('Nama Pegawai')
-                ->relationship('user', 'name')
-                ->searchable()
-                ->required()
-                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+            Hidden::make('is_guest')->default(false),
+
+            Section::make('Data Pegawai')
+                ->schema([
+                    Select::make('user_id')
+                        ->label('Nama Pegawai')
+                        ->relationship('user', 'name')
+                        ->searchable()
+                        ->required(fn($record) => !$record || !$record->is_guest)
+                        ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+                ])
+                ->columns(1)
+                ->hidden(fn($record) => $record && $record->is_guest)
+                ->dehydratedWhenHidden(),
+
+            Section::make('Data Tamu')
+                ->schema([
+                    TextInput::make('guest_nama')
+                        ->label('Nama Lengkap')
+                        ->required(fn($record) => !$record || $record->is_guest)
+                        ->maxLength(200),
+                    TextInput::make('guest_perusahaan')
+                        ->label('Perusahaan / Instansi')
+                        ->maxLength(200),
+                    TextInput::make('guest_no_wa')
+                        ->label('No. WhatsApp')
+                        ->maxLength(20),
+                    TextInput::make('guest_email')
+                        ->label('Email')
+                        ->email()
+                        ->maxLength(255),
+                ])
+                ->columns(2)
+                ->hidden(fn($record) => !$record || !$record->is_guest)
+                ->dehydratedWhenHidden(),
 
             DatePicker::make('tanggal_pengajuan')
                 ->default(now())
@@ -85,7 +114,6 @@ class PeminjamanHeaderResource extends Resource
                 ->minItems(1)
                 ->addActionLabel('+ Tambah Item Pinjam'),
 
-            // TAMBAHAN: Upload Berkas JSA
             Section::make('Berkas Lampiran')->schema([
                 FileUpload::make('berkas_jsa')
                     ->label('Berkas JSA')
@@ -132,23 +160,43 @@ class PeminjamanHeaderResource extends Resource
 
                 TextColumn::make('nomor_transaksi')
                     ->label('No. Transaksi')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+
+                BadgeColumn::make('is_guest')
+                    ->label('Tipe')
+                    ->formatStateUsing(fn($state) => $state ? 'Tamu' : 'Pegawai')
+                    ->colors([
+                        'info' => false,
+                        'warning' => true,
+                    ])
+                    ->toggleable()
+                    ->hidden(fn($record) => !$record || !$record->is_guest),
+
+                TextColumn::make('guest_nama')
+                    ->label('Nama (Tamu)')
+                    ->searchable()
+                    ->toggleable()
+                    ->hidden(fn($record) => !$record || !$record->is_guest),
 
                 TextColumn::make('user.name')
                     ->label('Pegawai')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(fn($record) => !$record || $record->is_guest),
 
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
                     ->searchable()
                     ->sortable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(fn($record) => !$record || $record->is_guest),
 
                 TextColumn::make('tanggal_kembali_rencana')
                     ->label('Tgl Rencana Kembali')
                     ->date('d/m/Y'),
 
-                // TAMBAHAN: Kolom Ikon Berkas JSA
                 IconColumn::make('berkas_jsa')
                     ->label('Berkas JSA')
                     ->boolean()
@@ -187,7 +235,7 @@ class PeminjamanHeaderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(), // Tambahan Edit Action jika diperlukan untuk upload berkas setelah submit
+                Tables\Actions\EditAction::make(),
 
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')

@@ -49,7 +49,7 @@
 
     <div class="max-w-xl mx-auto px-4 py-10">
 
-        @if(session('success'))
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="bg-teal-50 border border-teal-200 rounded-2xl p-6 mb-6 flex items-start gap-4">
             <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,40 +58,54 @@
             </div>
             <div>
                 <div class="font-bold text-teal-800">Booking Berhasil!</div>
-                <div class="text-teal-700 text-sm mt-1">{{ session('success') }}</div>
-                <a href="{{ route('pegawai.booking') }}" class="inline-block mt-3 text-sm text-teal-700 underline">Booking lagi</a>
+                <div class="text-teal-700 text-sm mt-1"><?php echo e(session('success')); ?></div>
+                <a href="<?php echo e(route('pegawai.booking')); ?>" class="inline-block mt-3 text-sm text-teal-700 underline">Booking lagi</a>
             </div>
         </div>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <div class="bg-white rounded-2xl p-8 shadow-[0_0_0_1px_rgba(0,0,0,.06),0_4px_24px_rgba(13,148,136,.1)]">
             <h1 class="text-2xl font-bold text-gray-800 mb-1">Booking Appointment Klinik</h1>
             <p class="text-gray-400 text-sm mb-8">Pilih dokter, tanggal, dan jam yang tersedia.</p>
 
-            <form method="POST" action="{{ route('pegawai.booking.store') }}" id="booking-form">
-                @csrf
+            <form method="POST" action="<?php echo e(route('pegawai.booking.store')); ?>" id="booking-form">
+                <?php echo csrf_field(); ?>
 
-                {{-- NID dengan live check (Diadaptasi dari form APD) --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">NID Pegawai <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="text" id="nid-input" name="nid" value="{{ old('nid') }}"
+                        <input type="text" id="nid-input" name="nid" value="<?php echo e(old('nid')); ?>"
                                placeholder="Masukkan NID Anda"
-                               class="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition pr-10 @error('nid') border-red-400 bg-red-50 @else border-gray-200 @enderror"
+                               class="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition pr-10 <?php $__errorArgs = ['nid'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-400 bg-red-50 <?php else: ?> border-gray-200 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                required autocomplete="off">
                         <div id="nid-spinner" class="hidden absolute right-3 top-3.5 w-4 h-4 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin"></div>
                         <div id="nid-check-ok" class="hidden absolute right-3 top-3 text-green-500 text-lg">✓</div>
                     </div>
-                    {{-- NID tidak ditemukan --}}
-                    @error('nid')
+                    
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nid'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                     <div class="mt-2 bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
                         <span class="text-red-500 text-lg flex-shrink-0">⚠️</span>
                         <div>
-                            <p class="text-red-700 text-sm font-medium">{{ $message }}</p>
+                            <p class="text-red-700 text-sm font-medium"><?php echo e($message); ?></p>
                             <p class="text-red-500 text-xs mt-1">Belum terdaftar? Hubungi Admin K3 di <strong>pos K3</strong> atau <strong>ext. 101</strong>.</p>
                         </div>
                     </div>
-                    @enderror
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <div id="nid-not-found" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
                         <span class="text-amber-500 text-lg flex-shrink-0">⚠️</span>
                         <div>
@@ -105,103 +119,126 @@
                     </div>
                 </div>
 
-                {{-- Bidang --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Bidang / Unit Kerja</label>
-                    <input type="text" name="bidang" id="bidang-input" value="{{ old('bidang') }}"
+                    <input type="text" name="bidang" id="bidang-input" value="<?php echo e(old('bidang')); ?>"
                            readonly
                            class="w-full border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed rounded-xl px-4 py-3 text-sm focus:outline-none transition">
                 </div>
 
-                {{-- Jenis Kelamin --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
                     <div class="flex gap-3">
                         <label class="flex-1 cursor-pointer">
                             <input type="radio" name="jenis_kelamin" value="L" class="sr-only" required
-                                   {{ old('jenis_kelamin') === 'L' ? 'checked' : '' }}>
+                                   <?php echo e(old('jenis_kelamin') === 'L' ? 'checked' : ''); ?>>
                             <div class="jk-option border-2 border-gray-200 rounded-xl p-3 text-center text-sm font-semibold text-gray-600 hover:border-teal-400 transition">
                                 👨 Laki-laki
                             </div>
                         </label>
                         <label class="flex-1 cursor-pointer">
                             <input type="radio" name="jenis_kelamin" value="P" class="sr-only"
-                                   {{ old('jenis_kelamin') === 'P' ? 'checked' : '' }}>
+                                   <?php echo e(old('jenis_kelamin') === 'P' ? 'checked' : ''); ?>>
                             <div class="jk-option border-2 border-gray-200 rounded-xl p-3 text-center text-sm font-semibold text-gray-600 hover:border-teal-400 transition">
                                 👩 Perempuan
                             </div>
                         </label>
                     </div>
-                    @error('jenis_kelamin')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jenis_kelamin'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                {{-- Dokter --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Dokter <span class="text-red-500">*</span></label>
                     <select name="dokter_id" id="dokter-select"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition bg-white"
                             required onchange="loadSlots()">
                         <option value="">-- Pilih Dokter --</option>
-                        @foreach($dokters as $dokter)
-                        <option value="{{ $dokter->id }}" {{ old('dokter_id') == $dokter->id ? 'selected' : '' }}>
-                            {{ $dokter->name }}
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $dokters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $dokter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($dokter->id); ?>" <?php echo e(old('dokter_id') == $dokter->id ? 'selected' : ''); ?>>
+                            <?php echo e($dokter->name); ?>
+
                         </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </select>
                 </div>
 
-                {{-- Tanggal --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal <span class="text-red-500">*</span></label>
                     <input type="date" name="tanggal" id="tanggal-input"
-                           value="{{ old('tanggal', today()->addDay()->format('Y-m-d')) }}"
-                           min="{{ today()->addDay()->format('Y-m-d') }}"
+                           value="<?php echo e(old('tanggal', today()->addDay()->format('Y-m-d'))); ?>"
+                           min="<?php echo e(today()->addDay()->format('Y-m-d')); ?>"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition bg-white"
                            required onchange="loadSlots()">
                 </div>
 
-                {{-- Slot Waktu (AJAX) --}}
+                
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Pilih Jam <span class="text-red-500">*</span></label>
-                    <input type="hidden" name="jam_slot" id="jam-slot-input" value="{{ old('jam_slot') }}" required>
+                    <input type="hidden" name="jam_slot" id="jam-slot-input" value="<?php echo e(old('jam_slot')); ?>" required>
 
                     <div id="slots-container" class="flex flex-wrap gap-2">
                         <p class="text-gray-400 text-sm italic">Pilih dokter dan tanggal terlebih dahulu...</p>
                     </div>
-                    @error('jam_slot')<p class="text-red-500 text-xs mt-2">{{ $message }}</p>@enderror
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jam_slot'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><p class="text-red-500 text-xs mt-2"><?php echo e($message); ?></p><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                {{-- Keluhan --}}
+                
                 <div class="mb-8">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Keluhan</label>
                     <textarea name="keluhan" rows="3"
                               placeholder="Tuliskan keluhan atau gejala yang dirasakan..."
-                              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition resize-none">{{ old('keluhan') }}</textarea>
+                              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition resize-none"><?php echo e(old('keluhan')); ?></textarea>
                 </div>
 
-                {{-- ═══ KONTAK NOTIFIKASI (Tambahan Baru) ════════════════════ --}}
+                
                 <div class="mb-8 bg-teal-50 rounded-2xl p-5 border border-teal-100">
                     <div class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
                         🔔 Konfirmasi dikirim ke:
                     </div>
                     <p class="text-xs text-gray-500 mb-4">Isi minimal salah satu agar kami bisa mengirim konfirmasi booking Anda.</p>
 
-                    @error('kontak')
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['kontak'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                     <div class="mb-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-sm text-red-600">
-                        ⚠️ {{ $message }}
+                        ⚠️ <?php echo e($message); ?>
+
                     </div>
-                    @enderror
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">📱 Nomor WhatsApp</label>
-                            <input type="text" name="no_wa_pengirim" value="{{ old('no_wa_pengirim') }}"
+                            <input type="text" name="no_wa_pengirim" value="<?php echo e(old('no_wa_pengirim')); ?>"
                                    placeholder="08xxxxxxxxxx"
                                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">✉️ Email</label>
-                            <input type="email" name="email_pengirim" value="{{ old('email_pengirim') }}"
+                            <input type="email" name="email_pengirim" value="<?php echo e(old('email_pengirim')); ?>"
                                    placeholder="nama@email.com"
                                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition bg-white">
                         </div>
@@ -251,7 +288,7 @@
             }).join('');
 
             // Restore old value if available
-            const oldSlot = '{{ old("jam_slot") }}';
+            const oldSlot = '<?php echo e(old("jam_slot")); ?>';
             if (oldSlot && available.includes(oldSlot)) {
                 document.querySelectorAll('.slot-btn').forEach(btn => {
                     if (btn.textContent.trim() === oldSlot) selectSlot(oldSlot, btn);
@@ -376,3 +413,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\k3-pltgu\resources\views/pegawai/form-booking.blade.php ENDPATH**/ ?>

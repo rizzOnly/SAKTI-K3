@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 class PeminjamanHeader extends Model
 {
     protected $fillable = [
-        'nomor_transaksi', 'user_id', 'tanggal_pengajuan',
-        'tanggal_kembali_rencana', 'status', 'catatan',
+        'nomor_transaksi', 'user_id', 'is_guest',
+        'guest_nama', 'guest_perusahaan', 'guest_no_wa', 'guest_email',
+        'tanggal_pengajuan', 'tanggal_kembali_rencana', 'status', 'catatan',
         'berkas_jsa',          // ← tambahkan
         'foto_dokumentasi',
         'approved_by', 'approved_at', 'rejection_reason',

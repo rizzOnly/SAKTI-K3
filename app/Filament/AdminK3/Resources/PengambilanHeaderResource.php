@@ -15,6 +15,7 @@ use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater
 use Filament\Tables\Columns\{TextColumn, BadgeColumn, IconColumn};
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables;
+use Filament\Forms\Components\Hidden;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
@@ -35,12 +36,44 @@ class PengambilanHeaderResource extends Resource
                 ->disabled()
                 ->dehydrated(),
 
-            Select::make('user_id')
-                ->label('Nama Pegawai')
-                ->relationship('user', 'name')
-                ->searchable()
-                ->required()
-                ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+            // Guest flag (hidden input)
+            Hidden::make('is_guest')->default(false),
+
+            // PEGAWAI SECTION
+            Section::make('Data Pegawai')
+                ->schema([
+                    Select::make('user_id')
+                        ->label('Nama Pegawai')
+                        ->relationship('user', 'name')
+                        ->searchable()
+                        ->required(fn($record) => !$record || !$record->is_guest)
+                        ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+                ])
+                ->columns(1)
+                ->hidden(fn($record) => $record && $record->is_guest)
+                ->dehydratedWhenHidden(),
+
+            // GUEST SECTION
+            Section::make('Data Tamu')
+                ->schema([
+                    TextInput::make('guest_nama')
+                        ->label('Nama Lengkap')
+                        ->required(fn($record) => !$record || $record->is_guest)
+                        ->maxLength(200),
+                    TextInput::make('guest_perusahaan')
+                        ->label('Perusahaan / Instansi')
+                        ->maxLength(200),
+                    TextInput::make('guest_no_wa')
+                        ->label('No. WhatsApp')
+                        ->maxLength(20),
+                    TextInput::make('guest_email')
+                        ->label('Email')
+                        ->email()
+                        ->maxLength(255),
+                ])
+                ->columns(2)
+                ->hidden(fn($record) => !$record || !$record->is_guest)
+                ->dehydratedWhenHidden(),
 
             DatePicker::make('tanggal_pengajuan')
                 ->default(now())
@@ -104,21 +137,40 @@ class PengambilanHeaderResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                BadgeColumn::make('is_guest')
+                    ->label('Tipe')
+                    ->formatStateUsing(fn($state) => $state ? 'Tamu' : 'Pegawai')
+                    ->colors([
+                        'info' => false,
+                        'warning' => true,
+                    ])
+                    ->toggleable()
+                    ->hidden(fn($record) => !$record || !$record->is_guest),
+
+                TextColumn::make('guest_nama')
+                    ->label('Nama (Tamu)')
+                    ->searchable()
+                    ->toggleable()
+                    ->hidden(fn($record) => !$record || !$record->is_guest),
+
                 TextColumn::make('user.name')
                     ->label('Pegawai')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(fn($record) => !$record || $record->is_guest),
 
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
                     ->searchable()
                     ->sortable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(fn($record) => !$record || $record->is_guest),
 
                 TextColumn::make('tanggal_pengajuan')
                     ->date('d/m/Y')
                     ->sortable(),
 
-                // TAMBAHAN: Kolom Ikon Berkas Permit
                 IconColumn::make('berkas_permit')
                     ->label('Berkas Permit')
                     ->boolean()

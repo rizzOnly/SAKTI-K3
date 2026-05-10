@@ -6,7 +6,25 @@
     <title>Form Pengambilan APD – K3 PLN Sengkang</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .max-w-2xl {
+                max-width: 100% !important;
+            }
+            .p-8 {
+                padding: 1rem !important;
+            }
+            .mb-8 {
+                margin-bottom: 1.5rem !important;
+            }
+            button[type="submit"] {
+                padding: 0.75rem 1rem !important;
+            }
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
 

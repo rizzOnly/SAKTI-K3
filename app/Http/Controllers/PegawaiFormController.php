@@ -32,8 +32,10 @@ class PegawaiFormController extends Controller
 
     public function storeAmbil(Request $request)
     {
-        $request->validate([
-            'nid'                 => 'required|string',
+        $isGuest = $request->input('is_guest') === '1' || $request->input('is_guest') === true || $request->input('is_guest') == 1;
+
+        // Base validation
+        $validationRules = [
             'tanggal_pengajuan'   => 'required|date',
             'items'               => 'required|array|min:1',
             'items.*.apd_item_id' => 'required|exists:apd_items,id',
@@ -41,17 +43,63 @@ class PegawaiFormController extends Controller
             'catatan'             => 'nullable|string|max:500',
             'no_wa_pengirim'      => 'nullable|string|max:20',
             'email_pengirim'      => 'nullable|email|max:255',
-            'berkas_permit'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ], [
+        ];
+
+        // Conditional: if guest → guest fields required, berkas optional; if pegawai → NID + berkas required
+        if ($isGuest) {
+            $validationRules['guest_nama']         = 'required|string|max:200';
+            $validationRules['guest_perusahaan']   = 'nullable|string|max:200';
+            $validationRules['guest_no_wa']        = 'nullable|string|max:20';
+            $validationRules['guest_email']        = 'nullable|email|max:255';
+            $validationRules['berkas_permit']      = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+        } else {
+            $validationRules['nid']                 = 'required|string';
+            $validationRules['berkas_permit']      = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+        }
+
+        $data = $request->validate($validationRules, [
             'berkas_permit.required' => 'Berkas Permit / JSA wajib diupload.',
             'berkas_permit.mimes'    => 'Format file harus JPG, PNG, atau PDF.',
             'berkas_permit.max'      => 'Ukuran file maksimal 5 MB.',
         ]);
 
-        if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withInput()->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak.']);
+        // Handle Guest vs Pegawai
+        if ($isGuest) {
+            // Guest: no user lookup, create header with guest data
+            $berkasPath = null;
+            if ($request->hasFile('berkas_permit')) {
+                $berkasPath = $request->file('berkas_permit')->store('apd/permit', 'public');
+            }
+
+            $header = PengambilanHeader::create([
+                'nomor_transaksi'     => PengambilanHeader::generateNomor(),
+                'user_id'             => null,
+                'is_guest'            => true,
+                'guest_nama'          => $request->guest_nama,
+                'guest_perusahaan'    => $request->guest_perusahaan,
+                'guest_no_wa'         => $request->guest_no_wa,
+                'guest_email'         => $request->guest_email,
+                'tanggal_pengajuan'   => $request->tanggal_pengajuan,
+                'status'              => 'pending',
+                'catatan'             => $request->catatan,
+                'berkas_permit'       => $berkasPath,
+            ]);
+
+            foreach ($request->items as $item) {
+                PengambilanDetail::create([
+                    'pengambilan_header_id' => $header->id,
+                    'apd_item_id' => $item['apd_item_id'],
+                    'jumlah' => $item['jumlah'],
+                ]);
+            }
+
+            // Notifikasi untuk tamu (no user)
+            $this->notifyAdminsAmbil($header, $request, $request->guest_nama, $request->guest_perusahaan);
+
+            return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
         }
 
+        // ==================== PEGAWAI INTERNAL ====================
         $user = User::where('nid', $request->nid)->first();
         if (!$user) {
             return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3.']);
@@ -82,12 +130,12 @@ class PegawaiFormController extends Controller
         }
 
         $header = PengambilanHeader::create([
-            'nomor_transaksi'   => PengambilanHeader::generateNomor(),
-            'user_id'           => $user->id,
-            'tanggal_pengajuan' => $request->tanggal_pengajuan,
-            'status'            => 'pending',
-            'catatan'           => $request->catatan,
-            'berkas_permit'     => $berkasPath,
+            'nomor_transaksi'     => PengambilanHeader::generateNomor(),
+            'user_id'             => $user->id,
+            'tanggal_pengajuan'   => $request->tanggal_pengajuan,
+            'status'              => 'pending',
+            'catatan'             => $request->catatan,
+            'berkas_permit'       => $berkasPath,
         ]);
 
         foreach ($request->items as $item) {
@@ -98,22 +146,41 @@ class PegawaiFormController extends Controller
             ]);
         }
 
-        $detailItems = "";
-        foreach ($request->items as $item) {
-            $apd = ApdItem::find($item['apd_item_id']);
-            if ($apd) {
-                $detailItems .= "  • {$apd->nama_barang} × {$item['jumlah']}\n";
-            }
+        $this->notifyAdminsAmbil($header, $request, $user->name, $user->bidang, $user->nid);
+
+        $pesan = "✅ *Pengajuan APD Diterima*\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Nama: {$user->name}\n" .
+            "Bidang: " . ($user->bidang ?? '-') . "\n" .
+            "No: {$header->nomor_transaksi}\n" .
+            "Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "🦺 *Detail Barang:*\n" .
+            $this->formatDetailItems($request->items) .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Status: Pending";
+
+        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesan);
+        if ($request->email_pengirim) {
+            Mail::raw(strip_tags($pesan), function ($msg) use ($request) {
+                $msg->to($request->email_pengirim)->subject('Pengajuan APD');
+            });
         }
 
+        return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
+    }
+
+    private function notifyAdminsAmbil($header, $request, $nama, $bidang, $nid = null)
+    {
+        $detailItems = $this->formatDetailItems($header->items ?? $request->items);
         $admins = User::role('admin_k3')->get();
         foreach ($admins as $admin) {
             if ($admin->no_hp) {
                 WhatsAppService::send($admin->no_hp,
                     "📦 *Pengajuan Pengambilan APD Baru*\n" .
                     "━━━━━━━━━━━━━━━━━━\n" .
-                    "👤 Nama: {$user->name} ({$user->nid})\n" .
-                    "🏢 Bidang: " . ($user->bidang ?? '-') . "\n" .
+                    ($nid ? "👤 Nama: {$nama} ({$nid})\n" : "👤 Nama: {$nama} (Tamu)\n") .
+                    "🏢 Bidang: " . ($bidang ?? '-') . "\n" .
                     "📋 No: {$header->nomor_transaksi}\n" .
                     "📅 Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
                     "━━━━━━━━━━━━━━━━━━\n" .
@@ -126,28 +193,18 @@ class PegawaiFormController extends Controller
                 );
             }
         }
+    }
 
-        $pesan = "✅ *Pengajuan APD Diterima*\n" .
-            "━━━━━━━━━━━━━━━━━━\n" .
-            "Nama: {$user->name}\n" .
-            "Bidang: " . ($user->bidang ?? '-') . "\n" .
-            "No: {$header->nomor_transaksi}\n" .
-            "Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
-            "━━━━━━━━━━━━━━━━━━\n" .
-            "🦺 *Detail Barang:*\n" .
-            $detailItems .
-            "━━━━━━━━━━━━━━━━━━\n" .
-            "Status: Pending";
-
-        if ($request->no_wa_pengirim) WhatsAppService::send($request->no_wa_pengirim, $pesan);
-
-        if ($request->email_pengirim) {
-            Mail::raw(strip_tags($pesan), function ($msg) use ($request) {
-                $msg->to($request->email_pengirim)->subject('Pengajuan APD');
-            });
+    private function formatDetailItems($items): string
+    {
+        $text = '';
+        foreach ($items as $item) {
+            $apd = ApdItem::find($item['apd_item_id']);
+            if ($apd) {
+                $text .= "  • {$apd->nama_barang} × {$item['jumlah']}\n";
+            }
         }
-
-        return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
+        return $text;
     }
 
     // =========================
@@ -156,8 +213,10 @@ class PegawaiFormController extends Controller
 
     public function storePinjam(Request $request)
     {
-        $request->validate([
-            'nid'                     => 'required|string',
+        $isGuest = $request->input('is_guest') === '1' || $request->input('is_guest') === true || $request->input('is_guest') == 1;
+
+        // Base validation
+        $validationRules = [
             'tanggal_pengajuan'       => 'required|date',
             'tanggal_kembali_rencana' => 'required|date|after:today',
             'items'                   => 'required|array|min:1',
@@ -166,8 +225,21 @@ class PegawaiFormController extends Controller
             'catatan'                 => 'nullable|string|max:500',
             'no_wa_pengirim'          => 'nullable|string|max:20',
             'email_pengirim'          => 'nullable|email|max:255',
-            'berkas_jsa'              => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ], [
+        ];
+
+        // Conditional: if guest → guest fields required, berkas optional; if pegawai → NID + berkas required
+        if ($isGuest) {
+            $validationRules['guest_nama']         = 'required|string|max:200';
+            $validationRules['guest_perusahaan']   = 'nullable|string|max:200';
+            $validationRules['guest_no_wa']        = 'nullable|string|max:20';
+            $validationRules['guest_email']        = 'nullable|email|max:255';
+            $validationRules['berkas_jsa']         = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+        } else {
+            $validationRules['nid']                = 'required|string';
+            $validationRules['berkas_jsa']         = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+        }
+
+        $data = $request->validate($validationRules, [
             'berkas_jsa.required' => 'Berkas JSA wajib diupload.',
             'berkas_jsa.mimes'    => 'Format file harus JPG, PNG, atau PDF.',
             'berkas_jsa.max'      => 'Ukuran file maksimal 5 MB.',
@@ -177,6 +249,43 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak.']);
         }
 
+        if ($isGuest) {
+            // Guest: create without user_id, store guest info
+            $jsaPath = null;
+            if ($request->hasFile('berkas_jsa')) {
+                $jsaPath = $request->file('berkas_jsa')->store('apd/jsa', 'public');
+            }
+
+            $header = PeminjamanHeader::create([
+                'nomor_transaksi'         => PeminjamanHeader::generateNomor(),
+                'user_id'                 => null,
+                'is_guest'                => true,
+                'guest_nama'              => $request->guest_nama,
+                'guest_perusahaan'        => $request->guest_perusahaan,
+                'guest_no_wa'             => $request->guest_no_wa,
+                'guest_email'             => $request->guest_email,
+                'tanggal_pengajuan'       => $request->tanggal_pengajuan,
+                'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
+                'status'                  => 'pending',
+                'catatan'                 => $request->catatan,
+                'berkas_jsa'              => $jsaPath,
+            ]);
+
+            foreach ($request->items as $item) {
+                PeminjamanDetail::create([
+                    'peminjaman_header_id' => $header->id,
+                    'apd_item_id'          => $item['apd_item_id'],
+                    'jumlah'               => $item['jumlah'],
+                ]);
+            }
+
+            // Notifikasi admin untuk tamu
+            $this->notifyAdminsPinjam($header, $request, $request->guest_nama, $request->guest_perusahaan);
+
+            return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
+        }
+
+        // ==================== PEGAWAI INTERNAL ====================
         $user = User::where('nid', $request->nid)->first();
         if (!$user) {
             return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3.']);
@@ -224,36 +333,7 @@ class PegawaiFormController extends Controller
             ]);
         }
 
-        $detailItemsPinjam = "";
-        foreach ($request->items as $item) {
-            $apd = ApdItem::find($item['apd_item_id']);
-            if ($apd) {
-                $detailItemsPinjam .= "  • {$apd->nama_barang} × {$item['jumlah']}\n";
-            }
-        }
-
-        $admins = User::role('admin_k3')->get();
-
-        foreach ($admins as $admin) {
-            if ($admin->no_hp) {
-                WhatsAppService::send($admin->no_hp,
-                    "🔄 *Pengajuan Peminjaman APD Baru*\n" .
-                    "━━━━━━━━━━━━━━━━━━\n" .
-                    "👤 Nama:  {$user->name}\n" .
-                    "🏢 Bidang:  " . ($user->bidang ?? '-') . "\n" .
-                    "📋 Nomor Transaksi: {$header->nomor_transaksi}\n" .
-                    "📅 Tanggal Pengajuan: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
-                    "🔙 Tanggal Rencana Kembali: " . Carbon::parse($request->tanggal_kembali_rencana)->format('d/m/Y') . "\n" .
-                    "━━━━━━━━━━━━━━━━━━\n" .
-                    "🦺 *Detail Barang:*\n" .
-                    $detailItemsPinjam .
-                    "━━━━━━━━━━━━━━━━━━\n" .
-                    ($request->catatan ? "📝 {$request->catatan}\n" : "") .
-                    "📎 Berkas JSA: Terlampir di Sistem\n" .
-                    "✅ Approve: " . url('/admin')
-                );
-            }
-        }
+        $this->notifyAdminsPinjam($header, $request, $user->name, $user->bidang, $user->nid);
 
         $pesan = "✅ *Pengajuan Peminjaman APD Diterima*\n" .
             "━━━━━━━━━━━━━━━━━━\n" .
@@ -263,7 +343,7 @@ class PegawaiFormController extends Controller
             "Tanggal: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
             "━━━━━━━━━━━━━━━━━━\n" .
             "🦺 *Detail Barang:*\n" .
-            $detailItemsPinjam .
+            $this->formatDetailItems($request->items) .
             "━━━━━━━━━━━━━━━━━━\n" .
             "Status: Pending (Menunggu Admin K3)";
 
@@ -274,8 +354,34 @@ class PegawaiFormController extends Controller
             });
         }
 
-        return back()->with('success', 'Berhasil kirim pengajuan pinjam, Silahkan ke Admin K3 untuk approval');
+        return back()->with('success', 'Berhasil kirim pengajuan, Silahkan ke Admin K3 untuk approval');
     }
+
+    private function notifyAdminsPinjam($header, $request, $nama, $bidang, $nid = null)
+    {
+        $detailItems = $this->formatDetailItems($header->items ?? $request->items);
+        $admins = User::role('admin_k3')->get();
+        foreach ($admins as $admin) {
+            if ($admin->no_hp) {
+                WhatsAppService::send($admin->no_hp,
+                    "🔄 *Pengajuan Peminjaman APD Baru*\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    ($nid ? "👤 Nama:  {$nama} ({$nid})\n" : "👤 Nama:  {$nama} (Tamu)\n") .
+                    "🏢 Bidang:  " . ($bidang ?? '-') . "\n" .
+                    "📋 Nomor Transaksi: {$header->nomor_transaksi}\n" .
+                    "📅 Tanggal Pengajuan: " . Carbon::parse($request->tanggal_pengajuan)->format('d/m/Y') . "\n" .
+                    "🔙 Tanggal Rencana Kembali: " . Carbon::parse($request->tanggal_kembali_rencana)->format('d/m/Y') . "\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "🦺 *Detail Barang:*\n" .
+                    $detailItems .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    ($request->catatan ? "📝 {$request->catatan}\n" : "") .
+                    "📎 Berkas JSA: Terlampir di Sistem\n" .
+                    "✅ Approve: " . url('/admin')
+                );
+            }
+        }
+        }
 
     // =========================
     // 3. BOOKING

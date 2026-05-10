@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 class PengambilanHeader extends Model
 {
     protected $fillable = [
-        'nomor_transaksi', 'user_id', 'tanggal_pengajuan',
-        'status', 'catatan', 'berkas_permit',   // ← tambahkan
+        'nomor_transaksi', 'user_id', 'is_guest',
+        'guest_nama', 'guest_perusahaan', 'guest_no_wa', 'guest_email',
+        'tanggal_pengajuan', 'status', 'catatan', 'berkas_permit',
         'approved_by', 'approved_at', 'rejection_reason',
     ];
 

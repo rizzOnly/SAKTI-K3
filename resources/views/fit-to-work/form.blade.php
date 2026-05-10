@@ -8,11 +8,126 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .tipe-label { display:flex; align-items:center; gap:12px; padding:14px 16px; border:2px solid #e5e7eb; border-radius:14px; cursor:pointer; transition:all .2s; }
+        .tipe-label {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:14px 16px;
+            border:2px solid #e5e7eb;
+            border-radius:14px;
+            cursor:pointer;
+            transition:all .2s;
+        }
         .tipe-label.active-internal { border-color:#003D7C; background:#eff6ff; }
         .tipe-label.active-vendor   { border-color:#d97706; background:#fffbeb; }
         .tipe-label input { display:none; }
-        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:36px; }
+        select {
+            appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;
+            background-position:right 12px center;
+            background-size:16px;
+            padding-right:36px;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .tipe-label {
+                padding: 10px 8px;
+                gap: 8px;
+                /* Keep horizontal on mobile */
+                flex-direction: row;
+                text-align: left;
+            }
+            .tipe-label .text-2xl {
+                font-size: 1.25rem;
+            }
+            .tipe-label .text-sm {
+                font-size: 0.75rem;
+            }
+            .tipe-label .text-xs {
+                font-size: 0.65rem;
+            }
+            /* Keep pekerja fields side-by-side */
+            .pekerja-row .grid-cols-2 {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px;
+            }
+            .pekerja-row .col-span-2 {
+                grid-column: span 1 !important;
+            }
+            .bg-white.rounded-2xl {
+                padding: 1rem !important;
+            }
+            .mb-6 {
+                margin-bottom: 1rem !important;
+            }
+            button[type="submit"] {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            input[type="date"],
+            input[type="text"],
+            input[type="email"],
+            textarea,
+            select {
+                font-size: 16px !important;
+            }
+        }
+            .tipe-label .text-2xl {
+                font-size: 1.25rem;
+            }
+            .tipe-label .text-sm {
+                font-size: 0.75rem;
+            }
+            .tipe-label .text-xs {
+                font-size: 0.65rem;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+            .bg-white.rounded-2xl {
+                padding: 1rem !important;
+            }
+            .mb-6 {
+                margin-bottom: 1rem !important;
+            }
+            button[type="submit"] {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            input[type="date"],
+            input[type="text"],
+            input[type="email"],
+            textarea,
+            select {
+                font-size: 16px !important;
+            }
+        }
+            .tipe-label .text-2xl {
+                font-size: 1.5rem;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+            .bg-white.rounded-2xl {
+                padding: 1rem !important;
+            }
+            .mb-6 {
+                margin-bottom: 1rem !important;
+            }
+            button[type="submit"] {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            input[type="date"],
+            input[type="text"],
+            input[type="email"],
+            textarea,
+            select {
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100">
@@ -171,14 +286,14 @@
                                 @endif
                             </div>
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="col-span-2 sm:col-span-1">
+                                <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap *</label>
                                     <input type="text" name="pekerjas[{{ $i }}][nama]"
                                            value="{{ $p['nama'] ?? '' }}"
                                            placeholder="Nama sesuai identitas"
                                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
+                                <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis Kelamin *</label>
                                     <select name="pekerjas[{{ $i }}][jenis_kelamin]"
                                             class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
@@ -252,13 +367,13 @@
                     <button type="button" onclick="removeRow(this)" class="text-gray-300 hover:text-red-400 transition text-xl leading-none">×</button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="col-span-2 sm:col-span-1">
+                    <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap *</label>
                         <input type="text" name="pekerjas[${idx}][nama]"
                                placeholder="Nama sesuai identitas"
                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
+                    <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis Kelamin *</label>
                         <select name="pekerjas[${idx}][jenis_kelamin]"
                                 class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
