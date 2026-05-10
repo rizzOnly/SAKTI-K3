@@ -12,6 +12,10 @@ class PeminjamanHeader extends Model
         'foto_dokumentasi',
         'approved_by', 'approved_at', 'rejection_reason',
         'returned_at', 'kondisi_kembali',
+        // Reminder tracking
+        'reminder_h1_sent_at',
+        'reminder_jatuh_tempo_sent_at',
+        'reminder_terlambat_last_sent_at',
     ];
 
     protected $casts = [
@@ -19,6 +23,10 @@ class PeminjamanHeader extends Model
         'tanggal_kembali_rencana' => 'date',
         'approved_at' => 'datetime',
         'returned_at' => 'datetime',
+        // Reminder tracking timestamps
+        'reminder_h1_sent_at'              => 'datetime',
+        'reminder_jatuh_tempo_sent_at'     => 'datetime',
+        'reminder_terlambat_last_sent_at'  => 'datetime',
     ];
 
     public static function generateNomor(): string
