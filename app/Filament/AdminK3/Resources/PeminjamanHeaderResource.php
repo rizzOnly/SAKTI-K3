@@ -2,6 +2,7 @@
 namespace App\Filament\AdminK3\Resources;
 
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\CreatePeminjamanHeader;
+use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\EditPeminjamanHeader;
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\ViewPeminjamanHeader;
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\resourcePages\ListPeminjamanHeaders;
 use App\Models\{PeminjamanHeader, ApdItem};
@@ -45,7 +46,7 @@ class PeminjamanHeaderResource extends Resource
 
             DatePicker::make('tanggal_kembali_rencana')
                 ->label('Rencana Tanggal Kembali')
-                ->minDate(now()->addDay())
+                ->minDate(fn($record) => $record ? null : now()->addDay())
                 ->required(),
 
             Select::make('status')
@@ -231,6 +232,34 @@ class PeminjamanHeaderResource extends Resource
                         }
                     }),
 
+                Tables\Actions\Action::make('reject')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn($record) => $record->status === 'pending')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tolak Peminjaman APD')
+                    ->modalDescription('Tuliskan alasan penolakan. Peminjam akan mendapat notifikasi.')
+                    ->modalWidth('md')
+                    ->form([
+                        Textarea::make('rejection_reason')
+                            ->label('Alasan Penolakan')
+                            ->required()
+                            ->rows(4)
+                            ->placeholder('Misalnya: APD tidak sesuai kebutuhan, berkas tidak lengkap, dll'),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'status'          => 'rejected',
+                            'rejection_reason' => $data['rejection_reason'],
+                        ]);
+
+                        Notification::make()
+                            ->title('Peminjaman ditolak. Alasan: ' . $data['rejection_reason'])
+                            ->danger()
+                            ->send();
+                    }),
+
                 Tables\Actions\Action::make('kembalikan')
                     ->label('Kembalikan')
                     ->icon('heroicon-o-arrow-uturn-left')
@@ -275,7 +304,7 @@ class PeminjamanHeaderResource extends Resource
         return [
             'index'  => ListPeminjamanHeaders::route('/'),
             'create' => CreatePeminjamanHeader::route('/create'),
-            'edit'   => CreatePeminjamanHeader::route('/{record}/edit'),
+            'edit'   => EditPeminjamanHeader::route('/{record}/edit'),
             'view'   => ViewPeminjamanHeader::route('/{record}'),
         ];
     }
