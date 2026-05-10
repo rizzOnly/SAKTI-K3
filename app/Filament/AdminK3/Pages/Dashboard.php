@@ -1,8 +1,15 @@
 <?php
+
 namespace App\Filament\AdminK3\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
-use App\Filament\AdminK3\Widgets\{StatsOverviewK3, StokKritisWidget, EwsExpiredWidget, TrendingApdWidget, TrendingPeminjamanWidget, ApdByBidangWidget};
+use App\Filament\AdminK3\Widgets\{
+    StatsOverviewK3,
+    StokKritisWidget,
+    TrendingPengambilanWidget,
+    TrendingPeminjamanWidget,
+    ApdPerBidangWidget
+};
 
 class Dashboard extends BaseDashboard
 {
@@ -18,10 +25,9 @@ class Dashboard extends BaseDashboard
         return [
             StatsOverviewK3::class,
             StokKritisWidget::class,
-            EwsExpiredWidget::class,
-            TrendingApdWidget::class,
+            TrendingPengambilanWidget::class,
             TrendingPeminjamanWidget::class,
-            ApdByBidangWidget::class,
+            ApdPerBidangWidget::class,
         ];
     }
 }

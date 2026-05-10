@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 class VendorRegistrasi extends Model
 {
     protected $fillable = [
+        'cms_vendor_id',
         'nama_perusahaan', 'nama_pekerjaan',
         'tanggal_mulai', 'tanggal_selesai',
         'no_wa_pic', 'email_pic',
@@ -58,5 +59,18 @@ class VendorRegistrasi extends Model
     public function getSurveyUrlAttribute(): string
     {
         return url('/vendor/survey/' . $this->token_registrasi);
+    }
+
+    public function cmsVendor()
+    {
+        return $this->belongsTo(\App\Models\CmsVendor::class, 'cms_vendor_id');
+    }
+
+    // Scope: berdasarkan cms_vendor_id (untuk cari record yang sudah ada)
+    public function scopeByCmsVendor($q, int $cmsVendorId)
+    {
+        return $q->where('cms_vendor_id', $cmsVendorId)
+                 ->where('status', 'aktif')
+                 ->where('tanggal_selesai', '>=', today());
     }
 }

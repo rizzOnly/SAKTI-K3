@@ -3,12 +3,12 @@
 namespace App\Filament\AdminK3\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use App\Models\PeminjamanDetail;
+use App\Models\PengambilanDetail;
 use Illuminate\Support\Facades\DB;
 
-class TrendingPeminjamanWidget extends ChartWidget
+class TrendingPengambilanWidget extends ChartWidget
 {
-    protected static ?string $heading   = 'APD Paling Sering Dipinjam (30 Hari Terakhir)';
+    protected static ?string $heading   = 'APD Paling Sering Diambil (30 Hari Terakhir)';
     protected static ?int    $sort      = 6;
     protected static ?string $maxHeight = '280px';
     protected int | string | array $columnSpan = 'full';
@@ -17,12 +17,12 @@ class TrendingPeminjamanWidget extends ChartWidget
     {
         $period = now()->subDays(90); // 90 hari terakhir
 
-        $data = PeminjamanDetail::select(
+        $data = PengambilanDetail::select(
                 'apd_item_id',
                 DB::raw('SUM(jumlah) as total')
             )
-            ->whereHas('peminjamanHeader', fn($q) =>
-                $q->whereIn('status', ['approved', 'returned'])
+            ->whereHas('pengambilanHeader', fn($q) =>
+                $q->where('status', 'approved')
                   ->where('approved_at', '>=', $period)
             )
             ->groupBy('apd_item_id')
@@ -33,9 +33,9 @@ class TrendingPeminjamanWidget extends ChartWidget
 
         return [
             'datasets' => [[
-                'label'           => 'Jumlah Dipinjam',
+                'label'           => 'Jumlah Diambil',
                 'data'            => $data->pluck('total')->toArray(),
-                'backgroundColor' => array_fill(0, $data->count(), '#0D9488'),
+                'backgroundColor' => array_fill(0, $data->count(), '#2563EB'),
                 'borderRadius'    => 6,
             ]],
             'labels' => $data->map(fn($d) =>

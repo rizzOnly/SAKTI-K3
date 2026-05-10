@@ -6,7 +6,7 @@ use App\Models\SurveyQuestion;
 use App\Models\User;
 use App\Models\VendorPekerja;
 use App\Models\VendorRegistrasi;
-use App\Models\CmsVendor; // Pastikan model CmsVendor dipanggil
+use App\Models\CmsVendor;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -39,26 +39,71 @@ class VendorRegistrasiController extends Controller
                 ->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak (WA atau email) PIC.']);
         }
 
-        $vendor = \App\Models\CmsVendor::findOrFail($data['cms_vendor_id']);
+        // ─────────────────────────────────────────────────────
+        // INTI PERBAIKAN:
+        // Cari apakah vendor WPO ini SUDAH punya registrasi gate
+        // yang masih aktif. Kalau sudah ada → pakai yang lama.
+        // Kalau belum ada → buat baru.
+        // ─────────────────────────────────────────────────────
+        $registrasi = VendorRegistrasi::where('cms_vendor_id', $data['cms_vendor_id'])
+            ->where('status', 'aktif')
+            ->first();
 
-        // Buat registrasi dari data WPO PLUS
-        $registrasi = VendorRegistrasi::create([
-            'nama_perusahaan' => $vendor->nama_vendor,
-            'nama_pekerjaan'  => $vendor->nama_pekerjaan,
-            'tanggal_mulai'   => $vendor->tanggal_mulai,
-            'tanggal_selesai' => $vendor->tanggal_selesai,
-            'no_wa_pic'       => $data['no_wa_pic'],
-            'email_pic'       => $data['email_pic'],
-            'status'          => 'aktif',
-            'is_active'       => true,
-        ]);
+        if ($registrasi) {
+            // ── Sudah ada: cek apakah nama pekerja ini sudah terdaftar ──
+            $sudahAda = $registrasi->pekerjas()
+                ->where('nama_pekerja', $data['pekerja_nama'])
+                ->exists();
 
-        // Buat 1 pekerja yang dipilih
-        VendorPekerja::create([
-            'vendor_registrasi_id' => $registrasi->id,
-            'nama_pekerja'         => $data['pekerja_nama'],
-            'survey_lulus'         => false,
-        ]);
+            if ($sudahAda) {
+                // Pekerja ini sudah pernah daftar — langsung ke survey
+                $pekerja = $registrasi->pekerjas()
+                    ->where('nama_pekerja', $data['pekerja_nama'])
+                    ->first();
+
+                if ($pekerja->survey_lulus) {
+                    // Sudah lulus survey, redirect kembali dengan info
+                    return redirect()->route('vendor.survey', $registrasi->token_registrasi)
+                        ->with('survey_result', [
+                            'lulus'        => true,
+                            'skor'         => $pekerja->survey_skor ?? 100,
+                            'nama_pekerja' => $pekerja->nama_pekerja,
+                        ]);
+                }
+
+                // Belum lulus → ke halaman survey untuk mengulang
+                return redirect()->route('vendor.survey', $registrasi->token_registrasi);
+            }
+
+            // ── Pekerja baru dari vendor yang sama → tambahkan saja ──
+            VendorPekerja::create([
+                'vendor_registrasi_id' => $registrasi->id,
+                'nama_pekerja'         => $data['pekerja_nama'],
+                'survey_lulus'         => false,
+            ]);
+
+        } else {
+            // ── Belum ada registrasi → buat baru berdasarkan WPO ──
+            $vendor = \App\Models\CmsVendor::findOrFail($data['cms_vendor_id']);
+
+            $registrasi = VendorRegistrasi::create([
+                'cms_vendor_id'   => $vendor->id,
+                'nama_perusahaan' => $vendor->nama_vendor,
+                'nama_pekerjaan'  => $vendor->nama_pekerjaan,
+                'tanggal_mulai'   => $vendor->tanggal_mulai,
+                'tanggal_selesai' => $vendor->tanggal_selesai,
+                'no_wa_pic'       => $data['no_wa_pic'],
+                'email_pic'       => $data['email_pic'],
+                'status'          => 'aktif',
+                'is_active'       => true,
+            ]);
+
+            VendorPekerja::create([
+                'vendor_registrasi_id' => $registrasi->id,
+                'nama_pekerja'         => $data['pekerja_nama'],
+                'survey_lulus'         => false,
+            ]);
+        }
 
         // Notif admin
         $admins = \App\Models\User::role('admin_k3')->whereNotNull('no_hp')->get();

@@ -49,6 +49,7 @@ class CheckPeminjamanReminder extends Command
         // ─── 3. SUDAH TERLAMBAT ───────────────────────────────
         $terlambat = PeminjamanHeader::where('status', 'approved')
             ->whereDate('tanggal_kembali_rencana', '<', $today)
+            ->whereNull('reminder_terlambat_last_sent_at')  // belum dikirim
             ->with(['user', 'details.apdItem'])
             ->get();
 
@@ -69,6 +70,7 @@ class CheckPeminjamanReminder extends Command
         $tglKembali  = $peminjaman->tanggal_kembali_rencana->format('d/m/Y');
         $noTransaksi = $peminjaman->nomor_transaksi;
         $hariTerlambat = now()->diffInDays($peminjaman->tanggal_kembali_rencana, false);
+        $lamaStr = abs((int) $hariTerlambat) . " hari";
         // diffInDays false = negatif jika sudah lewat
 
         // ── Susun pesan sesuai tipe ──────────────────────────
@@ -113,7 +115,6 @@ class CheckPeminjamanReminder extends Command
             ],
 
             'terlambat' => [
-                $lamaStr = abs((int)$hariTerlambat) . " hari",
                 "🚨 *APD TERLAMBAT DIKEMBALIKAN!*\n" .
                 "━━━━━━━━━━━━━━━━━━\n" .
                 "Halo *{$user->name}*,\n" .
