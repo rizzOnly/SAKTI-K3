@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\FitToWork;
@@ -26,6 +27,7 @@ class FitToWorkController extends Controller
             'no_wa'           => 'nullable|string|max:20',
         ]);
 
+        // Validation: nama_perusahaan required for vendor
         if ($data['tipe'] === 'vendor' && empty($data['nama_perusahaan'])) {
             return back()->withInput()
                 ->withErrors(['nama_perusahaan' => 'Nama perusahaan wajib diisi untuk vendor.']);
@@ -33,7 +35,7 @@ class FitToWorkController extends Controller
 
         $ftw = FitToWork::create($data);
 
-        // Kirim notif ke dokter klinik
+        // Notify dokter klinik via WhatsApp
         $dokters = User::role('dokter')->whereNotNull('no_hp')->get();
         foreach ($dokters as $dokter) {
             WhatsAppService::send($dokter->no_hp,
@@ -47,7 +49,7 @@ class FitToWorkController extends Controller
             );
         }
 
-        // Notif ke K3
+        // Notify admin K3 via WhatsApp
         $adminK3s = User::role('admin_k3')->whereNotNull('no_hp')->get();
         foreach ($adminK3s as $admin) {
             WhatsAppService::send($admin->no_hp,

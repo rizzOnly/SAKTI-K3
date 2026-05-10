@@ -998,7 +998,7 @@
                         {{ $ftw->nama }}
                     </div>
                     <div style="font-size:12px;color:#6b7280;margin-bottom:8px">
-                        {{ $ftw->nama_perusahaan }}
+                        {{ $ftw->nama_perusahaan ?? 'Internal' }}
                     </div>
 
                     {{-- Pekerjaan --}}

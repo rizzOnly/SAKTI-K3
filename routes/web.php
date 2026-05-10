@@ -44,7 +44,7 @@ Route::get('/', function () {
         'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
         'patrolTahun'       => now()->year,
         'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
-        'fitToWorkVendor'   => \App\Models\FitToWork::vendorFitAktif() ->orderByDesc('tanggal_periksa')->get(),
+        'fitToWorkVendor'   => FitToWork::vendorFitAktif()->orderByDesc('tanggal_periksa')->get(),
     ]);
 });
 

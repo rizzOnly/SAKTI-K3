@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Klinik\Resources;
 
 use App\Models\FitToWork;
