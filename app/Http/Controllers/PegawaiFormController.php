@@ -41,7 +41,6 @@ class PegawaiFormController extends Controller
             'catatan'             => 'nullable|string|max:500',
             'no_wa_pengirim'      => 'nullable|string|max:20',
             'email_pengirim'      => 'nullable|email|max:255',
-            // 🔥 TAMBAHAN: Validasi File Permit
             'berkas_permit'       => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'berkas_permit.required' => 'Berkas Permit / JSA wajib diupload.',
@@ -50,15 +49,33 @@ class PegawaiFormController extends Controller
         ]);
 
         if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withInput()->withErrors(['kontak' => 'Isi WA atau Email']);
+            return back()->withInput()->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak.']);
         }
 
         $user = User::where('nid', $request->nid)->first();
         if (!$user) {
-            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan']);
+            return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3.']);
         }
 
-        // 🔥 TAMBAHAN: Simpan file berkas permit
+        // ── Auto-update kontak user ──────────────────────────
+        $updateData = [];
+        if (!empty($request->no_wa_pengirim)) {
+            $updateData['no_hp'] = $request->no_wa_pengirim;
+        }
+        if (!empty($request->email_pengirim)) {
+            $isDummyEmail = empty($user->email)
+                || str_contains($user->email, 'pln.com')
+                || str_contains($user->email, 'example.com');
+            if ($isDummyEmail) {
+                $updateData['email'] = $request->email_pengirim;
+            }
+        }
+        if (!empty($updateData)) {
+            $user->update($updateData);
+            $user->refresh();
+        }
+        // ────────────────────────────────────────────────────
+
         $berkasPath = null;
         if ($request->hasFile('berkas_permit')) {
             $berkasPath = $request->file('berkas_permit')->store('apd/permit', 'public');
@@ -70,7 +87,7 @@ class PegawaiFormController extends Controller
             'tanggal_pengajuan' => $request->tanggal_pengajuan,
             'status'            => 'pending',
             'catatan'           => $request->catatan,
-            'berkas_permit'     => $berkasPath, // 🔥 TAMBAHAN: Simpan path ke DB
+            'berkas_permit'     => $berkasPath,
         ]);
 
         foreach ($request->items as $item) {
@@ -81,7 +98,6 @@ class PegawaiFormController extends Controller
             ]);
         }
 
-        // 🔥 DETAIL ITEM
         $detailItems = "";
         foreach ($request->items as $item) {
             $apd = ApdItem::find($item['apd_item_id']);
@@ -90,7 +106,6 @@ class PegawaiFormController extends Controller
             }
         }
 
-        // NOTIF ADMIN
         $admins = User::role('admin_k3')->get();
         foreach ($admins as $admin) {
             if ($admin->no_hp) {
@@ -106,13 +121,12 @@ class PegawaiFormController extends Controller
                     $detailItems .
                     "━━━━━━━━━━━━━━━━━━\n" .
                     ($request->catatan ? "📝 {$request->catatan}\n" : "") .
-                    "📎 Berkas Permit: Terlampir di Sistem\n" . // 🔥 TAMBAHAN: Info Berkas
+                    "📎 Berkas Permit: Terlampir di Sistem\n" .
                     "✅ Approve: " . url('/admin')
                 );
             }
         }
 
-        // KONFIRMASI USER
         $pesan = "✅ *Pengajuan APD Diterima*\n" .
             "━━━━━━━━━━━━━━━━━━\n" .
             "Nama: {$user->name}\n" .
@@ -152,7 +166,6 @@ class PegawaiFormController extends Controller
             'catatan'                 => 'nullable|string|max:500',
             'no_wa_pengirim'          => 'nullable|string|max:20',
             'email_pengirim'          => 'nullable|email|max:255',
-            // 🔥 TAMBAHAN: Validasi File JSA
             'berkas_jsa'              => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'berkas_jsa.required' => 'Berkas JSA wajib diupload.',
@@ -161,7 +174,7 @@ class PegawaiFormController extends Controller
         ]);
 
         if (empty($request->no_wa_pengirim) && empty($request->email_pengirim)) {
-            return back()->withInput()->withErrors(['kontak' => 'Isi WA atau Email']);
+            return back()->withInput()->withErrors(['kontak' => 'Wajib isi minimal salah satu kontak.']);
         }
 
         $user = User::where('nid', $request->nid)->first();
@@ -169,7 +182,25 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3.']);
         }
 
-        // 🔥 TAMBAHAN: Simpan file JSA
+        // ── Auto-update kontak user ──────────────────────────
+        $updateData = [];
+        if (!empty($request->no_wa_pengirim)) {
+            $updateData['no_hp'] = $request->no_wa_pengirim;
+        }
+        if (!empty($request->email_pengirim)) {
+            $isDummyEmail = empty($user->email)
+                || str_contains($user->email, 'pln.com')
+                || str_contains($user->email, 'example.com');
+            if ($isDummyEmail) {
+                $updateData['email'] = $request->email_pengirim;
+            }
+        }
+        if (!empty($updateData)) {
+            $user->update($updateData);
+            $user->refresh();
+        }
+        // ────────────────────────────────────────────────────
+
         $jsaPath = null;
         if ($request->hasFile('berkas_jsa')) {
             $jsaPath = $request->file('berkas_jsa')->store('apd/jsa', 'public');
@@ -182,7 +213,7 @@ class PegawaiFormController extends Controller
             'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
             'status'                  => 'pending',
             'catatan'                 => $request->catatan,
-            'berkas_jsa'              => $jsaPath, // 🔥 TAMBAHAN: Simpan path ke DB
+            'berkas_jsa'              => $jsaPath,
         ]);
 
         foreach ($request->items as $item) {
@@ -193,7 +224,6 @@ class PegawaiFormController extends Controller
             ]);
         }
 
-        // 🔥 DETAIL
         $detailItemsPinjam = "";
         foreach ($request->items as $item) {
             $apd = ApdItem::find($item['apd_item_id']);
@@ -219,13 +249,12 @@ class PegawaiFormController extends Controller
                     $detailItemsPinjam .
                     "━━━━━━━━━━━━━━━━━━\n" .
                     ($request->catatan ? "📝 {$request->catatan}\n" : "") .
-                    "📎 Berkas JSA: Terlampir di Sistem\n" . // 🔥 TAMBAHAN: Info Berkas
+                    "📎 Berkas JSA: Terlampir di Sistem\n" .
                     "✅ Approve: " . url('/admin')
                 );
             }
         }
 
-        // 🔥 TAMBAHAN: Notif Konfirmasi ke User (agar seragam dengan Pengambilan)
         $pesan = "✅ *Pengajuan Peminjaman APD Diterima*\n" .
             "━━━━━━━━━━━━━━━━━━\n" .
             "Nama: {$user->name}\n" .
@@ -282,12 +311,37 @@ class PegawaiFormController extends Controller
             return back()->withInput()->withErrors(['nid' => 'NID tidak ditemukan. Hubungi Admin K3 untuk mendaftarkan NID Anda terlebih dahulu.']);
         }
 
+        // ── Auto-update kontak + bidang + jenis kelamin ──────
+        $updateData = [];
+
+        if (!empty($request->no_wa_pengirim)) {
+            $updateData['no_hp'] = $request->no_wa_pengirim;
+        }
+
+        if (!empty($request->email_pengirim)) {
+            $isDummyEmail = empty($user->email)
+                || str_contains($user->email, 'pln.com')
+                || str_contains($user->email, 'example.com');
+            if ($isDummyEmail) {
+                $updateData['email'] = $request->email_pengirim;
+            }
+        }
+
+        // Update bidang jika belum terisi
         if (!empty($request->bidang) && empty($user->bidang)) {
-            $user->update(['bidang' => $request->bidang]);
+            $updateData['bidang'] = $request->bidang;
         }
+
+        // Update jenis kelamin jika belum terisi
         if (!empty($request->jenis_kelamin) && empty($user->jenis_kelamin)) {
-            $user->update(['jenis_kelamin' => $request->jenis_kelamin]);
+            $updateData['jenis_kelamin'] = $request->jenis_kelamin;
         }
+
+        if (!empty($updateData)) {
+            $user->update($updateData);
+            $user->refresh();
+        }
+        // ────────────────────────────────────────────────────
 
         if (!KlinikAppointment::isSlotTersedia($request->dokter_id, $request->tanggal, $request->jam_slot)) {
             return back()->withErrors(['jam_slot' => 'Slot sudah terisi oleh pegawai lain. Pilih jam atau tanggal lain.'])->withInput();
