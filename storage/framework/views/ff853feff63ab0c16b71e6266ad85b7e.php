@@ -13,10 +13,10 @@
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">✅</div>
         <h1 class="font-bold text-2xl text-gray-800 mb-2">Pendaftaran Berhasil!</h1>
         <p class="text-gray-500 text-sm mb-1">
-            <strong class="text-gray-700">{{ session('ftw_perusahaan') }}</strong>
+            <strong class="text-gray-700"><?php echo e(session('ftw_perusahaan')); ?></strong>
         </p>
         <p class="text-gray-500 text-sm mb-6">
-            <strong>{{ session('ftw_jumlah') }}</strong> pekerja telah didaftarkan untuk pemeriksaan Fit to Work.
+            <strong><?php echo e(session('ftw_jumlah')); ?></strong> pekerja telah didaftarkan untuk pemeriksaan Fit to Work.
         </p>
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-left">
             <div class="font-semibold text-amber-800 text-sm mb-2">⏳ Langkah Selanjutnya</div>
@@ -34,3 +34,4 @@
     </div>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\k3-pltgu\resources\views/fit-to-work/sukses.blade.php ENDPATH**/ ?>

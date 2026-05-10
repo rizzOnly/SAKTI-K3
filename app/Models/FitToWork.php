@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,40 +6,42 @@ use Illuminate\Database\Eloquent\Model;
 class FitToWork extends Model
 {
     protected $fillable = [
-        'tipe', 'nama', 'nama_perusahaan',
-        'jenis_kelamin', 'nama_pekerjaan',
+        'tipe', 'nama_perusahaan',
+        'nama_pekerjaan',
         'tanggal_mulai', 'tanggal_selesai',
-        'no_wa', 'status', 'catatan_dokter',
-        'tanggal_periksa', 'dokter_nama', 'is_active',
+        'no_wa', 'is_active',
     ];
 
     protected $casts = [
         'tanggal_mulai'   => 'date',
         'tanggal_selesai' => 'date',
-        'tanggal_periksa' => 'date',
         'is_active'       => 'boolean',
     ];
 
-    // Scope: hanya vendor, status fit, dan masih berlaku
-    public function scopeVendorFitAktif($q)
+    public function pekerjas()
     {
-        return $q->where('tipe', 'vendor')
-                 ->where('status', 'fit')
-                 ->where('is_active', true)
+        return $this->hasMany(FitToWorkPekerja::class);
+    }
+
+    public function pekerjasfit()
+    {
+        return $this->hasMany(FitToWorkPekerja::class)->where('status', 'fit');
+    }
+
+    // Scope: submission vendor yang masih berlaku
+    // Landing page: tampilkan pekerja fit dari submission yang belum expired
+    public function scopeAktifDanBerlaku($q)
+    {
+        return $q->where('is_active', true)
                  ->where('tanggal_selesai', '>=', today());
     }
 
-    public function getJenisKelaminLabelAttribute(): string
+    // Scope lama untuk kompatibilitas (diganti)
+    public function scopeVendorFitAktif($q)
     {
-        return $this->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        return match($this->status) {
-            'fit'        => 'Fit to Work',
-            'tidak_fit'  => 'Tidak Fit',
-            default      => 'Menunggu Pemeriksaan',
-        };
+        return $q->where('tipe', 'vendor')
+                 ->where('is_active', true)
+                 ->where('tanggal_selesai', '>=', today())
+                 ->whereHas('pekerjasfit');
     }
 }

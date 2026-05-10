@@ -17,7 +17,7 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100">
 
-    {{-- Navbar --}}
+    
     <div class="bg-[#003D7C] text-white py-4 px-6 flex items-center gap-4 shadow-lg sticky top-0 z-10">
         <a href="/" class="text-blue-200 hover:text-white transition text-sm">← Beranda</a>
         <div class="h-5 w-px bg-blue-500"></div>
@@ -29,7 +29,7 @@
 
     <div class="max-w-2xl mx-auto px-4 py-10 pb-16">
 
-        {{-- Banner --}}
+        
         <div class="bg-red-600 text-white rounded-2xl p-5 mb-8 flex gap-4 items-start shadow-lg">
             <span class="text-3xl flex-shrink-0">⚠️</span>
             <div>
@@ -52,37 +52,37 @@
                 </div>
             </div>
 
-            @if($errors->any())
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
             <div class="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
                 <ul class="list-disc list-inside space-y-1">
-                    @foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $err): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($err); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </ul>
             </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <form method="POST" action="{{ route('fit-to-work.store') }}">
-                @csrf
+            <form method="POST" action="<?php echo e(route('fit-to-work.store')); ?>">
+                <?php echo csrf_field(); ?>
 
-                {{-- Tipe Pekerja --}}
+                
                 <div class="mb-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Tipe Pekerja <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="tipe-label {{ old('tipe') === 'internal' ? 'active-internal' : '' }}" id="label-internal">
+                        <label class="tipe-label <?php echo e(old('tipe') === 'internal' ? 'active-internal' : ''); ?>" id="label-internal">
                             <input type="radio" name="tipe" value="internal"
                                    onchange="onTipeChange()"
-                                   {{ old('tipe') === 'internal' ? 'checked' : '' }}>
+                                   <?php echo e(old('tipe') === 'internal' ? 'checked' : ''); ?>>
                             <span class="text-2xl">👷</span>
                             <div>
                                 <div class="font-semibold text-gray-800 text-sm">Pegawai Internal</div>
                                 <div class="text-gray-400 text-xs">PLN Nusantara Power</div>
                             </div>
                         </label>
-                        <label class="tipe-label {{ old('tipe') === 'vendor' ? 'active-vendor' : '' }}" id="label-vendor">
+                        <label class="tipe-label <?php echo e(old('tipe') === 'vendor' ? 'active-vendor' : ''); ?>" id="label-vendor">
                             <input type="radio" name="tipe" value="vendor"
                                    onchange="onTipeChange()"
-                                   {{ old('tipe') === 'vendor' ? 'checked' : '' }}>
+                                   <?php echo e(old('tipe') === 'vendor' ? 'checked' : ''); ?>>
                             <span class="text-2xl">🏢</span>
                             <div>
                                 <div class="font-semibold text-gray-800 text-sm">Vendor / Kontraktor</div>
@@ -92,29 +92,43 @@
                     </div>
                 </div>
 
-                {{-- Data Pekerjaan --}}
+                
                 <div class="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-100 space-y-4">
                     <div class="font-semibold text-gray-700 text-sm uppercase tracking-wide">Informasi Pekerjaan</div>
 
-                    {{-- Nama Perusahaan (vendor only) --}}
-                    <div id="field-perusahaan" class="{{ old('tipe') === 'vendor' ? '' : 'hidden' }}">
+                    
+                    <div id="field-perusahaan" class="<?php echo e(old('tipe') === 'vendor' ? '' : 'hidden'); ?>">
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Nama Perusahaan / CV <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}"
+                        <input type="text" name="nama_perusahaan" value="<?php echo e(old('nama_perusahaan')); ?>"
                                placeholder="Contoh: CV Marezho"
                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
-                        @error('nama_perusahaan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_perusahaan'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Nama / Jenis Pekerjaan Risiko Tinggi <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="nama_pekerjaan" value="{{ old('nama_pekerjaan') }}"
+                        <input type="text" name="nama_pekerjaan" value="<?php echo e(old('nama_pekerjaan')); ?>"
                                placeholder="Contoh: Pekerjaan di ketinggian, confined space"
                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
-                        @error('nama_pekerjaan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_pekerjaan'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -122,29 +136,29 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                                 Tanggal Mulai <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}"
-                                   min="{{ today()->format('Y-m-d') }}"
+                            <input type="date" name="tanggal_mulai" value="<?php echo e(old('tanggal_mulai')); ?>"
+                                   min="<?php echo e(today()->format('Y-m-d')); ?>"
                                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                                 Tanggal Selesai <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
-                                   min="{{ today()->format('Y-m-d') }}"
+                            <input type="date" name="tanggal_selesai" value="<?php echo e(old('tanggal_selesai')); ?>"
+                                   min="<?php echo e(today()->format('Y-m-d')); ?>"
                                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">No. WhatsApp PIC</label>
-                        <input type="text" name="no_wa" value="{{ old('no_wa') }}"
+                        <input type="text" name="no_wa" value="<?php echo e(old('no_wa')); ?>"
                                placeholder="08xxxxxxxxxx"
                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
                     </div>
                 </div>
 
-                {{-- Daftar Pekerja --}}
+                
                 <div class="mb-6">
                     <div class="flex items-center justify-between mb-1">
                         <div class="font-semibold text-gray-700">
@@ -155,41 +169,48 @@
                         Tambahkan semua pekerja dari perusahaan/CV yang sama. Setiap pekerja akan diperiksa secara individual oleh dokter.
                     </p>
 
-                    @error('pekerjas')<p class="text-red-500 text-xs mb-2">{{ $message }}</p>@enderror
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pekerjas'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><p class="text-red-500 text-xs mb-2"><?php echo e($message); ?></p><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div id="pekerja-list" class="space-y-3">
-                        @php $oldPekerjas = old('pekerjas', [[]]); @endphp
-                        @foreach($oldPekerjas as $i => $p)
+                        <?php $oldPekerjas = old('pekerjas', [[]]); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $oldPekerjas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="pekerja-row bg-gray-50 rounded-xl p-4 border border-gray-100">
                             <div class="flex items-center justify-between mb-3">
                                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    Pekerja #<span class="row-num">{{ $i + 1 }}</span>
+                                    Pekerja #<span class="row-num"><?php echo e($i + 1); ?></span>
                                 </span>
-                                @if($i > 0)
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($i > 0): ?>
                                 <button type="button" onclick="removeRow(this)"
                                         class="text-gray-300 hover:text-red-400 transition text-xl leading-none">×</button>
-                                @endif
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="col-span-2 sm:col-span-1">
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap *</label>
-                                    <input type="text" name="pekerjas[{{ $i }}][nama]"
-                                           value="{{ $p['nama'] ?? '' }}"
+                                    <input type="text" name="pekerjas[<?php echo e($i); ?>][nama]"
+                                           value="<?php echo e($p['nama'] ?? ''); ?>"
                                            placeholder="Nama sesuai identitas"
                                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                                 </div>
                                 <div class="col-span-2 sm:col-span-1">
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis Kelamin *</label>
-                                    <select name="pekerjas[{{ $i }}][jenis_kelamin]"
+                                    <select name="pekerjas[<?php echo e($i); ?>][jenis_kelamin]"
                                             class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" required>
                                         <option value="">— Pilih —</option>
-                                        <option value="L" {{ ($p['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="P" {{ ($p['jenis_kelamin'] ?? '') === 'P' ? 'selected' : '' }}>Perempuan</option>
+                                        <option value="L" <?php echo e(($p['jenis_kelamin'] ?? '') === 'L' ? 'selected' : ''); ?>>Laki-laki</option>
+                                        <option value="P" <?php echo e(($p['jenis_kelamin'] ?? '') === 'P' ? 'selected' : ''); ?>>Perempuan</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <button type="button" onclick="addPekerja()"
@@ -198,7 +219,7 @@
                     </button>
                 </div>
 
-                {{-- Info --}}
+                
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex gap-3">
                     <span class="text-2xl flex-shrink-0">ℹ️</span>
                     <div>
@@ -220,7 +241,7 @@
     </div>
 
     <script>
-        let rowCount = {{ count($oldPekerjas ?? [1]) }};
+        let rowCount = <?php echo e(count($oldPekerjas ?? [1])); ?>;
 
         function onTipeChange() {
             const tipe = document.querySelector('input[name="tipe"]:checked')?.value;
@@ -282,3 +303,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\k3-pltgu\resources\views/fit-to-work/form.blade.php ENDPATH**/ ?>
