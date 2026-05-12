@@ -5,9 +5,20 @@ use App\Http\Controllers\PegawaiFormController;
 use App\Http\Controllers\VendorRegistrasiController;
 use App\Http\Controllers\FitToWorkController;
 use App\Http\Controllers\ArtikelController;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\User;
 use App\Models\{CmsBanner, CmsArticle, CmsVendor, CmsVendorFlow, VendorRegistrasi, PatrolPeriode, TemuanOpen, FitToWork};
+
+// routes/web.php
+Route::middleware('guest')->group(function () {
+    Route::get('/login',  [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+});
+
+Route::any('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
 Route::get('/', function () {
     // 1. AUTO-NONAKTIFKAN VENDOR WPO PLUS YANG EXPIRED

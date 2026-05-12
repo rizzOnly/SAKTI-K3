@@ -11,7 +11,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Daftarkan middleware alias untuk Laravel 11
+        $middleware->alias([
+            'ensure.admin_k3' => \App\Http\Middleware\EnsureIsAdminK3::class,
+            'ensure.klinik'   => \App\Http\Middleware\EnsureIsDokter::class,
+        ]);
+
+        // Opsional: Paksa laravel mengarahkan user yang belum login ke /login custom
+        $middleware->redirectGuestsTo('/login');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

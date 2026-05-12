@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D-SAVE</title>
-    <link rel="icon" href="{{ asset('images/logo-sakti.png') }}" type="image/png">
+    <link rel="icon" href="<?php echo e(asset('images/logo-sakti.png')); ?>" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
@@ -325,19 +325,19 @@
 </head>
 <body>
 
-    {{-- ═══════════ NAVBAR ═══════════ --}}
+    
     <header>
         <nav class="navbar">
             <div class="nav-inner">
                 <a href="/" class="nav-brand">
-                    <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
+                    <img src="<?php echo e(asset('images/logo-sakti.png')); ?>" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                     <div>
                         <div class="nav-title">D-SAVE</div>
                         <div class="nav-sub">Platform Terpadu K3 & Manajemen APD</div>
                     </div>
                 </a>
 
-                {{-- Desktop nav --}}
+                
                 <div class="nav-links" id="desktop-nav">
                     <a href="#beranda">BERANDA</a>
                     <a href="#video">PROFIL</a>
@@ -346,8 +346,8 @@
                     <a href="#fit-to-work">FIT TO WORK</a>
                     <a href="#patrol">PATROL</a>
 
-                    {{-- ← TAMBAHKAN TOMBOL LOGIN INI --}}
-                    <a href="{{ route('login') }}"
+                    
+                    <a href="<?php echo e(route('login')); ?>"
                        style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);
                               color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;
                               text-decoration:none;border:1.5px solid rgba(255,255,255,.25);
@@ -364,7 +364,7 @@
                     </a>
                 </div>
 
-                {{-- Hamburger — hanya muncul di mobile --}}
+                
                 <button class="nav-hamburger" id="hamburger" onclick="openDrawer()" aria-label="Buka Menu">
                     <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5"
                          stroke-linecap="round" viewBox="0 0 24 24">
@@ -376,20 +376,20 @@
             </div>
         </nav>
 
-        {{-- Overlay gelap di belakang drawer --}}
+        
         <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 
-        {{-- Drawer slide dari kiri --}}
+        
         <div class="drawer" id="drawer">
 
-            {{-- Header drawer --}}
+            
             <div class="drawer-header">
-                <img src="{{ asset('images/logo-sakti.png') }}" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
+                <img src="<?php echo e(asset('images/logo-sakti.png')); ?>" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                 <div>
                     <div class="drawer-brand-title">D-SAVE</div>
                     <div class="drawer-brand-sub">Platform Terpadu K3 & Manajemen APD</div>
                 </div>
-                {{-- Tombol close --}}
+                
                 <button onclick="closeDrawer()"
                         style="margin-left:auto;background:rgba(255,255,255,.1);border:none;cursor:pointer;
                                padding:6px;border-radius:8px;display:flex;align-items:center;justify-content:center">
@@ -401,10 +401,10 @@
                 </button>
             </div>
 
-            {{-- Nav links --}}
+            
             <nav class="drawer-nav">
-                {{-- ← TAMBAHKAN TOMBOL LOGIN DI PALING ATAS --}}
-                <a href="{{ route('login') }}"
+                
+                <a href="<?php echo e(route('login')); ?>"
                    style="background:rgba(255,199,44,.12);border-left-color:#FFC72C !important;
                           border-bottom:1px solid rgba(255,255,255,.08);">
                     <span class="drawer-nav-icon" style="background:rgba(255,199,44,.2);">
@@ -440,7 +440,7 @@
 
             <div class="drawer-divider"></div>
 
-            {{-- Action buttons di bawah --}}
+            
             <div class="drawer-actions">
                 <a href="/pegawai/apd" class="drawer-btn-yellow">
                     🦺 Ambil / Pinjam APD
@@ -456,36 +456,36 @@
         </div>
     </header>
 
-    {{-- ═══════════ BANNER / HERO ═══════════ --}}
+    
     <section id="beranda">
-        @if($banners->isNotEmpty())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($banners->isNotEmpty()): ?>
         <div class="swiper banner-swiper">
             <div class="swiper-wrapper">
-                @foreach($banners as $banner)
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $banners; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $banner): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="swiper-slide banner-slide">
-                    <img src="{{ Storage::url($banner->image_path) }}" alt="{{ $banner->title ?? 'Banner K3' }}" loading="eager">
+                    <img src="<?php echo e(Storage::url($banner->image_path)); ?>" alt="<?php echo e($banner->title ?? 'Banner K3'); ?>" loading="eager">
                     <div class="banner-overlay"></div>
-                    @if($banner->title)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($banner->title): ?>
                     <div class="banner-caption">
-                        <h2>{{ $banner->title }}</h2>
+                        <h2><?php echo e($banner->title); ?></h2>
                     </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
             <div class="swiper-pagination"></div>
             <div class="swiper-button-next"></div>
             <div class="swiper-button-prev"></div>
         </div>
-        @else
+        <?php else: ?>
         <div class="hero-fallback">
             <h1>Sistem Informasi K3</h1>
             <p>PT PLN Nusantara Power – Unit Pembangkitan Sengkang</p>
         </div>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </section>
 
-    {{-- ═══════════ AKSI CEPAT PEGAWAI ═══════════ --}}
+    
     <div class="quick-access">
         <div class="quick-access-inner">
             <span class="quick-label">Akses Cepat:</span>
@@ -502,40 +502,40 @@
                 <span class="text-base leading-none">🏢</span> Registrasi Gate Access
             </a>
 
-            <a href="{{ route('fit-to-work.form') }}" class="quick-btn" style="background:#dc2626;color:#fff">
+            <a href="<?php echo e(route('fit-to-work.form')); ?>" class="quick-btn" style="background:#dc2626;color:#fff">
                 <span class="text-base leading-none">⚠️</span> Fit to Work
             </a>
         </div>
     </div>
 
-    {{-- ═══════════ STATS BAR ═══════════ --}}
+    
     <div class="stats-bar">
         <div class="stats-inner">
             <div class="stat-box">
-                <div class="stat-number">{{ \App\Models\ApdItem::count() }}</div>
+                <div class="stat-number"><?php echo e(\App\Models\ApdItem::count()); ?></div>
                 <div class="stat-label">Jenis APD</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number">{{ \App\Models\CmsArticle::where('is_published', true)->count() }}</div>
+                <div class="stat-number"><?php echo e(\App\Models\CmsArticle::where('is_published', true)->count()); ?></div>
                 <div class="stat-label">Artikel K3</div>
             </div>
             <div class="stat-box">
-                {{-- PERBAIKAN 2: Menghitung total vendor gabungan --}}
-                @php
+                
+                <?php
                     $totalVendorWpo = \App\Models\CmsVendor::where('is_active', true)->count();
                     $totalVendorGate = \App\Models\VendorRegistrasi::aktifDanBerlaku()->count();
                     $totalSemuaVendor = $totalVendorWpo + $totalVendorGate;
-                @endphp
-                <div class="stat-number">{{ $totalSemuaVendor }}</div>
+                ?>
+                <div class="stat-number"><?php echo e($totalSemuaVendor); ?></div>
                 <div class="stat-label">Vendor Aktif</div>
             </div>
         </div>
     </div>
 
-    {{-- ═══════════ INTRO K3 PLN ═══════════ --}}
+    
     <section id="video" class="video-section">
         <div class="video-inner">
-            {{-- Teks kiri --}}
+            
             <div class="video-text">
                 <div class="video-badge">
                     Profil Unit PT PLN Nusantara Power UP Sengkang
@@ -548,30 +548,30 @@
                     hektare, unit ini menjadi salah satu tulang punggung kelistrikan kawasan timur Indonesia.
                 </p>
 
-                {{-- Poin keunggulan --}}
+                
                 <div style="color:#bfdbfe;font-size:14px;text-align:justify;">
-                    @php
+                    <?php
                     $points = [
                         ['icon'=>'⚡','text'=>'Kapasitas total 315 MW — Blok 1 (135 MW, COD 1998) & Blok 2 (180 MW, COD 2013)'],
                         ['icon'=>'📍','text'=>'Berlokasi strategis di Kab. Wajo, Sulawesi Selatan, di atas lahan +35 Hektare'],
                         ['icon'=>'🔧','text'=>'Dioperasikan oleh PLN Nusantara Power sejak Maret 2023 setelah akuisisi aset PLTGU Sengkang'],
                     ];
-                    @endphp
-                    @foreach($points as $pt)
+                    ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $points; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <span style="font-size:20px;">{{ $pt['icon'] }}</span>
-                        <span style="color:#bfdbfe;font-size:14px;">{{ $pt['text'] }}</span>
+                        <span style="font-size:20px;"><?php echo e($pt['icon']); ?></span>
+                        <span style="color:#bfdbfe;font-size:14px;"><?php echo e($pt['text']); ?></span>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
 
-            {{-- Gambar kanan (Pengganti Video) --}}
+            
             <div class="video-player-wrap">
                 <div class="video-frame-outer">
                     <div class="video-ratio">
                         <img
-                            src="{{ asset('images/pln.png') }}"
+                            src="<?php echo e(asset('images/pln.png')); ?>"
                             alt="Profil K3 PLN Sengkang"
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
                             loading="lazy"
@@ -582,15 +582,15 @@
         </div>
     </section>
 
-    {{-- ═══════════ ARTIKEL K3 ═══════════ --}}
+    
     <section id="artikel" class="section">
         <div class="section-inner">
 
-            {{-- ══ HEADER DENGAN TOMBOL DI KANAN ══ --}}
+            
             <div class="section-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 30px;">
                 <h2 class="section-title" style="margin: 0; white-space: nowrap;">Artikel K3 Terbaru</h2>
                 <div class="section-line" style="flex-grow: 1; height: 2px; background-color: #FFC72C;"></div>
-                <a href="{{ route('artikel.index') }}"
+                <a href="<?php echo e(route('artikel.index')); ?>"
                    style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: #003D7C; text-decoration: none; padding: 6px 16px; border: 2px solid #003D7C; border-radius: 9999px; transition: all 0.2s; white-space: nowrap;"
                    onmouseover="this.style.backgroundColor='#003D7C'; this.style.color='#ffffff';"
                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#003D7C';">
@@ -601,46 +601,46 @@
                 </a>
             </div>
 
-            @if($articles->isNotEmpty())
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($articles->isNotEmpty()): ?>
 
-            {{-- DESKTOP: Carousel --}}
+            
             <div class="artikel-desktop-carousel">
                 <div class="artikel-swiper" id="artikel-swiper">
                     <div class="swiper-wrapper" id="artikel-swiper-track">
-                        @foreach($articles as $article)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $articles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $article): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="swiper-slide">
-                            <a href="{{ route('artikel.show', $article->id) }}" class="article-card">
+                            <a href="<?php echo e(route('artikel.show', $article->id)); ?>" class="article-card">
                                 <div class="article-img-wrap">
-                                    @if($article->thumbnail)
-                                    {{-- Blur background layer --}}
-                                    <img src="{{ Storage::url($article->thumbnail) }}"
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($article->thumbnail): ?>
+                                    
+                                    <img src="<?php echo e(Storage::url($article->thumbnail)); ?>"
                                          alt=""
                                          class="article-img-bg"
                                          aria-hidden="true"
                                          loading="lazy">
-                                    {{-- Gambar utama contain --}}
-                                    <img src="{{ Storage::url($article->thumbnail) }}"
-                                         alt="{{ $article->title }}"
+                                    
+                                    <img src="<?php echo e(Storage::url($article->thumbnail)); ?>"
+                                         alt="<?php echo e($article->title); ?>"
                                          class="article-img"
                                          loading="lazy">
-                                    @else
+                                    <?php else: ?>
                                     <div class="article-img-placeholder">
                                         <svg width="48" height="48" fill="none" stroke="#93c5fd" stroke-width="1.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                         </svg>
                                     </div>
-                                    @endif
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                                 <div class="article-body">
-                                    <span class="article-cat cat-{{ $article->category }}">{{ $article->category }}</span>
-                                    <h3 class="article-title">{{ $article->title }}</h3>
-                                    @if($article->published_at)
-                                    <div class="article-date">{{ $article->published_at->translatedFormat('d M Y') }}</div>
-                                    @endif
+                                    <span class="article-cat cat-<?php echo e($article->category); ?>"><?php echo e($article->category); ?></span>
+                                    <h3 class="article-title"><?php echo e($article->title); ?></h3>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($article->published_at): ?>
+                                    <div class="article-date"><?php echo e($article->published_at->translatedFormat('d M Y')); ?></div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </a>
                         </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
 
@@ -655,58 +655,58 @@
                 </div>
             </div>
 
-            {{-- MOBILE: Show More Grid --}}
+            
             <div class="artikel-mobile-grid" id="artikel-mobile-grid">
-                @foreach($articles as $idx => $article)
-                <a href="{{ route('artikel.show', $article->id) }}"
-                   class="article-card {{ $idx >= 3 ? 'artikel-card-hidden' : '' }}">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $articles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $article): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(route('artikel.show', $article->id)); ?>"
+                   class="article-card <?php echo e($idx >= 3 ? 'artikel-card-hidden' : ''); ?>">
                     <div class="article-img-wrap">
-                        @if($article->thumbnail)
-                        {{-- Blur background layer --}}
-                        <img src="{{ Storage::url($article->thumbnail) }}"
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($article->thumbnail): ?>
+                        
+                        <img src="<?php echo e(Storage::url($article->thumbnail)); ?>"
                              alt=""
                              class="article-img-bg"
                              aria-hidden="true"
                              loading="lazy">
-                        {{-- Gambar utama contain --}}
-                        <img src="{{ Storage::url($article->thumbnail) }}"
-                             alt="{{ $article->title }}"
+                        
+                        <img src="<?php echo e(Storage::url($article->thumbnail)); ?>"
+                             alt="<?php echo e($article->title); ?>"
                              class="article-img"
                              loading="lazy">
-                        @else
+                        <?php else: ?>
                         <div class="article-img-placeholder">
                             <svg width="48" height="48" fill="none" stroke="#93c5fd" stroke-width="1.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <div class="article-body">
-                        <span class="article-cat cat-{{ $article->category }}">{{ $article->category }}</span>
-                        <h3 class="article-title">{{ $article->title }}</h3>
-                        @if($article->published_at)
-                        <div class="article-date">{{ $article->published_at->translatedFormat('d M Y') }}</div>
-                        @endif
+                        <span class="article-cat cat-<?php echo e($article->category); ?>"><?php echo e($article->category); ?></span>
+                        <h3 class="article-title"><?php echo e($article->title); ?></h3>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($article->published_at): ?>
+                        <div class="article-date"><?php echo e($article->published_at->translatedFormat('d M Y')); ?></div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                @if($articles->count() > 3)
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($articles->count() > 3): ?>
                 <button class="btn-show-more" id="artikel-show-more" onclick="toggleArtikelShowMore()">
                     <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    Tampilkan {{ $articles->count() - 3 }} artikel lainnya
+                    Tampilkan <?php echo e($articles->count() - 3); ?> artikel lainnya
                 </button>
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            @else
+            <?php else: ?>
             <div style="text-align:center;padding:48px 0;color:#9ca3af">Belum ada artikel yang diterbitkan.</div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         </div>
     </section>
 
-    {{-- ═══════════ VENDOR K3 (UPDATE TAB) ═══════════ --}}
+    
     <section id="vendor" class="section section-alt">
         <div class="section-inner">
             <div class="section-header">
@@ -714,41 +714,41 @@
                 <div class="section-line"></div>
             </div>
 
-            {{-- Tab switcher --}}
+            
             <div class="flex gap-3 mb-8 flex-wrap">
                 <button id="tab-wpo-btn" onclick="switchVendorTab('wpo')"
                         class="vendor-tab-btn flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition border-2 border-[#003D7C] bg-[#003D7C] text-white">
                     🏭 Vendor WPO PLUS
-                    <span class="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">{{ isset($vendorsWpo) ? $vendorsWpo->count() : 0 }}</span>
+                    <span class="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full"><?php echo e(isset($vendorsWpo) ? $vendorsWpo->count() : 0); ?></span>
                 </button>
                 <button id="tab-gate-btn" onclick="switchVendorTab('gate')"
                         class="vendor-tab-btn flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition border-2 border-gray-300 bg-white text-gray-600 hover:border-amber-400">
                     🔐 Registrasi Gate Access
-                    <span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">{{ isset($vendorsGate) ? $vendorsGate->count() : 0 }}</span>
+                    <span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full"><?php echo e(isset($vendorsGate) ? $vendorsGate->count() : 0); ?></span>
                 </button>
             </div>
 
-            {{-- ─── WPO PLUS ──────────────────────────────────── --}}
+            
             <div id="vendor-tab-wpo">
-                @if(isset($vendorsWpo) && $vendorsWpo->isNotEmpty())
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($vendorsWpo) && $vendorsWpo->isNotEmpty()): ?>
 
-                {{-- DESKTOP: Swiper Carousel --}}
+                
                 <div class="vendor-desktop-carousel">
                     <div class="vendor-swiper-wrap">
                         <div class="vendor-swiper" id="wpo-swiper">
                             <div class="swiper-wrapper" id="wpo-swiper-track">
-                                @foreach($vendorsWpo as $vendor)
-                                @php
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $vendorsWpo; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php
                                     $pekerjaWpoData = is_string($vendor->pekerja_json)
                                                       ? json_decode($vendor->pekerja_json, true)
                                                       : ($vendor->pekerja_json ?? []);
                                     $formattedPekerjaWpo = is_array($pekerjaWpoData) ? array_map(function($p) {
                                         return ['nama' => $p['nama'] ?? 'Tanpa Nama'];
                                     }, $pekerjaWpoData) : [];
-                                @endphp
+                                ?>
                                 <div class="swiper-slide">
                                     <div class="vendor-card cursor-pointer hover:shadow-lg transition"
-                                         onclick='openVendorPopup({{ json_encode([
+                                         onclick='openVendorPopup(<?php echo e(json_encode([
                                              "type"           => "wpo",
                                              "nama"           => $vendor->nama_vendor,
                                              "pekerjaan"      => $vendor->nama_pekerjaan ?? $vendor->bidang_kerja,
@@ -757,7 +757,7 @@
                                              "kontak"         => $vendor->kontak,
                                              "email"          => $vendor->email,
                                              "pekerjas"       => $formattedPekerjaWpo,
-                                         ]) }})'>
+                                         ])); ?>)'>
                                         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
                                             <div class="vendor-icon">
                                                 <svg width="20" height="20" fill="none" stroke="#1d4ed8" stroke-width="1.5" viewBox="0 0 24 24">
@@ -765,27 +765,28 @@
                                                 </svg>
                                             </div>
                                             <div class="flex-1" style="min-width:0">
-                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $vendor->nama_vendor }}</div>
-                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $vendor->nama_pekerjaan ?? $vendor->bidang_kerja }}</div>
+                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?php echo e($vendor->nama_vendor); ?></div>
+                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"><?php echo e($vendor->nama_pekerjaan ?? $vendor->bidang_kerja); ?></div>
                                             </div>
                                             <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">WPO</span>
                                         </div>
-                                        @if($vendor->tanggal_mulai)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vendor->tanggal_mulai): ?>
                                         <div style="font-size:12px;color:#9ca3af;margin-top:6px">
-                                            📅 {{ $vendor->tanggal_mulai->format('d/m/Y') }} – {{ $vendor->tanggal_selesai?->format('d/m/Y') ?? '—' }}
+                                            📅 <?php echo e($vendor->tanggal_mulai->format('d/m/Y')); ?> – <?php echo e($vendor->tanggal_selesai?->format('d/m/Y') ?? '—'); ?>
+
                                         </div>
-                                        @endif
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                                            👷 {{ count($formattedPekerjaWpo) }} pekerja terdaftar
+                                            👷 <?php echo e(count($formattedPekerjaWpo)); ?> pekerja terdaftar
                                         </div>
                                         <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                                     </div>
                                 </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
 
-                        {{-- Custom Nav --}}
+                        
                         <div class="vendor-swiper-nav">
                             <button class="vendor-swiper-btn" id="wpo-prev" onclick="vendorSwipe('wpo',-1)" aria-label="Sebelumnya">
                                 <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -798,19 +799,19 @@
                     </div>
                 </div>
 
-                {{-- MOBILE: Show More Grid --}}
+                
                 <div class="vendor-mobile-grid" id="wpo-mobile-grid">
-                    @foreach($vendorsWpo as $idx => $vendor)
-                    @php
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $vendorsWpo; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $pekerjaWpoData = is_string($vendor->pekerja_json)
                                           ? json_decode($vendor->pekerja_json, true)
                                           : ($vendor->pekerja_json ?? []);
                         $formattedPekerjaWpo = is_array($pekerjaWpoData) ? array_map(function($p) {
                             return ['nama' => $p['nama'] ?? 'Tanpa Nama'];
                         }, $pekerjaWpoData) : [];
-                    @endphp
-                    <div class="vendor-card cursor-pointer {{ $idx >= 3 ? 'vendor-card-hidden' : '' }}"
-                         onclick='openVendorPopup({{ json_encode([
+                    ?>
+                    <div class="vendor-card cursor-pointer <?php echo e($idx >= 3 ? 'vendor-card-hidden' : ''); ?>"
+                         onclick='openVendorPopup(<?php echo e(json_encode([
                              "type"           => "wpo",
                              "nama"           => $vendor->nama_vendor,
                              "pekerjaan"      => $vendor->nama_pekerjaan ?? $vendor->bidang_kerja,
@@ -819,7 +820,7 @@
                              "kontak"         => $vendor->kontak,
                              "email"          => $vendor->email,
                              "pekerjas"       => $formattedPekerjaWpo,
-                         ]) }})'>
+                         ])); ?>)'>
                         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
                             <div class="vendor-icon">
                                 <svg width="20" height="20" fill="none" stroke="#1d4ed8" stroke-width="1.5" viewBox="0 0 24 24">
@@ -827,51 +828,52 @@
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <div class="vendor-name">{{ $vendor->nama_vendor }}</div>
-                                <div class="vendor-bidang">{{ $vendor->nama_pekerjaan ?? $vendor->bidang_kerja }}</div>
+                                <div class="vendor-name"><?php echo e($vendor->nama_vendor); ?></div>
+                                <div class="vendor-bidang"><?php echo e($vendor->nama_pekerjaan ?? $vendor->bidang_kerja); ?></div>
                             </div>
                             <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">WPO</span>
                         </div>
-                        @if($vendor->tanggal_mulai)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vendor->tanggal_mulai): ?>
                         <div style="font-size:12px;color:#9ca3af;margin-top:6px">
-                            📅 {{ $vendor->tanggal_mulai->format('d/m/Y') }} – {{ $vendor->tanggal_selesai?->format('d/m/Y') ?? '—' }}
+                            📅 <?php echo e($vendor->tanggal_mulai->format('d/m/Y')); ?> – <?php echo e($vendor->tanggal_selesai?->format('d/m/Y') ?? '—'); ?>
+
                         </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                            👷 {{ count($formattedPekerjaWpo) }} pekerja terdaftar
+                            👷 <?php echo e(count($formattedPekerjaWpo)); ?> pekerja terdaftar
                         </div>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    @if($vendorsWpo->count() > 3)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vendorsWpo->count() > 3): ?>
                     <button class="btn-show-more" id="wpo-show-more" onclick="toggleShowMore('wpo')">
                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        Tampilkan {{ $vendorsWpo->count() - 3 }} vendor lainnya
+                        Tampilkan <?php echo e($vendorsWpo->count() - 3); ?> vendor lainnya
                     </button>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                @else
+                <?php else: ?>
                 <div style="text-align:center;padding:40px;color:#9ca3af">Belum ada data vendor WPO PLUS.</div>
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            {{-- ─── GATE ACCESS ────────────────────────────────── --}}
+            
             <div id="vendor-tab-gate" class="hidden">
-                @if(isset($vendorsGate) && $vendorsGate->isNotEmpty())
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($vendorsGate) && $vendorsGate->isNotEmpty()): ?>
 
-                {{-- DESKTOP: Swiper Carousel --}}
+                
                 <div class="vendor-desktop-carousel">
                     <div class="vendor-swiper-wrap">
                         <div class="vendor-swiper" id="gate-swiper">
                             <div class="swiper-wrapper" id="gate-swiper-track">
-                                @foreach($vendorsGate as $reg)
-                                @php
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $vendorsGate; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $reg): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php
                                     $pekerjaData = $reg->pekerjasLulus->map(fn($p) => ['nama' => $p->nama_pekerja])->toArray();
-                                @endphp
+                                ?>
                                 <div class="swiper-slide">
                                     <div class="vendor-card cursor-pointer hover:shadow-lg transition"
-                                         onclick='openVendorPopup({{ json_encode([
+                                         onclick='openVendorPopup(<?php echo e(json_encode([
                                              "type"           => "gate",
                                              "nama"           => $reg->nama_perusahaan,
                                              "pekerjaan"      => $reg->nama_pekerjaan,
@@ -879,7 +881,7 @@
                                              "tanggal_selesai"=> $reg->tanggal_selesai->format("d/m/Y"),
                                              "kontak"         => $reg->no_wa_pic,
                                              "pekerjas"       => $pekerjaData,
-                                         ]) }})'>
+                                         ])); ?>)'>
                                         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
                                             <div class="vendor-icon" style="background:#fef3c7">
                                                 <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="1.5" viewBox="0 0 24 24">
@@ -887,21 +889,22 @@
                                                 </svg>
                                             </div>
                                             <div class="flex-1" style="min-width:0">
-                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $reg->nama_perusahaan }}</div>
-                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $reg->nama_pekerjaan }}</div>
+                                                <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?php echo e($reg->nama_perusahaan); ?></div>
+                                                <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"><?php echo e($reg->nama_pekerjaan); ?></div>
                                             </div>
                                             <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">GATE</span>
                                         </div>
                                         <div style="font-size:12px;color:#9ca3af;margin-top:4px">
-                                            📅 {{ $reg->tanggal_mulai->format('d/m/Y') }} – {{ $reg->tanggal_selesai->format('d/m/Y') }}
+                                            📅 <?php echo e($reg->tanggal_mulai->format('d/m/Y')); ?> – <?php echo e($reg->tanggal_selesai->format('d/m/Y')); ?>
+
                                         </div>
                                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                                            👷 {{ $reg->pekerjasLulus->count() }} pekerja terdaftar
+                                            👷 <?php echo e($reg->pekerjasLulus->count()); ?> pekerja terdaftar
                                         </div>
                                         <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                                     </div>
                                 </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                         <div class="vendor-swiper-nav">
@@ -916,14 +919,14 @@
                     </div>
                 </div>
 
-                {{-- MOBILE: Show More Grid --}}
+                
                 <div class="vendor-mobile-grid" id="gate-mobile-grid">
-                    @foreach($vendorsGate as $idx => $reg)
-                    @php
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $vendorsGate; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $reg): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $pekerjaData = $reg->pekerjasLulus->map(fn($p) => ['nama' => $p->nama_pekerja])->toArray();
-                    @endphp
-                    <div class="vendor-card cursor-pointer {{ $idx >= 3 ? 'vendor-card-hidden' : '' }}"
-                         onclick='openVendorPopup({{ json_encode([
+                    ?>
+                    <div class="vendor-card cursor-pointer <?php echo e($idx >= 3 ? 'vendor-card-hidden' : ''); ?>"
+                         onclick='openVendorPopup(<?php echo e(json_encode([
                              "type"           => "gate",
                              "nama"           => $reg->nama_perusahaan,
                              "pekerjaan"      => $reg->nama_pekerjaan,
@@ -931,7 +934,7 @@
                              "tanggal_selesai"=> $reg->tanggal_selesai->format("d/m/Y"),
                              "kontak"         => $reg->no_wa_pic,
                              "pekerjas"       => $pekerjaData,
-                         ]) }})'>
+                         ])); ?>)'>
                         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
                             <div class="vendor-icon" style="background:#fef3c7">
                                 <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="1.5" viewBox="0 0 24 24">
@@ -939,29 +942,30 @@
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <div class="vendor-name">{{ $reg->nama_perusahaan }}</div>
-                                <div class="vendor-bidang">{{ Str::limit($reg->nama_pekerjaan, 50) }}</div>
+                                <div class="vendor-name"><?php echo e($reg->nama_perusahaan); ?></div>
+                                <div class="vendor-bidang"><?php echo e(Str::limit($reg->nama_pekerjaan, 50)); ?></div>
                             </div>
                             <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">GATE</span>
                         </div>
                         <div style="font-size:12px;color:#9ca3af;margin-top:4px">
-                            📅 {{ $reg->tanggal_mulai->format('d/m/Y') }} – {{ $reg->tanggal_selesai->format('d/m/Y') }}
+                            📅 <?php echo e($reg->tanggal_mulai->format('d/m/Y')); ?> – <?php echo e($reg->tanggal_selesai->format('d/m/Y')); ?>
+
                         </div>
                         <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                            👷 {{ $reg->pekerjasLulus->count() }} pekerja terdaftar
+                            👷 <?php echo e($reg->pekerjasLulus->count()); ?> pekerja terdaftar
                         </div>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    @if($vendorsGate->count() > 3)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vendorsGate->count() > 3): ?>
                     <button class="btn-show-more" id="gate-show-more" onclick="toggleShowMore('gate')">
                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        Tampilkan {{ $vendorsGate->count() - 3 }} vendor lainnya
+                        Tampilkan <?php echo e($vendorsGate->count() - 3); ?> vendor lainnya
                     </button>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                @else
+                <?php else: ?>
                 <div style="text-align:center;padding:40px 0">
                     <div style="font-size:3rem;margin-bottom:12px">🔐</div>
                     <div style="color:#374151;font-weight:600">Belum ada registrasi gate access aktif.</div>
@@ -969,30 +973,30 @@
                         Daftar Sekarang →
                     </a>
                 </div>
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            {{-- Flow (kalau ada) --}}
-            @if(isset($flows) && $flows->isNotEmpty())
+            
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($flows) && $flows->isNotEmpty()): ?>
             <div style="margin-top:32px">
                 <h3 style="font-weight:700;color:#374151;font-size:1.1rem;margin-bottom:16px">Diagram Alur Vendor</h3>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
-                    @foreach($flows as $flow)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $flows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $flow): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-                        <img src="{{ Storage::url($flow->image_path) }}" alt="Diagram Alur" style="width:100%;display:block" loading="lazy">
-                        @if($flow->keterangan)
-                        <div style="padding:12px;font-size:13px;color:#6b7280">{{ $flow->keterangan }}</div>
-                        @endif
+                        <img src="<?php echo e(Storage::url($flow->image_path)); ?>" alt="Diagram Alur" style="width:100%;display:block" loading="lazy">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($flow->keterangan): ?>
+                        <div style="padding:12px;font-size:13px;color:#6b7280"><?php echo e($flow->keterangan); ?></div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         </div>
     </section>
 
-    {{-- ═══════════ FIT TO WORK ═══════════ --}}
+    
     <section id="fit-to-work" class="section">
         <div class="section-inner">
             <div class="section-header">
@@ -1005,46 +1009,48 @@
                     Daftar vendor / kontraktor yang telah dinyatakan <strong>Fit to Work</strong>
                     oleh dokter klinik untuk pekerjaan risiko tinggi.
                 </p>
-                <a href="{{ route('fit-to-work.form') }}"
+                <a href="<?php echo e(route('fit-to-work.form')); ?>"
                    class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow">
                     ⚠️ Daftar Fit to Work
                 </a>
             </div>
 
-            @if($fitToWorkVendor->isNotEmpty())
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($fitToWorkVendor->isNotEmpty()): ?>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
-                @foreach($fitToWorkVendor as $submission)
-                @php
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $fitToWorkVendor; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php
                     $pekerjaList = $submission->pekerjasfit->map(fn($p) => [
                         'nama'           => $p->nama,
                         'jenis_kelamin'  => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
                         'tanggal_periksa'=> $p->tanggal_periksa?->format('d/m/Y') ?? '-',
                         'dokter'         => $p->dokter_nama ?? '-',
                     ])->values()->toArray();
-                @endphp
+                ?>
                 <div class="vendor-card cursor-pointer hover:shadow-lg transition"
-                     onclick='openFtwPopup({{ json_encode([
+                     onclick='openFtwPopup(<?php echo e(json_encode([
                          "nama"            => $submission->nama_perusahaan,
                          "pekerjaan"       => $submission->nama_pekerjaan,
                          "tanggal_mulai"   => $submission->tanggal_mulai->format("d/m/Y"),
                          "tanggal_selesai" => $submission->tanggal_selesai->format("d/m/Y"),
                          "pekerjas"        => $pekerjaList,
-                     ]) }})'>
+                     ])); ?>)'>
 
                     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
-                        {{-- Icon --}}
+                        
                         <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
                             <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="1.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                             </svg>
                         </div>
-                        {{-- Nama & pekerjaan --}}
+                        
                         <div class="flex-1" style="min-width:0">
                             <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                {{ $submission->nama_perusahaan }}
+                                <?php echo e($submission->nama_perusahaan); ?>
+
                             </div>
                             <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
-                                {{ $submission->nama_pekerjaan }}
+                                <?php echo e($submission->nama_pekerjaan); ?>
+
                             </div>
                         </div>
                         <span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0">
@@ -1053,27 +1059,28 @@
                     </div>
 
                     <div style="font-size:12px;color:#9ca3af;margin-top:4px">
-                        📅 {{ $submission->tanggal_mulai->format('d/m/Y') }} – {{ $submission->tanggal_selesai->format('d/m/Y') }}
+                        📅 <?php echo e($submission->tanggal_mulai->format('d/m/Y')); ?> – <?php echo e($submission->tanggal_selesai->format('d/m/Y')); ?>
+
                     </div>
                     <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                        👷 {{ $submission->pekerjasfit->count() }} pekerja tersertifikasi
+                        👷 <?php echo e($submission->pekerjasfit->count()); ?> pekerja tersertifikasi
                     </div>
                     <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            @else
+            <?php else: ?>
             <div style="text-align:center;padding:48px 0;color:#9ca3af">
                 <div style="font-size:3rem;margin-bottom:12px">🏥</div>
                 <div style="font-weight:600;color:#374151">Belum ada vendor dengan status Fit to Work aktif.</div>
                 <div style="font-size:13px;margin-top:6px">Vendor yang telah diperiksa dokter akan muncul di sini.</div>
             </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </section>
 
-    {{-- ═══════════ PATROL IZAT & TEMUAN OPEN ═══════════ --}}
+    
     <section id="patrol" class="section">
         <div class="section-inner">
             <div class="section-header">
@@ -1081,14 +1088,14 @@
                 <div class="section-line"></div>
             </div>
 
-            {{-- Grid Container 2 Kolom --}}
+            
             <div class="patrol-temuan-grid">
 
-                {{-- KOLOM KIRI: PATROL IZAT --}}
+                
                 <div>
-                    @if($patrolPeriode && $patrolPeriode->jadwals->isNotEmpty())
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($patrolPeriode && $patrolPeriode->jadwals->isNotEmpty()): ?>
                     <div class="patrol-card-main">
-                        {{-- Header kartu --}}
+                        
                         <div class="patrol-card-header">
                             <div class="patrol-header-left">
                                 <div class="patrol-icon">
@@ -1098,10 +1105,10 @@
                                 </div>
                                 <div>
                                     <div class="patrol-title">Jadwal Safety Patrol iZAT</div>
-                                    <div class="patrol-subtitle">{{ $patrolBulan }} {{ $patrolTahun }}</div>
+                                    <div class="patrol-subtitle"><?php echo e($patrolBulan); ?> <?php echo e($patrolTahun); ?></div>
                                 </div>
                             </div>
-                            @php
+                            <?php
                                 // Ambil batas awal dan akhir minggu ini
                                 $startOfWeek = now()->startOfWeek()->startOfDay();
                                 $endOfWeek   = now()->endOfWeek()->endOfDay();
@@ -1114,20 +1121,20 @@
                                 // Hitung total dan yang sudah lapor dari filter tersebut
                                 $totalMingguIni  = $jadwalMingguIni->count();
                                 $sudahLapor      = $jadwalMingguIni->where('sudah_lapor', true)->count();
-                            @endphp
+                            ?>
                             <div class="patrol-count-badge">
-                                <span class="patrol-count-num">{{ $sudahLapor }}/{{ $totalMingguIni }}</span>
+                                <span class="patrol-count-num"><?php echo e($sudahLapor); ?>/<?php echo e($totalMingguIni); ?></span>
                                 <span class="patrol-count-label">lapor</span>
                             </div>
                         </div>
 
-                        {{-- Sub-header: range tanggal minggu ini --}}
+                        
                         <div class="patrol-week-bar">
                             <span class="patrol-week-label">Petugas bertugas minggu ini</span>
-                            <span class="patrol-week-range">{{ $patrolMingguRange }}</span>
+                            <span class="patrol-week-range"><?php echo e($patrolMingguRange); ?></span>
                         </div>
 
-                        {{-- Tabel --}}
+                        
                         <div class="patrol-table-wrap" style="overflow-y:auto; max-height:280px;">
                             <table class="patrol-table">
                                 <thead style="position:sticky; top:0; z-index:2;">
@@ -1139,72 +1146,73 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($jadwalMingguIni->values() as $i => $jadwal)
-                                    <tr class="{{ $i % 2 === 0 ? 'row-even' : 'row-odd' }}">
-                                        <td class="col-no">{{ $i + 1 }}</td>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $jadwalMingguIni->values(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $jadwal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <tr class="<?php echo e($i % 2 === 0 ? 'row-even' : 'row-odd'); ?>">
+                                        <td class="col-no"><?php echo e($i + 1); ?></td>
                                         <td class="col-nama">
-                                            {{ $jadwal->nama_petugas }}
-                                            @if($jadwal->lokasi_unit)
-                                            <div class="mt-1"><span class="unit-badge">{{ $jadwal->lokasi_unit }}</span></div>
-                                            @endif
+                                            <?php echo e($jadwal->nama_petugas); ?>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($jadwal->lokasi_unit): ?>
+                                            <div class="mt-1"><span class="unit-badge"><?php echo e($jadwal->lokasi_unit); ?></span></div>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                         <td class="col-hari">
-                                            <span class="hari-label">{{ $jadwal->nama_hari }}</span>
-                                            <span class="tgl-label">{{ $jadwal->tanggal_patrol->format('d/m') }}</span>
+                                            <span class="hari-label"><?php echo e($jadwal->nama_hari); ?></span>
+                                            <span class="tgl-label"><?php echo e($jadwal->tanggal_patrol->format('d/m')); ?></span>
                                         </td>
                                         <td class="col-status">
-                                            @if($jadwal->sudah_lapor)
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($jadwal->sudah_lapor): ?>
                                             <span class="chip-done">
                                                 <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                                 Sudah
                                             </span>
-                                            @else
+                                            <?php else: ?>
                                             <span class="chip-pending">
                                                 <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>
                                                 Belum
                                             </span>
-                                            @endif
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                     </tr>
-                                    @empty
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="4" style="text-align:center;padding:24px;color:#9ca3af;font-size:13px">
                                             Tidak ada jadwal patrol minggu ini.
                                         </td>
                                     </tr>
-                                    @endforelse
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
 
-                        {{-- Progress --}}
-                        @if($totalMingguIni > 0)
+                        
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($totalMingguIni > 0): ?>
                         <div class="patrol-progress">
                             <span class="patrol-prog-label">Progress minggu ini</span>
                             <div class="patrol-prog-wrap">
-                                <div class="patrol-prog-bar" style="width:{{ round(($sudahLapor / $totalMingguIni) * 100) }}%"></div>
+                                <div class="patrol-prog-bar" style="width:<?php echo e(round(($sudahLapor / $totalMingguIni) * 100)); ?>%"></div>
                             </div>
-                            <span class="patrol-prog-pct {{ $sudahLapor === $totalMingguIni ? 'text-green' : 'text-gray' }}">
-                                {{ $sudahLapor }}/{{ $totalMingguIni }} ({{ round(($sudahLapor / $totalMingguIni) * 100) }}%)
+                            <span class="patrol-prog-pct <?php echo e($sudahLapor === $totalMingguIni ? 'text-green' : 'text-gray'); ?>">
+                                <?php echo e($sudahLapor); ?>/<?php echo e($totalMingguIni); ?> (<?php echo e(round(($sudahLapor / $totalMingguIni) * 100)); ?>%)
                             </span>
                         </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        {{-- Footer --}}
+                        
                         <div class="patrol-footer">
                             <div class="patrol-salam">Semangat Pagi Power People — Salam Safety!</div>
                         </div>
                     </div>
-                    @else
+                    <?php else: ?>
                     <div class="patrol-card-main" style="padding:48px 20px;text-align:center">
                         <div style="font-size:3rem;margin-bottom:12px">📋</div>
                         <div style="font-weight:600;color:#374151">Tidak ada jadwal patrol untuk bulan ini</div>
-                        <div style="color:#9ca3af;font-size:13px;margin-top:6px">{{ $patrolBulan }} {{ $patrolTahun }}</div>
+                        <div style="color:#9ca3af;font-size:13px;margin-top:6px"><?php echo e($patrolBulan); ?> <?php echo e($patrolTahun); ?></div>
                     </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                {{-- KOLOM KANAN: TEMUAN OPEN --}}
+                
                 <div>
                     <div class="temuan-card">
                         <div class="temuan-header">
@@ -1219,7 +1227,7 @@
                             </div>
                         </div>
 
-                        @if(isset($temuan_opens) && $temuan_opens->isNotEmpty())
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($temuan_opens) && $temuan_opens->isNotEmpty()): ?>
                         <table class="temuan-table">
                             <thead>
                                 <tr>
@@ -1229,32 +1237,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($temuan_opens as $i => $t)
-                                <tr class="{{ $i % 2 === 0 ? 'r-even' : 'r-odd' }}">
-                                    <td class="no">{{ $i + 1 }}</td>
-                                    <td class="bidang">{{ $t->bidang }}</td>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $temuan_opens; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <tr class="<?php echo e($i % 2 === 0 ? 'r-even' : 'r-odd'); ?>">
+                                    <td class="no"><?php echo e($i + 1); ?></td>
+                                    <td class="bidang"><?php echo e($t->bidang); ?></td>
                                     <td class="jml">
-                                        <span class="jml-badge {{ $t->jumlah_temuan > 10 ? 'danger' : ($t->jumlah_temuan > 5 ? 'warn' : 'ok') }}">
-                                            {{ $t->jumlah_temuan }}
+                                        <span class="jml-badge <?php echo e($t->jumlah_temuan > 10 ? 'danger' : ($t->jumlah_temuan > 5 ? 'warn' : 'ok')); ?>">
+                                            <?php echo e($t->jumlah_temuan); ?>
+
                                         </span>
                                     </td>
                                 </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="2" style="text-align:right;font-size:11px;font-weight:700;padding:8px 12px;color:#374151">Total Temuan:</td>
                                     <td class="jml">
-                                        <span class="jml-badge total">{{ $temuan_opens->sum('jumlah_temuan') }}</span>
+                                        <span class="jml-badge total"><?php echo e($temuan_opens->sum('jumlah_temuan')); ?></span>
                                     </td>
                                 </tr>
                             </tfoot>
                         </table>
-                        @else
+                        <?php else: ?>
                         <div style="padding:32px;text-align:center;color:#9ca3af;font-size:13px">
                             Tidak ada temuan open saat ini.
                         </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
 
@@ -1262,7 +1271,7 @@
         </div>
     </section>
 
-    {{-- ═══════════ FOOTER ═══════════ --}}
+    
     <footer class="footer">
         <div class="footer-inner">
             <div>
@@ -1270,7 +1279,7 @@
                 <div class="footer-text">
                     PT PLN Nusantara Power<br>
                     Unit Pembangkitan Sengkang<br>
-                    {{-- Link Google Maps --}}
+                    
                     <a href="https://www.google.com/maps/search/?api=1&query=PT+PLN+Nusantara+Power+Unit+Pembangkitan+Sengkang,+Jalan+PLTGU+Sengkang,+Desa+Patila,+Kecamatan+Pammana,+Kabupaten+Wajo,+90971"
                        target="_blank"
                        rel="noopener noreferrer"
@@ -1292,7 +1301,7 @@
                 <div class="footer-text">
                     Hubungi Tim K3 segera jika terjadi insiden atau keadaan darurat.<br><br>
 
-                    {{-- Link Email --}}
+                    
                     <strong style="color:#fbbf24">Email</strong> :
                     <a href="mailto:upsengkangk@gmail.com"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
@@ -1300,7 +1309,7 @@
                        upsengkangk@gmail.com
                     </a><br>
 
-                    {{-- Link Telepon --}}
+                    
                     <strong style="color:#fbbf24">Telp</strong> :
                     <a href="tel:+6283878001602"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
@@ -1311,11 +1320,11 @@
             </div>
         </div>
         <div class="footer-bottom">
-            © {{ date('Y') }} PT PLN Nusantara Power – Unit Pembangkitan Sengkang. All rights reserved.
+            © <?php echo e(date('Y')); ?> PT PLN Nusantara Power – Unit Pembangkitan Sengkang. All rights reserved.
         </div>
     </footer>
 
-    {{-- ═══════════ POPUP DETAIL VENDOR ═══════════ --}}
+    
     <div id="vendor-popup" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeVendorPopup()">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="bg-[#003D7C] text-white p-5 rounded-t-2xl flex items-start justify-between">
@@ -1352,7 +1361,7 @@
                     </div>
 
                     <div id="popup-pekerja-list" class="border border-gray-200 rounded-b-xl overflow-hidden divide-y divide-gray-100">
-                        {{-- Diisi JS --}}
+                        
                     </div>
 
                     <div id="popup-empty" class="hidden text-center py-8 text-gray-400 text-sm">
@@ -1368,12 +1377,12 @@
         </div>
     </div>
 
-    {{-- ═══════════ POPUP DETAIL FIT TO WORK ═══════════ --}}
+    
     <div id="ftw-popup" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
          onclick="if(event.target===this)closeFtwPopup()">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
 
-            {{-- Header --}}
+            
             <div class="bg-[#003D7C] text-white p-5 rounded-t-2xl flex items-start justify-between">
                 <div>
                     <div class="text-xs font-semibold px-2 py-1 rounded-full bg-white/20 inline-block mb-2">
@@ -1388,7 +1397,7 @@
 
             <div class="p-5">
 
-                {{-- Durasi --}}
+                
                 <div class="bg-green-50 rounded-xl p-4 mb-5 flex items-center gap-3">
                     <span class="text-2xl">📅</span>
                     <div>
@@ -1399,7 +1408,7 @@
                     </div>
                 </div>
 
-                {{-- Daftar pekerja --}}
+                
                 <div>
                     <div class="font-bold text-gray-700 mb-3 flex items-center gap-2">
                         👷 Daftar Pekerja Tersertifikasi
@@ -1407,7 +1416,7 @@
                               class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">0</span>
                     </div>
 
-                    {{-- Header tabel --}}
+                    
                     <div class="bg-[#003D7C] text-white text-xs font-semibold rounded-t-xl overflow-hidden">
                         <div style="display:grid;grid-template-columns:40px 1fr 100px 90px">
                             <div class="px-3 py-2 text-center">No</div>
@@ -1417,7 +1426,7 @@
                         </div>
                     </div>
 
-                    {{-- Isi tabel (diisi JS) --}}
+                    
                     <div id="ftw-popup-list"
                          class="border border-gray-200 rounded-b-xl overflow-hidden divide-y divide-gray-100">
                     </div>
@@ -1789,3 +1798,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\k3-pltgu\resources\views/landing.blade.php ENDPATH**/ ?>

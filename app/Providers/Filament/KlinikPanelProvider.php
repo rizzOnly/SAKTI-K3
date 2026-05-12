@@ -17,6 +17,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\EnsureIsDokter;
+use Filament\Navigation\MenuItem;
+use App\Filament\Klinik\Widgets\CustomWelcomeWidget;
 
 class KlinikPanelProvider extends PanelProvider
 {
@@ -25,7 +27,18 @@ class KlinikPanelProvider extends PanelProvider
         return $panel
             ->id('klinik')
             ->path('klinik')
-            ->login()
+
+            ->userMenuItems([
+                'logout' => MenuItem::make()
+                    ->label('Sign Out')
+                    ->url('/logout')
+                    ->icon('heroicon-o-arrow-right-on-rectangle'),
+            ])
+
+            // ── UBAH INI: matikan login bawaan Filament ──
+            ->login(false)
+            ->authGuard('web')
+
             ->colors([
                 'primary' => Color::Teal,
                 'danger'  => Color::Red,
@@ -43,7 +56,7 @@ class KlinikPanelProvider extends PanelProvider
             ->pages([Pages\Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Klinik/Widgets'), for: 'App\\Filament\\Klinik\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                CustomWelcomeWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -56,10 +69,10 @@ class KlinikPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // Middleware: wajib login + punya role dokter/perawat
             ->authMiddleware([
                 Authenticate::class,
                 EnsureIsDokter::class,
-            ])
-            ->authGuard('web');
+            ]);
     }
 }

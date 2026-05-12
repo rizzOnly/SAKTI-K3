@@ -17,6 +17,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\EnsureIsAdminK3;
+use Filament\Navigation\MenuItem;
+use App\Filament\AdminK3\Widgets\CustomWelcomeWidget;
 
 class AdminK3PanelProvider extends PanelProvider
 {
@@ -25,14 +27,24 @@ class AdminK3PanelProvider extends PanelProvider
         return $panel
             ->id('admin-k3')
             ->path('admin')
-            ->login()
+
+            ->userMenuItems([
+                'logout' => MenuItem::make()
+                    ->label('Sign Out')
+                    ->url('/logout')
+                    ->icon('heroicon-o-arrow-right-on-rectangle'),
+            ])
+
+            // ── UBAH INI: matikan login bawaan Filament ──
+            ->login(false)
+            ->authGuard('web')
+
             ->colors([
                 'primary' => Color::Blue,
                 'danger'  => Color::Red,
                 'warning' => Color::Amber,
                 'success' => Color::Green,
             ])
-
             ->brandName('D-SAVE Admin')
             ->brandLogo(fn () => view('filament.components.brand-logo', [
                 'nama' => 'Admin K3'
@@ -44,7 +56,7 @@ class AdminK3PanelProvider extends PanelProvider
             ->pages([Pages\Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/AdminK3/Widgets'), for: 'App\\Filament\\AdminK3\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                CustomWelcomeWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -57,10 +69,10 @@ class AdminK3PanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // Middleware: wajib login + punya role admin_k3
             ->authMiddleware([
                 Authenticate::class,
                 EnsureIsAdminK3::class,
-            ])
-            ->authGuard('web');
+            ]);
     }
 }
