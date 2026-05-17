@@ -55,7 +55,7 @@ Route::get('/', function () {
         'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
         'patrolTahun'       => now()->year,
         'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
-        'fitToWorkVendor'   => \App\Models\FitToWork::where('tipe', 'vendor') ->where('is_active', true) ->where('tanggal_selesai', '>=', today()) ->with(['pekerjasfit']) ->whereHas('pekerjasfit') ->orderByDesc('created_at') ->get(),
+        'fitToWorkVendor'   => \App\Models\FitToWork::aktifDanBerlaku()->with('pekerjas')->orderByDesc('created_at')->get(),
     ]);
 });
 

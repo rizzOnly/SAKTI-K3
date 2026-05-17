@@ -1019,9 +1019,10 @@
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $fitToWorkVendor; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <?php
-                    $pekerjaList = $submission->pekerjasfit->map(fn($p) => [
+                    $pekerjaList = $submission->pekerjas->map(fn($p) => [
                         'nama'           => $p->nama,
                         'jenis_kelamin'  => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                        'status'         => $p->status,
                         'tanggal_periksa'=> $p->tanggal_periksa?->format('d/m/Y') ?? '-',
                         'dokter'         => $p->dokter_nama ?? '-',
                     ])->values()->toArray();
@@ -1063,7 +1064,7 @@
 
                     </div>
                     <div style="font-size:12px;color:#6b7280;margin-top:4px">
-                        👷 <?php echo e($submission->pekerjasfit->count()); ?> pekerja tersertifikasi
+                        👷 <?php echo e($submission->pekerjas->count()); ?> pekerja terdaftar
                     </div>
                     <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                 </div>
@@ -1386,7 +1387,7 @@
             <div class="bg-[#003D7C] text-white p-5 rounded-t-2xl flex items-start justify-between">
                 <div>
                     <div class="text-xs font-semibold px-2 py-1 rounded-full bg-white/20 inline-block mb-2">
-                        ✅ Fit to Work
+                        🏥 Fit to Work
                     </div>
                     <div id="ftw-popup-nama" class="font-bold text-lg leading-tight">—</div>
                     <div id="ftw-popup-pekerjaan" class="text-blue-200 text-sm mt-1">—</div>
@@ -1418,11 +1419,11 @@
 
                     
                     <div class="bg-[#003D7C] text-white text-xs font-semibold rounded-t-xl overflow-hidden">
-                        <div style="display:grid;grid-template-columns:40px 1fr 100px 90px">
+                        <div style="display:grid;grid-template-columns:40px 1fr 100px 100px">
                             <div class="px-3 py-2 text-center">No</div>
                             <div class="px-3 py-2">Nama Pekerja</div>
                             <div class="px-3 py-2 text-center">Kel.</div>
-                            <div class="px-3 py-2 text-center">Diperiksa</div>
+                            <div class="px-3 py-2 text-center">Status</div>
                         </div>
                     </div>
 
@@ -1773,14 +1774,19 @@
                 jmlBadge.textContent = data.pekerjas.length;
                 empty.classList.add('hidden');
                 list.classList.remove('hidden');
-                list.innerHTML = data.pekerjas.map((p, i) => `
-                    <div style="display:grid;grid-template-columns:40px 1fr 100px 90px;font-size:13px;background:${i % 2 === 1 ? '#f9fafb' : '#fff'}">
+                list.innerHTML = data.pekerjas.map((p, i) => {
+                    const statusLabel = p.status === 'fit'
+                        ? '<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px">✅ Fit</span>'
+                        : p.status === 'tidak_fit'
+                            ? '<span style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px">❌ Tidak Fit</span>'
+                            : '<span style="background:#fef9c3;color:#854d0e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px">⏳ Menunggu</span>';
+                    return `<div style="display:grid;grid-template-columns:40px 1fr 100px 110px;font-size:13px;background:${i % 2 === 1 ? '#f9fafb' : '#fff'}">
                         <div style="padding:10px 12px;text-align:center;color:#9ca3af;font-weight:600">${i + 1}.</div>
                         <div style="padding:10px 12px;font-weight:600;color:#111827">${p.nama}</div>
                         <div style="padding:10px 12px;text-align:center;color:#6b7280;font-size:12px">${p.jenis_kelamin}</div>
-                        <div style="padding:10px 12px;text-align:center;color:#9ca3af;font-size:11px">${p.tanggal_periksa}</div>
-                    </div>
-                `).join('');
+                        <div style="padding:10px 12px;text-align:center">${statusLabel}</div>
+                    </div>`;
+                }).join('');
             } else {
                 jmlBadge.textContent = '0';
                 list.innerHTML = '';
