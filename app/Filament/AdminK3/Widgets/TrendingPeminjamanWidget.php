@@ -5,28 +5,57 @@ namespace App\Filament\AdminK3\Widgets;
 use Filament\Widgets\ChartWidget;
 use App\Models\PeminjamanDetail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TrendingPeminjamanWidget extends ChartWidget
 {
-    protected static ?string $heading   = 'APD Paling Sering Dipinjam (30 Hari Terakhir)';
     protected static ?int    $sort      = 6;
     protected static ?string $maxHeight = '280px';
     protected int | string | array $columnSpan = 'full';
 
+    public ?string $filter = 'this_month';
+
+    // FIX: Diubah menjadi public
+    public function getHeading(): string
+    {
+        return 'APD Paling Sering Dipinjam';
+    }
+
+    protected function getFilters(): ?array
+    {
+        return [
+            'this_month' => 'Bulan Ini',
+            'last_month' => 'Bulan Lalu',
+            '3_months'   => '3 Bulan Terakhir',
+            'this_year'  => 'Tahun Ini',
+            'all'        => 'Semua Waktu',
+        ];
+    }
+
     protected function getData(): array
     {
-        $period = now()->subDays(90); // 90 hari terakhir
+        $activeFilter = $this->filter;
 
         $data = PeminjamanDetail::select(
                 'apd_item_id',
                 DB::raw('SUM(jumlah) as total')
             )
-            ->whereHas('peminjamanHeader', fn($q) =>
-                $q->whereIn('status', ['approved', 'returned'])
-                  ->where('approved_at', '>=', $period)
-            )
+            ->whereHas('peminjamanHeader', function ($q) use ($activeFilter) {
+                $q->whereIn('status', ['approved', 'returned']);
+
+                if ($activeFilter === 'this_month') {
+                    $q->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+                } elseif ($activeFilter === 'last_month') {
+                    $q->whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year);
+                } elseif ($activeFilter === '3_months') {
+                    $q->where('created_at', '>=', now()->subMonths(3)->startOfMonth());
+                } elseif ($activeFilter === 'this_year') {
+                    $q->whereYear('created_at', now()->year);
+                }
+            })
             ->groupBy('apd_item_id')
             ->orderByDesc('total')
+            ->orderBy('apd_item_id')
             ->take(8)
             ->with('apdItem')
             ->get();
@@ -35,22 +64,15 @@ class TrendingPeminjamanWidget extends ChartWidget
             'datasets' => [[
                 'label'           => 'Jumlah Dipinjam',
                 'data'            => $data->pluck('total')->toArray(),
-                'backgroundColor' => array_fill(0, $data->count(), '#0D9488'),
+                'backgroundColor' => array_fill(0, max($data->count(), 1), '#0D9488'),
                 'borderRadius'    => 6,
             ]],
             'labels' => $data->map(fn($d) =>
-                \Str::limit($d->apdItem->nama_barang ?? '?', 20)
+                Str::limit($d->apdItem->nama_barang ?? 'Unknown', 20)
             )->toArray(),
         ];
     }
 
     protected function getType(): string { return 'bar'; }
-    protected function getOptions(): array
-    {
-        return [
-            'plugins'  => ['legend' => ['display' => false]],
-            'scales'   => ['y' => ['beginAtZero' => true]],
-            'indexAxis' => 'y',
-        ];
-    }
+    protected function getOptions(): array { return ['plugins' => ['legend' => ['display' => false]], 'scales' => ['y' => ['beginAtZero' => true]], 'indexAxis' => 'y']; }
 }

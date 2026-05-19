@@ -8,55 +8,68 @@ use App\Models\PeminjamanHeader;
 
 class ApdPerBidangWidget extends ChartWidget
 {
-    protected static ?string $heading   = 'Pengambilan & Peminjaman APD per Bidang (30 Hari Terakhir)';
     protected static ?int    $sort      = 7;
     protected static ?string $maxHeight = '280px';
     protected int | string | array $columnSpan = 'full';
 
+    public ?string $filter = 'this_month';
+
+    // FIX: Diubah menjadi public
+    public function getHeading(): string
+    {
+        return 'Pengambilan & Peminjaman APD per Bidang';
+    }
+
+    protected function getFilters(): ?array
+    {
+        return [
+            'this_month' => 'Bulan Ini',
+            'last_month' => 'Bulan Lalu',
+            '3_months'   => '3 Bulan Terakhir',
+            'this_year'  => 'Tahun Ini',
+            'all'        => 'Semua Waktu',
+        ];
+    }
+
     protected function getData(): array
     {
-        $period = now()->subDays(90); // 90 hari terakhir
+        $activeFilter = $this->filter;
 
-        // Get all approved/returned headers with user relationship within 90 days
-        $pengambilanHeaders = PengambilanHeader::with('user')
-            ->whereIn('status', ['approved', 'returned'])
-            ->where('approved_at', '>=', $period)
-            ->get();
+        $queryAmbil = PengambilanHeader::with('user')->whereIn('status', ['approved', 'returned']);
+        $queryPinjam = PeminjamanHeader::with('user')->whereIn('status', ['approved', 'returned']);
 
-        $peminjamanHeaders = PeminjamanHeader::with('user')
-            ->whereIn('status', ['approved', 'returned'])
-            ->where('approved_at', '>=', $period)
-            ->get();
+        if ($activeFilter === 'this_month') {
+            $queryAmbil->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+            $queryPinjam->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+        } elseif ($activeFilter === 'last_month') {
+            $queryAmbil->whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year);
+            $queryPinjam->whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year);
+        } elseif ($activeFilter === '3_months') {
+            $queryAmbil->where('created_at', '>=', now()->subMonths(3)->startOfMonth());
+            $queryPinjam->where('created_at', '>=', now()->subMonths(3)->startOfMonth());
+        } elseif ($activeFilter === 'this_year') {
+            $queryAmbil->whereYear('created_at', now()->year);
+            $queryPinjam->whereYear('created_at', now()->year);
+        }
 
-        // Merge and count by bidang
-        $allBidang = $pengambilanHeaders->merge($peminjamanHeaders)
+        $allBidang = $queryAmbil->get()->merge($queryPinjam->get())
             ->pluck('user.bidang')
             ->filter()
             ->countBy()
             ->sortDesc()
             ->take(8);
 
-        $colors = [
-            '#003D7C','#0F766E','#D97706','#DC2626',
-            '#7C3AED','#DB2777','#059669','#2563EB',
-        ];
+        $colors = ['#003D7C','#0F766E','#D97706','#DC2626','#7C3AED','#DB2777','#059669','#2563EB'];
 
         return [
             'datasets' => [[
                 'data'            => $allBidang->values()->toArray(),
-                'backgroundColor' => array_slice($colors, 0, $allBidang->count()),
+                'backgroundColor' => array_slice($colors, 0, max($allBidang->count(), 1)),
             ]],
             'labels' => $allBidang->keys()->toArray(),
         ];
     }
 
     protected function getType(): string { return 'doughnut'; }
-    protected function getOptions(): array
-    {
-        return [
-            'plugins' => [
-                'legend' => ['position' => 'right'],
-            ],
-        ];
-    }
+    protected function getOptions(): array { return ['plugins' => ['legend' => ['position' => 'right']]]; }
 }
