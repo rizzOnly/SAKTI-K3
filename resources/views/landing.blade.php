@@ -1104,18 +1104,9 @@
                                 </div>
                             </div>
                             @php
-                                // Ambil batas awal dan akhir minggu ini
-                                $startOfWeek = now()->startOfWeek()->startOfDay();
-                                $endOfWeek   = now()->endOfWeek()->endOfDay();
-
-                                // Filter dari SEMUA jadwal di bulan ini, HANYA MINGGU INI SAJA
-                                $jadwalMingguIni = $patrolPeriode->jadwals->filter(function ($jadwal) use ($startOfWeek, $endOfWeek) {
-                                    return $jadwal->tanggal_patrol->between($startOfWeek, $endOfWeek);
-                                });
-
-                                // Hitung total dan yang sudah lapor dari filter tersebut
-                                $totalMingguIni  = $jadwalMingguIni->count();
-                                $sudahLapor      = $jadwalMingguIni->where('sudah_lapor', true)->count();
+                                // Hitung total dan yang sudah lapor
+                                $totalMingguIni  = $patrolPeriode->jadwals->count();
+                                $sudahLapor      = $patrolPeriode->jadwals->where('sudah_lapor', true)->count();
                             @endphp
                             <div class="patrol-count-badge">
                                 <span class="patrol-count-num">{{ $sudahLapor }}/{{ $totalMingguIni }}</span>
@@ -1141,7 +1132,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($jadwalMingguIni->values() as $i => $jadwal)
+                                    @forelse($patrolPeriode->jadwals->values() as $i => $jadwal)
                                     <tr class="{{ $i % 2 === 0 ? 'row-even' : 'row-odd' }}">
                                         <td class="col-no">{{ $i + 1 }}</td>
                                         <td class="col-nama">

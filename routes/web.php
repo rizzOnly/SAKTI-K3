@@ -32,17 +32,30 @@ Route::get('/', function () {
         ->where('tanggal_selesai', '<', today())
         ->update(['status' => 'expired']);
 
+    $startOfWeek = now()->startOfWeek();
+    $endOfWeek   = now()->endOfWeek();
+
+    // Ambil patrol periode bulan ini
     $patrolPeriode = PatrolPeriode::where('bulan', now()->month)
         ->where('tahun', now()->year)
         ->where('is_active', true)
-        ->with(['jadwals' => function($q) {
-            // Jadwal minggu ini saja
-            $q->whereBetween('tanggal_patrol', [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
-            ])->orderBy('tanggal_patrol');
+        ->with(['jadwals' => function($q) use ($startOfWeek, $endOfWeek) {
+            // Jadwal minggu ini ATAU jadwal sebelumnya yang belum lapor
+            $q->where(function($subQ) use ($startOfWeek, $endOfWeek) {
+                $subQ->whereBetween('tanggal_patrol', [$startOfWeek, $endOfWeek])
+                     ->orWhere(function($sq) use ($startOfWeek) {
+                         // Jadwal sebelum minggu ini yang belum lapor
+                         $sq->where('tanggal_patrol', '<', $startOfWeek)
+                          ->where('sudah_lapor', false);
+                     });
+            })->orderBy('tanggal_patrol');
         }])
         ->first();
+
+    // Hanya tampilkan patrol jika ada jadwal
+    if ($patrolPeriode && $patrolPeriode->jadwals->isEmpty()) {
+        $patrolPeriode = null;
+    }
 
     return view('landing', [
         'banners'           => CmsBanner::where('is_active', true)->orderBy('urutan')->get(),
@@ -54,7 +67,7 @@ Route::get('/', function () {
         'patrolPeriode'     => $patrolPeriode,
         'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
         'patrolTahun'       => now()->year,
-        'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
+        'patrolMingguRange' => $startOfWeek->format('d') . '–' . $endOfWeek->format('d M Y'),
         'fitToWorkVendor'   => \App\Models\FitToWork::aktifDanBerlaku()->where('tipe', 'vendor')->with('pekerjas')->orderByDesc('created_at')->get(),
     ]);
 });
