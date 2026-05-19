@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D-SAVE</title>
+    <title>D-SAFE</title>
     <link rel="icon" href="<?php echo e(asset('images/logo-sakti.png')); ?>" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -269,8 +269,9 @@
         .patrol-temuan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; max-width: 1200px; margin: 0 auto; }
         @media (max-width: 900px) { .patrol-temuan-grid { grid-template-columns: 1fr; } }
 
-        /* ── Temuan Open CSS ── */
+        /* ── Temuan Open CSS & Table Wrap ── */
         .temuan-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.08); border:1px solid #e5e7eb; }
+        .temuan-table-wrap { overflow-y:auto; max-height:280px; }
         .temuan-header { background:#003D7C; padding:14px 18px; display:flex; align-items:center; gap:10px; }
         .temuan-icon { width:38px; height:38px; background:rgba(255,255,255,.15); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .temuan-title { color:#fff; font-size:14px; font-weight:700; }
@@ -332,7 +333,7 @@
                 <a href="/" class="nav-brand">
                     <img src="<?php echo e(asset('images/logo-sakti.png')); ?>" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                     <div>
-                        <div class="nav-title">D-SAVE</div>
+                        <div class="nav-title">D-SAFE</div>
                         <div class="nav-sub">Platform Terpadu K3 & Manajemen APD</div>
                     </div>
                 </a>
@@ -386,7 +387,7 @@
             <div class="drawer-header">
                 <img src="<?php echo e(asset('images/logo-sakti.png')); ?>" alt="Logo D-SAVE" style="height: 44px; width: auto; object-fit: contain;">
                 <div>
-                    <div class="drawer-brand-title">D-SAVE</div>
+                    <div class="drawer-brand-title">D-SAFE</div>
                     <div class="drawer-brand-sub">Platform Terpadu K3 & Manajemen APD</div>
                 </div>
                 
@@ -1198,11 +1199,6 @@
                             </span>
                         </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                        
-                        <div class="patrol-footer">
-                            <div class="patrol-salam">Semangat Pagi Power People — Salam Safety!</div>
-                        </div>
                     </div>
                     <?php else: ?>
                     <div class="patrol-card-main" style="padding:48px 20px;text-align:center">
@@ -1229,37 +1225,36 @@
                         </div>
 
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($temuan_opens) && $temuan_opens->isNotEmpty()): ?>
-                        <table class="temuan-table">
-                            <thead>
-                                <tr>
-                                    <th class="no">NO</th>
-                                    <th>BIDANG</th>
-                                    <th class="jml">JUMLAH</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $temuan_opens; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <tr class="<?php echo e($i % 2 === 0 ? 'r-even' : 'r-odd'); ?>">
-                                    <td class="no"><?php echo e($i + 1); ?></td>
-                                    <td class="bidang"><?php echo e($t->bidang); ?></td>
-                                    <td class="jml">
-                                        <span class="jml-badge <?php echo e($t->jumlah_temuan > 10 ? 'danger' : ($t->jumlah_temuan > 5 ? 'warn' : 'ok')); ?>">
-                                            <?php echo e($t->jumlah_temuan); ?>
+                        <div class="temuan-card-body" style="overflow-y:auto; max-height:280px;">
+                            <table class="temuan-table" style="border-collapse:collapse; width:100%;">
+                                <thead style="position:sticky; top:0; z-index:1; background:#dc2626;">
+                                    <tr>
+                                        <th class="no" style="width:50px;text-align:center;font-size:11px;font-weight:700;color:#fff;padding:9px 14px;border-right:1px solid rgba(255,255,255,.15);white-space:nowrap">NO</th>
+                                        <th style="font-size:11px;font-weight:700;color:#fff;padding:9px 14px;text-align:left;border-right:1px solid rgba(255,255,255,.15)">BIDANG</th>
+                                        <th class="jml" style="width:100px;text-align:center;font-size:11px;font-weight:700;color:#fff;padding:9px 14px">JUMLAH</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $temuan_opens; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <tr class="<?php echo e($i % 2 === 0 ? 'r-even' : 'r-odd'); ?>">
+                                        <td class="no" style="text-align:center;color:#9ca3af;font-size:11px;font-weight:600;padding:9px 14px;border-bottom:1px solid #f3f4f6"><?php echo e($i + 1); ?></td>
+                                        <td class="bidang" style="font-weight:600;color:#111827;font-size:13px;padding:9px 14px;border-bottom:1px solid #f3f4f6"><?php echo e($t->bidang); ?></td>
+                                        <td class="jml" style="text-align:center;padding:9px 14px;border-bottom:1px solid #f3f4f6">
+                                            <span class="jml-badge <?php echo e($t->jumlah_temuan > 10 ? 'danger' : ($t->jumlah_temuan > 5 ? 'warn' : 'ok')); ?>">
+                                                <?php echo e($t->jumlah_temuan); ?>
 
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2" style="text-align:right;font-size:11px;font-weight:700;padding:8px 12px;color:#374151">Total Temuan:</td>
-                                    <td class="jml">
-                                        <span class="jml-badge total"><?php echo e($temuan_opens->sum('jumlah_temuan')); ?></span>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 12px;background:#f9fafb;border-top:1px solid #e5e7eb">
+                            <span style="font-size:11px;font-weight:700;color:#374151">Total Temuan:</span>
+                            <span class="jml-badge total"><?php echo e($temuan_opens->sum('jumlah_temuan')); ?></span>
+                        </div>
+
                         <?php else: ?>
                         <div style="padding:32px;text-align:center;color:#9ca3af;font-size:13px">
                             Tidak ada temuan open saat ini.
@@ -1276,7 +1271,7 @@
     <footer class="footer">
         <div class="footer-inner">
             <div>
-                <div class="footer-heading">D-SAVE</div>
+                <div class="footer-heading">D-SAFE</div>
                 <div class="footer-text">
                     PT PLN Nusantara Power<br>
                     Unit Pembangkitan Sengkang<br>

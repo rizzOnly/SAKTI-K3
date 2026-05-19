@@ -1,38 +1,51 @@
 <?php
+
 namespace App\Filament\AdminK3\Resources;
 
 use App\Filament\AdminK3\Resources\PengambilanHeaderResource\Pages\CreatePengambilanHeader;
 use App\Filament\AdminK3\Resources\PengambilanHeaderResource\Pages\EditPengambilanHeader;
 use App\Filament\AdminK3\Resources\PengambilanHeaderResource\Pages\ViewPengambilanHeader;
 use App\Filament\AdminK3\Resources\PengambilanHeaderResource\resourcePages\ListPengambilanHeaders;
-use App\Models\{PengambilanHeader, ApdItem};
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
-// TAMBAHAN IMPORT FILEUPLOAD & SECTION
-use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater, FileUpload, Section};
-// TAMBAHAN IMPORT ICONCOLUMN
-use Filament\Tables\Columns\{TextColumn, BadgeColumn, IconColumn};
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables;
+use App\Models\ApdItem;
+use App\Models\PengambilanHeader;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+// TAMBAHAN IMPORT FILEUPLOAD & SECTION
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+// TAMBAHAN IMPORT ICONCOLUMN
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
-
 
 class PengambilanHeaderResource extends Resource
 {
     protected static ?string $model = PengambilanHeader::class;
+
     protected static ?string $navigationLabel = 'Pengambilan APD';
+
     protected static ?string $navigationGroup = 'Transaksi APD';
+
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form->schema([
             TextInput::make('nomor_transaksi')
-                ->default(fn() => PengambilanHeader::generateNomor())
+                ->default(fn () => PengambilanHeader::generateNomor())
                 ->disabled()
                 ->dehydrated(),
 
@@ -46,11 +59,11 @@ class PengambilanHeaderResource extends Resource
                         ->label('Nama Pegawai')
                         ->relationship('user', 'name')
                         ->searchable()
-                        ->required(fn($record) => !$record || !$record->is_guest)
-                        ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+                        ->required(fn ($record) => ! $record || ! $record->is_guest)
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->nid}] {$record->name} (".($record->bidang ?? 'Tanpa Bidang').')'),
                 ])
                 ->columns(1)
-                ->hidden(fn($record) => $record && $record->is_guest)
+                ->hidden(fn ($record) => $record && $record->is_guest)
                 ->dehydratedWhenHidden(),
 
             // GUEST SECTION
@@ -58,7 +71,7 @@ class PengambilanHeaderResource extends Resource
                 ->schema([
                     TextInput::make('guest_nama')
                         ->label('Nama Lengkap')
-                        ->required(fn($record) => !$record || $record->is_guest)
+                        ->required(fn ($record) => ! $record || $record->is_guest)
                         ->maxLength(200),
                     TextInput::make('guest_perusahaan')
                         ->label('Perusahaan / Instansi')
@@ -72,7 +85,7 @@ class PengambilanHeaderResource extends Resource
                         ->maxLength(255),
                 ])
                 ->columns(2)
-                ->hidden(fn($record) => !$record || !$record->is_guest)
+                ->hidden(fn ($record) => ! $record || ! $record->is_guest)
                 ->dehydratedWhenHidden(),
 
             DatePicker::make('tanggal_pengajuan')
@@ -81,7 +94,7 @@ class PengambilanHeaderResource extends Resource
 
             Select::make('status')
                 ->options([
-                    'pending'  => 'Pending',
+                    'pending' => 'Pending',
                     'approved' => 'Approved',
                     'rejected' => 'Rejected',
                 ])
@@ -97,7 +110,7 @@ class PengambilanHeaderResource extends Resource
                         ->options(function () {
                             return ApdItem::where('is_consumable', true)
                                 ->get()
-                                ->mapWithKeys(fn($i) => [
+                                ->mapWithKeys(fn ($i) => [
                                     $i->id => "{$i->nama_barang} (Stok: {$i->stok})",
                                 ]);
                         })
@@ -132,32 +145,35 @@ class PengambilanHeaderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nomor_transaksi')
-                    ->label('No. Transaksi')
-                    ->searchable()
+                TextColumn::make('nama_pengambil')
+                    ->label('Nama Pengambil')
+                    ->searchable(['user.name', 'guest_nama'])
+                    ->getStateUsing(function ($record) {
+                        return $record->is_guest ? $record->guest_nama : $record->user?->name;
+                    })
                     ->sortable(),
 
                 BadgeColumn::make('is_guest')
                     ->label('Tipe')
-                    ->formatStateUsing(fn($state) => $state ? 'Tamu' : 'Pegawai')
+                    ->formatStateUsing(fn ($state) => $state ? 'Tamu' : 'Pegawai')
                     ->colors([
                         'info' => false,
                         'warning' => true,
                     ])
                     ->toggleable()
-                    ->hidden(fn($record) => !$record || !$record->is_guest),
+                    ->hidden(fn ($record) => ! $record || ! $record->is_guest),
 
                 TextColumn::make('guest_nama')
                     ->label('Nama (Tamu)')
                     ->searchable()
                     ->toggleable()
-                    ->hidden(fn($record) => !$record || !$record->is_guest),
+                    ->hidden(fn ($record) => ! $record || ! $record->is_guest),
 
                 TextColumn::make('user.name')
                     ->label('Pegawai')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->hidden(fn($record) => !$record || $record->is_guest),
+                    ->hidden(fn ($record) => ! $record || $record->is_guest),
 
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
@@ -165,7 +181,7 @@ class PengambilanHeaderResource extends Resource
                     ->sortable()
                     ->placeholder('-')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->hidden(fn($record) => !$record || $record->is_guest),
+                    ->hidden(fn ($record) => ! $record || $record->is_guest),
 
                 TextColumn::make('tanggal_pengajuan')
                     ->date('d/m/Y')
@@ -178,13 +194,13 @@ class PengambilanHeaderResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger')
-                    ->tooltip(fn($record) => $record->berkas_permit ? 'Ada berkas' : 'Tidak ada berkas'),
+                    ->tooltip(fn ($record) => $record->berkas_permit ? 'Ada berkas' : 'Tidak ada berkas'),
 
                 BadgeColumn::make('status')
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'approved',
-                        'danger'  => 'rejected',
+                        'danger' => 'rejected',
                     ]),
 
                 TextColumn::make('approvedBy.name')
@@ -200,7 +216,7 @@ class PengambilanHeaderResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'pending'  => 'Pending',
+                        'pending' => 'Pending',
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ]),
@@ -213,7 +229,7 @@ class PengambilanHeaderResource extends Resource
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'pending')
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         DB::transaction(function () use ($record) {
@@ -226,7 +242,7 @@ class PengambilanHeaderResource extends Resource
                             }
 
                             $record->update([
-                                'status'      => 'approved',
+                                'status' => 'approved',
                                 'approved_by' => auth()->id(),
                                 'approved_at' => now(),
                             ]);
@@ -242,7 +258,7 @@ class PengambilanHeaderResource extends Resource
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'pending')
                     ->form([
                         Textarea::make('rejection_reason')
                             ->label('Alasan Penolakan')
@@ -250,7 +266,7 @@ class PengambilanHeaderResource extends Resource
                     ])
                     ->action(function ($record, array $data) {
                         $record->update([
-                            'status'           => 'rejected',
+                            'status' => 'rejected',
                             'rejection_reason' => $data['rejection_reason'],
                         ]);
 
@@ -265,10 +281,10 @@ class PengambilanHeaderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListPengambilanHeaders::route('/'),
+            'index' => ListPengambilanHeaders::route('/'),
             'create' => CreatePengambilanHeader::route('/create'),
-            'edit'   => EditPengambilanHeader::route('/{record}/edit'),
-            'view'   => ViewPengambilanHeader::route('/{record}'),
+            'edit' => EditPengambilanHeader::route('/{record}/edit'),
+            'view' => ViewPengambilanHeader::route('/{record}'),
         ];
     }
 }

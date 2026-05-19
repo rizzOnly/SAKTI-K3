@@ -32,7 +32,7 @@ class LaporanPengambilanExport implements FromQuery, WithHeadings, WithMapping, 
     public function headings(): array
     {
         return [
-            'No', 'No. Transaksi', 'NID Pegawai', 'Nama Pegawai',
+            'No', 'Nama Pengambil', 'NID Pegawai',
             'Item APD', 'Jumlah', 'Tgl Pengajuan', 'Tgl Approved', 'Disetujui Oleh',
         ];
     }
@@ -45,9 +45,8 @@ class LaporanPengambilanExport implements FromQuery, WithHeadings, WithMapping, 
             $this->no++;
             $rows[] = [
                 $this->no,
-                $header->nomor_transaksi,
+                $header->is_guest ? $header->guest_nama : $header->user?->name,
                 $header->user->nid,
-                $header->user->name,
                 $detail->apdItem->nama_barang,
                 $detail->jumlah,
                 $header->tanggal_pengajuan->format('d/m/Y'),

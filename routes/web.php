@@ -50,12 +50,12 @@ Route::get('/', function () {
         'vendorsWpo'        => CmsVendor::where('is_active', true)->orderBy('nama_vendor')->get(),
         'vendorsGate'       => VendorRegistrasi::aktifDanBerlaku()->with(['pekerjasLulus'])->get(),
         'flows'             => CmsVendorFlow::all(),
-        'temuan_opens'      => TemuanOpen::aktif()->get(),
+        'temuan_opens'      => TemuanOpen::where('is_active', true)->orderByDesc('jumlah_temuan')->get(),
         'patrolPeriode'     => $patrolPeriode,
         'patrolBulan'       => PatrolPeriode::namaBulan(now()->month),
         'patrolTahun'       => now()->year,
         'patrolMingguRange' => now()->startOfWeek()->format('d') . '–' . now()->endOfWeek()->format('d M Y'),
-        'fitToWorkVendor'   => \App\Models\FitToWork::aktifDanBerlaku()->with('pekerjas')->orderByDesc('created_at')->get(),
+        'fitToWorkVendor'   => \App\Models\FitToWork::aktifDanBerlaku()->where('tipe', 'vendor')->with('pekerjas')->orderByDesc('created_at')->get(),
     ]);
 });
 

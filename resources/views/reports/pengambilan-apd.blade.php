@@ -36,9 +36,8 @@
         <thead>
             <tr>
                 <th style="width:25px">No</th>
-                <th style="width:100px">No. Transaksi</th>
+                <th>Nama Pengambil</th>
                 <th style="width:65px">NID</th>
-                <th>Nama Pegawai</th>
                 <th>Item APD</th>
                 <th style="width:35px;text-align:right">Jml</th>
                 <th style="width:60px;text-align:center">Tgl Approved</th>
@@ -51,9 +50,8 @@
                 @foreach($header->details as $detail)
                 <tr>
                     <td>{{ $no++ }}</td>
-                    <td style="font-family:monospace;font-size:8.5px">{{ $header->nomor_transaksi }}</td>
+                    <td style="font-weight:600">{{ $header->is_guest ? $header->guest_nama : $header->user->name }}</td>
                     <td>{{ $header->user->nid }}</td>
-                    <td style="font-weight:600">{{ $header->user->name }}</td>
                     <td>{{ $detail->apdItem->nama_barang }}</td>
                     <td style="text-align:right;font-weight:700">{{ $detail->jumlah }}</td>
                     <td style="text-align:center">{{ $header->approved_at?->format('d/m/Y') ?? '-' }}</td>

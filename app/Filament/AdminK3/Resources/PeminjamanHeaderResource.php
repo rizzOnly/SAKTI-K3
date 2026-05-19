@@ -6,30 +6,45 @@ use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\CreatePeminjam
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\EditPeminjamanHeader;
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\Pages\ViewPeminjamanHeader;
 use App\Filament\AdminK3\Resources\PeminjamanHeaderResource\resourcePages\ListPeminjamanHeaders;
-use App\Models\{PeminjamanHeader, ApdItem};
+use App\Models\ApdItem;
+use App\Models\PeminjamanHeader;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\{TextColumn, BadgeColumn, ImageColumn, IconColumn};
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
-use Filament\Forms\Components\{Select, TextInput, DatePicker, Textarea, Repeater, FileUpload, Section, Hidden};
 
 class PeminjamanHeaderResource extends Resource
 {
     protected static ?string $model = PeminjamanHeader::class;
+
     protected static ?string $navigationLabel = 'Peminjaman APD';
+
     protected static ?string $navigationGroup = 'Transaksi APD';
+
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
         return $form->schema([
             TextInput::make('nomor_transaksi')
-                ->default(fn() => PeminjamanHeader::generateNomor())
+                ->default(fn () => PeminjamanHeader::generateNomor())
                 ->disabled()
                 ->dehydrated(),
 
@@ -41,18 +56,18 @@ class PeminjamanHeaderResource extends Resource
                         ->label('Nama Pegawai')
                         ->relationship('user', 'name')
                         ->searchable()
-                        ->required(fn($record) => !$record || !$record->is_guest)
-                        ->getOptionLabelFromRecordUsing(fn($record) => "[{$record->nid}] {$record->name} (" . ($record->bidang ?? 'Tanpa Bidang') . ")"),
+                        ->required(fn ($record) => ! $record || ! $record->is_guest)
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->nid}] {$record->name} (".($record->bidang ?? 'Tanpa Bidang').')'),
                 ])
                 ->columns(1)
-                ->hidden(fn($record) => $record && $record->is_guest)
+                ->hidden(fn ($record) => $record && $record->is_guest)
                 ->dehydratedWhenHidden(),
 
             Section::make('Data Tamu')
                 ->schema([
                     TextInput::make('guest_nama')
                         ->label('Nama Lengkap')
-                        ->required(fn($record) => !$record || $record->is_guest)
+                        ->required(fn ($record) => ! $record || $record->is_guest)
                         ->maxLength(200),
                     TextInput::make('guest_perusahaan')
                         ->label('Perusahaan / Instansi')
@@ -66,7 +81,7 @@ class PeminjamanHeaderResource extends Resource
                         ->maxLength(255),
                 ])
                 ->columns(2)
-                ->hidden(fn($record) => !$record || !$record->is_guest)
+                ->hidden(fn ($record) => ! $record || ! $record->is_guest)
                 ->dehydratedWhenHidden(),
 
             DatePicker::make('tanggal_pengajuan')
@@ -75,12 +90,12 @@ class PeminjamanHeaderResource extends Resource
 
             DatePicker::make('tanggal_kembali_rencana')
                 ->label('Rencana Tanggal Kembali')
-                ->minDate(fn($record) => $record ? null : now()->addDay())
+                ->minDate(fn ($record) => $record ? null : now()->addDay())
                 ->required(),
 
             Select::make('status')
                 ->options([
-                    'pending'  => 'Pending',
+                    'pending' => 'Pending',
                     'approved' => 'Approved',
                     'rejected' => 'Rejected',
                     'returned' => 'Dikembalikan',
@@ -97,7 +112,7 @@ class PeminjamanHeaderResource extends Resource
                         ->options(function () {
                             return ApdItem::where('is_consumable', false)
                                 ->get()
-                                ->mapWithKeys(fn($i) => [
+                                ->mapWithKeys(fn ($i) => [
                                     $i->id => "{$i->nama_barang} (Stok: {$i->stok})",
                                 ]);
                         })
@@ -142,7 +157,7 @@ class PeminjamanHeaderResource extends Resource
                         ->visibility('public'),
                 ])
                 ->collapsible()
-                ->collapsed(fn($record) => $record === null || empty($record->foto_dokumentasi)),
+                ->collapsed(fn ($record) => $record === null || empty($record->foto_dokumentasi)),
         ]);
     }
 
@@ -158,32 +173,35 @@ class PeminjamanHeaderResource extends Resource
                     ->defaultImageUrl('https://ui-avatars.com/api/?name=Foto&background=0D8ABC&color=fff')
                     ->toggleable(),
 
-                TextColumn::make('nomor_transaksi')
-                    ->label('No. Transaksi')
-                    ->searchable()
+                TextColumn::make('nama_peminjam')
+                    ->label('Nama Peminjam')
+                    ->searchable(['user.name', 'guest_nama'])
+                    ->getStateUsing(function ($record) {
+                        return $record->is_guest ? $record->guest_nama : $record->user?->name;
+                    })
                     ->sortable(),
 
                 BadgeColumn::make('is_guest')
                     ->label('Tipe')
-                    ->formatStateUsing(fn($state) => $state ? 'Tamu' : 'Pegawai')
+                    ->formatStateUsing(fn ($state) => $state ? 'Tamu' : 'Pegawai')
                     ->colors([
                         'info' => false,
                         'warning' => true,
                     ])
                     ->toggleable()
-                    ->hidden(fn($record) => !$record || !$record->is_guest),
+                    ->hidden(fn ($record) => ! $record || ! $record->is_guest),
 
                 TextColumn::make('guest_nama')
                     ->label('Nama (Tamu)')
                     ->searchable()
                     ->toggleable()
-                    ->hidden(fn($record) => !$record || !$record->is_guest),
+                    ->hidden(fn ($record) => ! $record || ! $record->is_guest),
 
                 TextColumn::make('user.name')
                     ->label('Pegawai')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->hidden(fn($record) => !$record || $record->is_guest),
+                    ->hidden(fn ($record) => ! $record || $record->is_guest),
 
                 TextColumn::make('user.bidang')
                     ->label('Bidang')
@@ -191,7 +209,7 @@ class PeminjamanHeaderResource extends Resource
                     ->sortable()
                     ->placeholder('-')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->hidden(fn($record) => !$record || $record->is_guest),
+                    ->hidden(fn ($record) => ! $record || $record->is_guest),
 
                 TextColumn::make('tanggal_kembali_rencana')
                     ->label('Tgl Rencana Kembali')
@@ -204,14 +222,14 @@ class PeminjamanHeaderResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger')
-                    ->tooltip(fn($record) => $record->berkas_jsa ? 'Ada berkas' : 'Tidak ada berkas'),
+                    ->tooltip(fn ($record) => $record->berkas_jsa ? 'Ada berkas' : 'Tidak ada berkas'),
 
                 BadgeColumn::make('status')
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'approved',
-                        'danger'  => 'rejected',
-                        'info'    => 'returned',
+                        'danger' => 'rejected',
+                        'info' => 'returned',
                     ]),
 
                 TextColumn::make('returned_at')
@@ -227,7 +245,7 @@ class PeminjamanHeaderResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'pending'  => 'Pending',
+                        'pending' => 'Pending',
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                         'returned' => 'Dikembalikan',
@@ -241,7 +259,7 @@ class PeminjamanHeaderResource extends Resource
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'pending')
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Peminjaman APD')
                     ->modalDescription('Silakan upload foto peminjam sedang memegang barang sebagai bukti dokumentasi K3.')
@@ -267,16 +285,16 @@ class PeminjamanHeaderResource extends Resource
                                 }
 
                                 $record->update([
-                                    'status'           => 'approved',
-                                    'approved_by'      => auth()->id(),
-                                    'approved_at'      => now(),
+                                    'status' => 'approved',
+                                    'approved_by' => auth()->id(),
+                                    'approved_at' => now(),
                                     'foto_dokumentasi' => $data['foto_dokumentasi'],
                                 ]);
                             });
 
                             Notification::make()->title('Peminjaman disetujui & Foto disimpan!')->success()->send();
                         } catch (\Exception $e) {
-                            Notification::make()->title('Gagal: ' . $e->getMessage())->danger()->send();
+                            Notification::make()->title('Gagal: '.$e->getMessage())->danger()->send();
                         }
                     }),
 
@@ -284,7 +302,7 @@ class PeminjamanHeaderResource extends Resource
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn($record) => $record->status === 'pending')
+                    ->visible(fn ($record) => $record->status === 'pending')
                     ->requiresConfirmation()
                     ->modalHeading('Tolak Peminjaman APD')
                     ->modalDescription('Tuliskan alasan penolakan. Peminjam akan mendapat notifikasi.')
@@ -298,12 +316,12 @@ class PeminjamanHeaderResource extends Resource
                     ])
                     ->action(function ($record, array $data) {
                         $record->update([
-                            'status'          => 'rejected',
+                            'status' => 'rejected',
                             'rejection_reason' => $data['rejection_reason'],
                         ]);
 
                         Notification::make()
-                            ->title('Peminjaman ditolak. Alasan: ' . $data['rejection_reason'])
+                            ->title('Peminjaman ditolak. Alasan: '.$data['rejection_reason'])
                             ->danger()
                             ->send();
                     }),
@@ -312,12 +330,12 @@ class PeminjamanHeaderResource extends Resource
                     ->label('Kembalikan')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('info')
-                    ->visible(fn($record) => $record->status === 'approved')
+                    ->visible(fn ($record) => $record->status === 'approved')
                     ->form([
                         Select::make('kondisi_kembali')
                             ->options([
-                                'baik'   => 'Baik',
-                                'rusak'  => 'Rusak',
+                                'baik' => 'Baik',
+                                'rusak' => 'Rusak',
                                 'hilang' => 'Hilang',
                             ])
                             ->required()
@@ -333,8 +351,8 @@ class PeminjamanHeaderResource extends Resource
                             }
 
                             $record->update([
-                                'status'          => 'returned',
-                                'returned_at'     => now(),
+                                'status' => 'returned',
+                                'returned_at' => now(),
                                 'kondisi_kembali' => $data['kondisi_kembali'],
                             ]);
                         });
@@ -350,10 +368,10 @@ class PeminjamanHeaderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListPeminjamanHeaders::route('/'),
+            'index' => ListPeminjamanHeaders::route('/'),
             'create' => CreatePeminjamanHeader::route('/create'),
-            'edit'   => EditPeminjamanHeader::route('/{record}/edit'),
-            'view'   => ViewPeminjamanHeader::route('/{record}'),
+            'edit' => EditPeminjamanHeader::route('/{record}/edit'),
+            'view' => ViewPeminjamanHeader::route('/{record}'),
         ];
     }
 }
