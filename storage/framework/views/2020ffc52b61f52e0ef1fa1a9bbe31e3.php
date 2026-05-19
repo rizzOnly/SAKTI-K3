@@ -1111,18 +1111,9 @@
                                 </div>
                             </div>
                             <?php
-                                // Ambil batas awal dan akhir minggu ini
-                                $startOfWeek = now()->startOfWeek()->startOfDay();
-                                $endOfWeek   = now()->endOfWeek()->endOfDay();
-
-                                // Filter dari SEMUA jadwal di bulan ini, HANYA MINGGU INI SAJA
-                                $jadwalMingguIni = $patrolPeriode->jadwals->filter(function ($jadwal) use ($startOfWeek, $endOfWeek) {
-                                    return $jadwal->tanggal_patrol->between($startOfWeek, $endOfWeek);
-                                });
-
-                                // Hitung total dan yang sudah lapor dari filter tersebut
-                                $totalMingguIni  = $jadwalMingguIni->count();
-                                $sudahLapor      = $jadwalMingguIni->where('sudah_lapor', true)->count();
+                                // Hitung total dan yang sudah lapor
+                                $totalMingguIni  = $patrolPeriode->jadwals->count();
+                                $sudahLapor      = $patrolPeriode->jadwals->where('sudah_lapor', true)->count();
                             ?>
                             <div class="patrol-count-badge">
                                 <span class="patrol-count-num"><?php echo e($sudahLapor); ?>/<?php echo e($totalMingguIni); ?></span>
@@ -1148,7 +1139,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $jadwalMingguIni->values(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $jadwal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $patrolPeriode->jadwals->values(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $jadwal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr class="<?php echo e($i % 2 === 0 ? 'row-even' : 'row-odd'); ?>">
                                         <td class="col-no"><?php echo e($i + 1); ?></td>
                                         <td class="col-nama">

@@ -22,6 +22,43 @@ class VendorRegistrasiController extends Controller
             ->whereNotNull('pekerja_json')
             ->get();
 
+        // Manipulasi koleksi untuk memfilter pekerja yang SUDAH LULUS
+        $vendorsWpo->transform(function ($vendor) {
+            // Ambil data registrasi gate access (jika ada) yang terhubung ke vendor ini
+            $registrasi = \App\Models\VendorRegistrasi::where('cms_vendor_id', $vendor->id)
+                ->where('status', 'aktif')
+                ->first();
+
+            $pekerjaLulus = [];
+            if ($registrasi) {
+                // Ambil array nama-nama pekerja yang SUDAH LULUS di vendor ini
+                $pekerjaLulus = $registrasi->pekerjas()
+                    ->where('survey_lulus', true)
+                    ->pluck('nama_pekerja')
+                    ->toArray();
+            }
+
+            // Ambil json pekerja bawaan WPO
+            $pekerjaAsli = is_string($vendor->pekerja_json)
+                ? json_decode($vendor->pekerja_json, true)
+                : ($vendor->pekerja_json ?? []);
+
+            // Jika $pekerjaAsli adalah array, saring pekerja yang namanya BELUM ADA di $pekerjaLulus
+            if (is_array($pekerjaAsli)) {
+                $pekerjaBelumLulus = array_filter($pekerjaAsli, function ($p) use ($pekerjaLulus) {
+                    $nama = $p['nama'] ?? null;
+                    if (!$nama) return false;
+                    // Hanya biarkan lewat jika namanya TIDAK ada di array pekerjaLulus
+                    return !in_array($nama, $pekerjaLulus);
+                });
+
+                // Timpa kembali ke atribut aslinya agar views membaca data yang sudah bersih
+                $vendor->pekerja_json = array_values($pekerjaBelumLulus);
+            }
+
+            return $vendor;
+        });
+
         return view('vendor.form-registrasi', compact('vendorsWpo'));
     }
 
