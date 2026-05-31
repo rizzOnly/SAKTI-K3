@@ -521,13 +521,8 @@
                 <div class="stat-label">Artikel K3</div>
             </div>
             <div class="stat-box">
-                {{-- PERBAIKAN 2: Menghitung total vendor gabungan --}}
-                @php
-                    $totalVendorWpo = \App\Models\CmsVendor::where('is_active', true)->count();
-                    $totalVendorGate = \App\Models\VendorRegistrasi::aktifDanBerlaku()->count();
-                    $totalSemuaVendor = $totalVendorWpo + $totalVendorGate;
-                @endphp
-                <div class="stat-number">{{ $totalSemuaVendor }}</div>
+                {{-- Menghitung total vendor hanya dari WPO Plus saja --}}
+                <div class="stat-number">{{ \App\Models\CmsVendor::where('is_active', true)->count() }}</div>
                 <div class="stat-label">Vendor Aktif</div>
             </div>
         </div>
