@@ -180,7 +180,7 @@
 
         .artikel-card-hidden { display: none; }
 
-        /* ── Vendor Grid ── */
+        /* ── Vendor Grid & Card ── */
         .vendors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         @media (max-width: 900px) { .vendors-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 560px) { .vendors-grid { grid-template-columns: 1fr; } }
@@ -232,7 +232,7 @@
         .patrol-week-bar { background:#1aad57; padding:6px 16px; display:flex; align-items:center; justify-content:space-between; }
         .patrol-week-label { color:#fff; font-size:11px; font-weight:600; }
         .patrol-week-range { color:rgba(255,255,255,.8); font-size:11px; }
-        .patrol-table-wrap { overflow-x: auto; overflow-y: auto; max-height 280px; }
+        .patrol-table-wrap { overflow-x: auto; overflow-y: auto; max-height: 280px; }
         .patrol-table thead tr { background:#25d366; position: sticky; top: 0; z-index: 1; }
         .patrol-table { width:100%; border-collapse:collapse; }
         .patrol-table thead tr { background:#25d366; }
@@ -294,7 +294,7 @@
         .jml-badge.ok     { background:#dcfce7; color:#166534; }
         .jml-badge.total  { background:#003D7C; color:#fff; }
 
-        /* ── Vendor Carousel (Desktop) & Show More (Mobile) ── */
+        /* ── Vendor & Fit To Work Carousel (Desktop) & Show More (Mobile) ── */
         .vendor-swiper-wrap { position: relative; }
         .vendor-swiper { width: 100%; overflow: hidden; }
         .vendor-swiper .swiper-wrapper { display: flex; }
@@ -312,10 +312,11 @@
         .vendor-dot.active { background: #003D7C; width: 20px; border-radius: 4px; }
 
         /* Mobile: show more */
-        .vendor-mobile-grid { display: none; }
+        .ftw-desktop-carousel, .vendor-desktop-carousel { display: block; }
+        .ftw-mobile-grid, .vendor-mobile-grid { display: none; }
         @media (max-width: 900px) {
-            .vendor-desktop-carousel { display: none; }
-            .vendor-mobile-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+            .ftw-desktop-carousel, .vendor-desktop-carousel { display: none; }
+            .ftw-mobile-grid, .vendor-mobile-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         }
         .vendor-card-hidden { display: none; }
         .btn-show-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 16px; padding: 13px; border-radius: 14px; border: 2px dashed #d1d5db; background: transparent; color: #6b7280; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit; }
@@ -347,7 +348,6 @@
                     <a href="#fit-to-work">FIT TO WORK</a>
                     <a href="#patrol">PATROL</a>
 
-                    {{-- ← TAMBAHKAN TOMBOL LOGIN INI --}}
                     <a href="{{ route('login') }}"
                        style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);
                               color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;
@@ -404,7 +404,6 @@
 
             {{-- Nav links --}}
             <nav class="drawer-nav">
-                {{-- ← TAMBAHKAN TOMBOL LOGIN DI PALING ATAS --}}
                 <a href="{{ route('login') }}"
                    style="background:rgba(255,199,44,.12);border-left-color:#FFC72C !important;
                           border-bottom:1px solid rgba(255,255,255,.08);">
@@ -842,7 +841,7 @@
                     @if($vendorsWpo->count() > 3)
                     <button class="btn-show-more" id="wpo-show-more" onclick="toggleShowMore('wpo')">
                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        Tampilkan {{ $vendorsWpo->count() - 3 }} vendor lainnya
+                        Tampilkan {{ $vendorsWpo->count() - 3 }} data lainnya
                     </button>
                     @endif
                 </div>
@@ -952,7 +951,7 @@
                     @if($vendorsGate->count() > 3)
                     <button class="btn-show-more" id="gate-show-more" onclick="toggleShowMore('gate')">
                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        Tampilkan {{ $vendorsGate->count() - 3 }} vendor lainnya
+                        Tampilkan {{ $vendorsGate->count() - 3 }} data lainnya
                     </button>
                     @endif
                 </div>
@@ -988,7 +987,7 @@
         </div>
     </section>
 
-    {{-- ═══════════ FIT TO WORK ═══════════ --}}
+    {{-- ═══════════ FIT TO WORK (SEKARANG BISA DI-SWIPE!) ═══════════ --}}
     <section id="fit-to-work" class="section">
         <div class="section-inner">
             <div class="section-header">
@@ -1008,8 +1007,82 @@
             </div>
 
             @if($fitToWorkVendor->isNotEmpty())
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
-                @foreach($fitToWorkVendor as $submission)
+
+            {{-- DESKTOP: Swiper Carousel Fit To Work --}}
+            <div class="ftw-desktop-carousel">
+                <div class="vendor-swiper-wrap">
+                    <div class="vendor-swiper" id="ftw-swiper">
+                        <div class="swiper-wrapper" id="ftw-swiper-track">
+                            @foreach($fitToWorkVendor as $submission)
+                            @php
+                                $pekerjaList = $submission->pekerjas->map(fn($p) => [
+                                    'nama'           => $p->nama,
+                                    'jenis_kelamin'  => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                                    'status'         => $p->status,
+                                    'tanggal_periksa'=> $p->tanggal_periksa?->format('d/m/Y') ?? '-',
+                                    'dokter'         => $p->dokter_nama ?? '-',
+                                ])->values()->toArray();
+                            @endphp
+                            <div class="swiper-slide">
+                                <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                                     onclick='openFtwPopup({{ json_encode([
+                                         "nama"            => $submission->nama_perusahaan,
+                                         "pekerjaan"       => $submission->nama_pekerjaan,
+                                         "tanggal_mulai"   => $submission->tanggal_mulai->format("d/m/Y"),
+                                         "tanggal_selesai" => $submission->tanggal_selesai->format("d/m/Y"),
+                                         "pekerjas"        => $pekerjaList,
+                                     ]) }})'>
+
+                                    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+                                        {{-- Icon --}}
+                                        <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                            <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="1.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                            </svg>
+                                        </div>
+                                        {{-- Nama & pekerjaan --}}
+                                        <div class="flex-1" style="min-width:0">
+                                            <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                                {{ $submission->nama_perusahaan }}
+                                            </div>
+                                            <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                                                {{ $submission->nama_pekerjaan }}
+                                            </div>
+                                        </div>
+                                        <span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0">
+                                            ✅ FIT
+                                        </span>
+                                    </div>
+
+                                    <div style="font-size:12px;color:#9ca3af;margin-top:4px">
+                                        📅 {{ $submission->tanggal_mulai->format('d/m/Y') }} – {{ $submission->tanggal_selesai->format('d/m/Y') }}
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;margin-top:4px">
+                                        👷 {{ $submission->pekerjas->count() }} pekerja terdaftar
+                                    </div>
+                                    <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Navigasi Swipe Fit To Work --}}
+                    <div class="vendor-swiper-nav">
+                        <button class="vendor-swiper-btn" id="ftw-prev" onclick="vendorSwipe('ftw',-1)" aria-label="Sebelumnya">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <div class="vendor-swiper-dots" id="ftw-dots"></div>
+                        <button class="vendor-swiper-btn" id="ftw-next" onclick="vendorSwipe('ftw',1)" aria-label="Berikutnya">
+                            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- MOBILE: Show More Grid Fit To Work --}}
+            <div class="ftw-mobile-grid" id="ftw-mobile-grid">
+                @foreach($fitToWorkVendor as $idx => $submission)
                 @php
                     $pekerjaList = $submission->pekerjas->map(fn($p) => [
                         'nama'           => $p->nama,
@@ -1019,7 +1092,7 @@
                         'dokter'         => $p->dokter_nama ?? '-',
                     ])->values()->toArray();
                 @endphp
-                <div class="vendor-card cursor-pointer hover:shadow-lg transition"
+                <div class="vendor-card cursor-pointer {{ $idx >= 3 ? 'vendor-card-hidden' : '' }}"
                      onclick='openFtwPopup({{ json_encode([
                          "nama"            => $submission->nama_perusahaan,
                          "pekerjaan"       => $submission->nama_pekerjaan,
@@ -1029,20 +1102,14 @@
                      ]) }})'>
 
                     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
-                        {{-- Icon --}}
                         <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
                             <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="1.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                             </svg>
                         </div>
-                        {{-- Nama & pekerjaan --}}
                         <div class="flex-1" style="min-width:0">
-                            <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                {{ $submission->nama_perusahaan }}
-                            </div>
-                            <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
-                                {{ $submission->nama_pekerjaan }}
-                            </div>
+                            <div class="vendor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $submission->nama_perusahaan }}</div>
+                            <div class="vendor-bidang" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $submission->nama_pekerjaan }}</div>
                         </div>
                         <span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0">
                             ✅ FIT
@@ -1055,9 +1122,15 @@
                     <div style="font-size:12px;color:#6b7280;margin-top:4px">
                         👷 {{ $submission->pekerjas->count() }} pekerja terdaftar
                     </div>
-                    <div style="font-size:11px;color:#9ca3af;margin-top:4px">Klik untuk detail →</div>
                 </div>
                 @endforeach
+
+                @if($fitToWorkVendor->count() > 3)
+                <button class="btn-show-more" id="ftw-show-more" onclick="toggleShowMore('ftw')">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    Tampilkan {{ $fitToWorkVendor->count() - 3 }} data lainnya
+                </button>
+                @endif
             </div>
 
             @else
@@ -1252,7 +1325,6 @@
                 <div class="footer-text">
                     PT PLN Nusantara Power<br>
                     Unit Pembangkitan Sengkang<br>
-                    {{-- Link Google Maps --}}
                     <a href="https://www.google.com/maps/search/?api=1&query=PT+PLN+Nusantara+Power+Unit+Pembangkitan+Sengkang,+Jalan+PLTGU+Sengkang,+Desa+Patila,+Kecamatan+Pammana,+Kabupaten+Wajo,+90971"
                        target="_blank"
                        rel="noopener noreferrer"
@@ -1274,7 +1346,6 @@
                 <div class="footer-text">
                     Hubungi Tim K3 segera jika terjadi insiden atau keadaan darurat.<br><br>
 
-                    {{-- Link Email --}}
                     <strong style="color:#fbbf24">Email</strong> :
                     <a href="mailto:upsengkangk@gmail.com"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
@@ -1282,7 +1353,6 @@
                        upsengkangk@gmail.com
                     </a><br>
 
-                    {{-- Link Telepon --}}
                     <strong style="color:#fbbf24">Telp</strong> :
                     <a href="tel:+6283878001602"
                        class="hover:text-[#FFC72C] transition-colors duration-200"
@@ -1464,55 +1534,12 @@
             }
         }
 
-        // ── Vendor Popup Logic ──
-        function openVendorPopup(data) {
-            const badge = data.type === 'wpo' ? 'Vendor WPO PLUS' : 'Registrasi Gate Access';
-            document.getElementById('popup-type-badge').textContent = badge;
-            document.getElementById('popup-nama').textContent       = data.nama;
-            document.getElementById('popup-pekerjaan').textContent  = data.pekerjaan;
-            document.getElementById('popup-mulai').textContent      = data.tanggal_mulai;
-            document.getElementById('popup-selesai').textContent    = data.tanggal_selesai;
-
-            const list     = document.getElementById('popup-pekerja-list');
-            const empty    = document.getElementById('popup-empty');
-            const jmlBadge = document.getElementById('popup-jumlah');
-
-            if (data.pekerjas && data.pekerjas.length > 0) {
-                jmlBadge.textContent = data.pekerjas.length;
-                empty.classList.add('hidden');
-                list.classList.remove('hidden');
-                list.innerHTML = data.pekerjas.map((p, i) => {
-                    return `<div class="grid grid-cols-12 gap-0 text-sm ${i%2===1?'bg-gray-50':'bg-white'}">
-                        <div class="col-span-1 px-3 py-2.5 text-center text-gray-500 font-medium">${i+1}.</div>
-                        <div class="col-span-5 px-3 py-2.5 font-medium text-gray-800">${p.nama}</div>
-                    </div>`;
-                }).join('');
-            } else {
-                jmlBadge.textContent = '0';
-                list.innerHTML = '';
-                empty.classList.remove('hidden');
-            }
-
-            if (data.kontak) {
-                document.getElementById('popup-kontak').textContent = data.kontak;
-                document.getElementById('popup-kontak-wrap').classList.remove('hidden');
-            } else {
-                document.getElementById('popup-kontak-wrap').classList.add('hidden');
-            }
-
-            document.getElementById('vendor-popup').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeVendorPopup() {
-            document.getElementById('vendor-popup').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        // ── Vendor Carousel Logic ──
+        // ── Vendor & Fit To Work Carousel Logic ──
+        // Kita gabungkan logikanya ke satu objek state agar ringan
         const vendorState = {
             wpo:  { current: 0, total: 0, perPage: 3 },
             gate: { current: 0, total: 0, perPage: 3 },
+            ftw:  { current: 0, total: 0, perPage: 3 }, // <--- Fit To Work ditambahkan
         };
 
         function getPerPage() {
@@ -1527,6 +1554,7 @@
             return 4;
         }
 
+        // Script ini menangani WPO, Gate, dan FTW secara bersamaan
         function initVendorCarousel(id) {
             const track = document.getElementById(id + '-swiper-track');
             if (!track) return;
@@ -1605,17 +1633,21 @@
             renderVendorCarousel(id);
         }
 
+        // Tampilkan Lebih Banyak (Mobile) - Bisa untuk Vendor & FTW
         function toggleShowMore(id) {
             const grid   = document.getElementById(id + '-mobile-grid');
             const btn    = document.getElementById(id + '-show-more');
             const hidden = grid.querySelectorAll('.vendor-card-hidden');
             const isExpanded = btn.classList.contains('expanded');
 
+            // Pembeda kata khusus agar lebih natural
+            let textData = id === 'ftw' ? 'data' : 'vendor';
+
             if (isExpanded) {
                 hidden.forEach(c => c.style.display = 'none');
                 btn.classList.remove('expanded');
                 const count = grid.querySelectorAll('.vendor-card').length - 3;
-                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Tampilkan ${count} vendor lainnya`;
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg> Tampilkan ${count} ${textData} lainnya`;
             } else {
                 hidden.forEach(c => c.style.display = 'block');
                 btn.classList.add('expanded');
@@ -1638,7 +1670,7 @@
         function renderArtikelCarousel() {
             const track = document.getElementById('artikel-swiper-track');
             if (!track) return;
-            const perPage = getArtikelPerPage();   // ← ubah ini
+            const perPage = getArtikelPerPage();
             artikelState.perPage = perPage;
 
             const maxIndex = Math.max(0, artikelState.total - perPage);
@@ -1719,11 +1751,12 @@
         window.addEventListener('load', () => {
             initVendorCarousel('wpo');
             initVendorCarousel('gate');
+            initVendorCarousel('ftw'); // <--- Init untuk Fit To Work Carousel
             initArtikelCarousel();
         });
 
         window.addEventListener('resize', () => {
-            ['wpo', 'gate'].forEach(id => {
+            ['wpo', 'gate', 'ftw'].forEach(id => {
                 buildDots(id);
                 renderVendorCarousel(id);
             });
@@ -1731,7 +1764,52 @@
             renderArtikelCarousel();
         });
 
-        // ── Fit to Work Popup ──
+        // ── Vendor Popup Logic ──
+        function openVendorPopup(data) {
+            const badge = data.type === 'wpo' ? 'Vendor WPO PLUS' : 'Registrasi Gate Access';
+            document.getElementById('popup-type-badge').textContent = badge;
+            document.getElementById('popup-nama').textContent       = data.nama;
+            document.getElementById('popup-pekerjaan').textContent  = data.pekerjaan;
+            document.getElementById('popup-mulai').textContent      = data.tanggal_mulai;
+            document.getElementById('popup-selesai').textContent    = data.tanggal_selesai;
+
+            const list     = document.getElementById('popup-pekerja-list');
+            const empty    = document.getElementById('popup-empty');
+            const jmlBadge = document.getElementById('popup-jumlah');
+
+            if (data.pekerjas && data.pekerjas.length > 0) {
+                jmlBadge.textContent = data.pekerjas.length;
+                empty.classList.add('hidden');
+                list.classList.remove('hidden');
+                list.innerHTML = data.pekerjas.map((p, i) => {
+                    return `<div class="grid grid-cols-12 gap-0 text-sm ${i%2===1?'bg-gray-50':'bg-white'}">
+                        <div class="col-span-1 px-3 py-2.5 text-center text-gray-500 font-medium">${i+1}.</div>
+                        <div class="col-span-5 px-3 py-2.5 font-medium text-gray-800">${p.nama}</div>
+                    </div>`;
+                }).join('');
+            } else {
+                jmlBadge.textContent = '0';
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+            }
+
+            if (data.kontak) {
+                document.getElementById('popup-kontak').textContent = data.kontak;
+                document.getElementById('popup-kontak-wrap').classList.remove('hidden');
+            } else {
+                document.getElementById('popup-kontak-wrap').classList.add('hidden');
+            }
+
+            document.getElementById('vendor-popup').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVendorPopup() {
+            document.getElementById('vendor-popup').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // ── Fit to Work Popup Logic ──
         function openFtwPopup(data) {
             document.getElementById('ftw-popup-nama').textContent     = data.nama;
             document.getElementById('ftw-popup-pekerjaan').textContent = data.pekerjaan;
