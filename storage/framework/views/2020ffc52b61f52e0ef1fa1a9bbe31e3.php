@@ -522,12 +522,7 @@
             </div>
             <div class="stat-box">
                 
-                <?php
-                    $totalVendorWpo = \App\Models\CmsVendor::where('is_active', true)->count();
-                    $totalVendorGate = \App\Models\VendorRegistrasi::aktifDanBerlaku()->count();
-                    $totalSemuaVendor = $totalVendorWpo + $totalVendorGate;
-                ?>
-                <div class="stat-number"><?php echo e($totalSemuaVendor); ?></div>
+                <div class="stat-number"><?php echo e(\App\Models\CmsVendor::where('is_active', true)->count()); ?></div>
                 <div class="stat-label">Vendor Aktif</div>
             </div>
         </div>

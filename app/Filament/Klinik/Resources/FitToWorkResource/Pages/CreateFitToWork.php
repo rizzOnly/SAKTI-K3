@@ -9,4 +9,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFitToWork extends CreateRecord
 {
     protected static string $resource = FitToWorkResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
+
+

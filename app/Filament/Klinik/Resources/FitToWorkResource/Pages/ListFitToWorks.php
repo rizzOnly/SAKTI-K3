@@ -111,7 +111,10 @@ class ListFitToWorks extends ListRecords
                     return response()->stream($callback, 200, $headers);
                 }),
 
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Tambah Fit To Work')
+                ->color('primary')
+                ->icon('heroicon-o-plus-circle'),
         ];
     }
 }

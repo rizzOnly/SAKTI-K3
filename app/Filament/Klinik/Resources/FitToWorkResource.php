@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Filament\Klinik\Resources;
 
 use App\Models\FitToWork;
 use App\Models\FitToWorkPekerja;
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Forms\Components\{Section, TextInput, Textarea, DatePicker, Select, Repeater, Grid};
 use Filament\Tables\Columns\{TextColumn};
-use Filament\Tables\Actions\{EditAction, ViewAction};
+use Filament\Tables\Actions\{EditAction, ViewAction, DeleteAction};
 use Filament\Tables\Filters\SelectFilter;
-
 class FitToWorkResource extends Resource
 {
     protected static ?string $model           = FitToWork::class;
@@ -21,18 +22,39 @@ class FitToWorkResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Section::make('Informasi Submission')->schema([
+            Section::make('Informasi Pekerjaan / Vendor')->schema([
                 Grid::make(2)->schema([
-                    TextInput::make('nama_perusahaan')->label('Perusahaan')->disabled(),
-                    TextInput::make('tipe')->label('Tipe')->disabled(),
-                    TextInput::make('nama_pekerjaan')->label('Pekerjaan')->disabled()->columnSpan(2),
-                    TextInput::make('tanggal_mulai')->label('Tgl Mulai')->disabled(),
-                    TextInput::make('tanggal_selesai')->label('Tgl Selesai')->disabled(),
+                    Select::make('tipe')
+                        ->label('Tipe')
+                        ->options([
+                            'internal' => 'Internal PLN',
+                            'vendor'   => 'Vendor / Kontraktor',
+                        ])
+                        ->required()
+                        ->default('internal'),
+
+                    TextInput::make('nama_perusahaan')
+                        ->label('Nama Perusahaan')
+                        ->placeholder('Contoh: PT K3 Maju (Kosongkan jika Internal)')
+                        ->nullable(),
+
+                    TextInput::make('nama_pekerjaan')
+                        ->label('Pekerjaan')
+                        ->required()
+                        ->columnSpan(2),
+
+                    DatePicker::make('tanggal_mulai')
+                        ->label('Tgl Mulai')
+                        ->required(),
+
+                    DatePicker::make('tanggal_selesai')
+                        ->label('Tgl Selesai')
+                        ->required(),
                 ]),
             ]),
 
             Section::make('Hasil Pemeriksaan Per Pekerja')
-                ->description('Isi hasil pemeriksaan untuk setiap pekerja secara individual.')
+                ->description('Tambahkan pekerja dan isi hasil pemeriksaan secara individual.')
                 ->schema([
                     Repeater::make('pekerjas')
                         ->relationship()
@@ -41,12 +63,15 @@ class FitToWorkResource extends Resource
                             Grid::make(2)->schema([
                                 TextInput::make('nama')
                                     ->label('Nama Pekerja')
-                                    ->disabled(),
+                                    ->required(),
 
-                                TextInput::make('jenis_kelamin')
+                                Select::make('jenis_kelamin')
                                     ->label('Jenis Kelamin')
-                                    ->disabled()
-                                    ->formatStateUsing(fn($state) => $state === 'L' ? 'Laki-laki' : 'Perempuan'),
+                                    ->options([
+                                        'L' => 'Laki-laki',
+                                        'P' => 'Perempuan',
+                                    ])
+                                    ->required(),
                             ]),
 
                             Grid::make(2)->schema([
@@ -57,6 +82,7 @@ class FitToWorkResource extends Resource
                                         'fit'       => '✅ Fit to Work',
                                         'tidak_fit' => '❌ Tidak Fit',
                                     ])
+                                    ->default('menunggu')
                                     ->required(),
 
                                 DatePicker::make('tanggal_periksa')
@@ -65,27 +91,36 @@ class FitToWorkResource extends Resource
                             ]),
 
                             Grid::make(2)->schema([
-                                TextInput::make('dokter_nama')
+                                // ── PERBAIKAN DROPDOWN NAMA DOKTER ──
+                                Select::make('dokter_nama')
                                     ->label('Nama Dokter')
-                                    ->default(fn() => auth()->user()?->name),
+                                    ->options(function () {
+                                        return User::role('dokter')->pluck('name', 'name');
+                                    })
+                                    ->searchable()
+                                    ->default(function () {
+                                        $user = auth()->user();
+                                        if ($user && $user->hasRole('dokter')) {
+                                            return $user->name;
+                                        }
+                                        return null;
+                                    }),
 
                                 Textarea::make('catatan_dokter')
                                     ->label('Catatan')
                                     ->rows(2),
                             ]),
                         ])
-                        ->addable(false)
-                        ->deletable(false)
-                        ->reorderable(false)
+                        ->addActionLabel('+ Tambah Pekerja')
+                        ->collapsible()
                         ->itemLabel(fn(array $state): string =>
-                            ($state['nama'] ?? 'Pekerja') .
+                            ($state['nama'] ?? 'Pekerja Baru') .
                             match($state['status'] ?? 'menunggu') {
                                 'fit'       => ' ✅',
                                 'tidak_fit' => ' ❌',
                                 default     => ' ⏳',
                             }
-                        )
-                        ->collapsible(),
+                        ),
                 ]),
         ]);
     }
@@ -124,7 +159,7 @@ class FitToWorkResource extends Resource
                     )
                     ->badge()
                     ->color(fn($record) =>
-                        $record->pekerjas()->where('status', 'menunggu')->count() === 0
+                        $record->pekerjas()->count() > 0 && $record->pekerjas()->where('status', 'menunggu')->count() === 0
                             ? 'success' : 'warning'
                     ),
 
@@ -139,15 +174,17 @@ class FitToWorkResource extends Resource
                 ]),
             ])
             ->actions([
-                EditAction::make()->label('Periksa Pekerja'),
+                EditAction::make()->label('Edit / Periksa'),
+                DeleteAction::make(),
             ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Klinik\Resources\FitToWorkResource\Pages\ListFitToWorks::route('/'),
-            'edit'  => \App\Filament\Klinik\Resources\FitToWorkResource\Pages\EditFitToWork::route('/{record}/edit'),
+            'index'  => \App\Filament\Klinik\Resources\FitToWorkResource\Pages\ListFitToWorks::route('/'),
+            'create' => \App\Filament\Klinik\Resources\FitToWorkResource\Pages\CreateFitToWork::route('/create'),
+            'edit'   => \App\Filament\Klinik\Resources\FitToWorkResource\Pages\EditFitToWork::route('/{record}/edit'),
         ];
     }
 }
